@@ -301,6 +301,7 @@ for file_url in csv_files:
 
 # convert the results to a DataFrame and save them as a CSV file
 benchmark_df = pd.DataFrame(results)
+benchmark_df["SLURM_ARRAY_TASK_ID"] = "\${SLURM_ARRAY_TASK_ID:-notid}"
 
 outpath = "a=result+what=benchmark+ext=.csv"
 print(f"writing {outpath}")
