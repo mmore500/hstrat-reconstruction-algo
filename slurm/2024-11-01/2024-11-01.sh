@@ -302,7 +302,7 @@ for file_url in csv_files:
 # convert the results to a DataFrame and save them as a CSV file
 benchmark_df = pd.DataFrame(results)
 
-outpath = "benchmark_results.csv"
+outpath = "a=result+what=benchmark+ext=.csv"
 print(f"writing {outpath}")
 benchmark_df.to_csv(outpath, index=False)
 
