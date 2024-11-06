@@ -242,7 +242,7 @@ def load_csv(file_url):
     print("Columns in CSV:", df.columns)
     return df
 
-# Function to benchmark the `build_tree_trie` method
+# Function to benchmark the build_tree_trie method
 def benchmark_build_tree_trie(population, func_name, repetitions=10):
     records = []  # List to store benchmarking results
 
@@ -252,7 +252,7 @@ def benchmark_build_tree_trie(population, func_name, repetitions=10):
         start_real_time = time.perf_counter()
         start_cpu_time = time.process_time()
 
-        # Execute the `build_tree_trie` method with the given parameters
+        # Execute the build_tree_trie method with the given parameters
         tree = hstrat.build_tree_trie(
             population,
             force_common_ancestry=True  # Ensure common ancestry handling
@@ -293,7 +293,7 @@ for file_url in csv_files:
         column.DepositStrata(int(row['depth']))
         population.append(column)
 
-    # Benchmark `build_tree_trie` without any postprocessing
+    # Benchmark build_tree_trie without any postprocessing
     results += benchmark_build_tree_trie(
         population,
         func_name="build_tree_trie (no adjustment)"
