@@ -56,7 +56,7 @@ rm -rf "${BATCHDIR}"
 mkdir -p "${BATCHDIR}"
 echo "BATCHDIR ${BATCHDIR}"
 
-ln -sf "${BATCHDIR}" "${HOME}/scratch/${JOBPROJECT}/${JOBNAME}/latest"
+ln -sfn "${BATCHDIR}" "${HOME}/scratch/${JOBPROJECT}/${JOBNAME}/latest"
 
 BATCHDIR_JOBLOG="${BATCHDIR}/joblog"
 echo "BATCHDIR_JOBLOG ${BATCHDIR_JOBLOG}"
@@ -129,8 +129,8 @@ shopt -s globstar
 handlefail() {
     echo ">>>error<<<" || :
     awk 'NR>L-4 && NR<L+4 { printf "%-5d%3s%s\n",NR,(NR==L?">>>":""),\$0 }' L=\$1 \$0 || :
-    ln -sf "\${JOBSCRIPT}" "\${HOME}/joblatest/jobscript.failed" || :
-    ln -sf "\${JOBLOG}" "\${HOME}/joblatest/joblog.failed" || :
+    ln -sfn "\${JOBSCRIPT}" "\${HOME}/joblatest/jobscript.failed" || :
+    ln -sfn "\${JOBLOG}" "\${HOME}/joblatest/joblog.failed" || :
     $(which scontrol || which echo) requeuehold "${SLURM_JOBID:-nojid}"
 }
 trap 'handlefail $LINENO' ERR
@@ -146,14 +146,14 @@ echo "JOBSCRIPT \${JOBSCRIPT}"
 cp "\${0}" "\${JOBSCRIPT}"
 chmod +x "\${JOBSCRIPT}"
 cp "\${JOBSCRIPT}" "${BATCHDIR_JOBSCRIPT}/\${SLURM_JOB_ID:-nojid}"
-ln -sf "\${JOBSCRIPT}" "${HOME}/joblatest/jobscript.launched"
+ln -sfn "\${JOBSCRIPT}" "${HOME}/joblatest/jobscript.launched"
 
 echo "cc job log -------------------------------------------------- \${SECONDS}"
 JOBLOG="\${HOME}/joblog/\${SLURM_JOB_ID:-nojid}"
 echo "JOBLOG \${JOBLOG}"
 touch "\${JOBLOG}"
-ln -sf "\${JOBLOG}" "${BATCHDIR_JOBLOG}/\${SLURM_JOB_ID:-nojid}"
-ln -sf "\${JOBLOG}" "\${HOME}/joblatest/joblog.launched"
+ln -sfn "\${JOBLOG}" "${BATCHDIR_JOBLOG}/\${SLURM_JOB_ID:-nojid}"
+ln -sfn "\${JOBLOG}" "\${HOME}/joblatest/joblog.launched"
 
 echo "setup JOBDIR ------------------------------------------------ \${SECONDS}"
 JOBDIR="${BATCHDIR}/__\${SLURM_ARRAY_TASK_ID:-\${SLURM_JOB_ID:-\${RANDOM}}}"
@@ -253,8 +253,8 @@ EOF_
 echo "finalization telemetry -------------------------------------- \${SECONDS}"
 ls -l \${JOBDIR}
 du -h \${JOBDIR}
-ln -sf "\${JOBSCRIPT}" "${HOME}/joblatest/jobscript.finished"
-ln -sf "\${JOBLOG}" "${HOME}/joblatest/joblog.finished"
+ln -sfn "\${JOBSCRIPT}" "${HOME}/joblatest/jobscript.finished"
+ln -sfn "\${JOBLOG}" "${HOME}/joblatest/joblog.finished"
 echo "SECONDS \${SECONDS}"
 echo '>>>complete<<<'
 
@@ -335,9 +335,9 @@ cd
 ls -l "${BATCHDIR}"
 
 echo "finalization telemetry -------------------------------------- \${SECONDS}"
-ln -sf "\${JOBSCRIPT}" "\${HOME}/joblatest/jobscript.completed"
-ln -sf "\${JOBLOG}" "\${HOME}/joblatest/joblog.completed"
-ln -sf "${BATCHDIR_JOBRESULT}" "\${HOME}/joblatest/jobresult.completed"
+ln -sfn "\${JOBSCRIPT}" "\${HOME}/joblatest/jobscript.completed"
+ln -sfn "\${JOBLOG}" "\${HOME}/joblatest/joblog.completed"
+ln -sfn "${BATCHDIR_JOBRESULT}" "\${HOME}/joblatest/jobresult.completed"
 echo "SECONDS \${SECONDS}"
 echo '>>>complete<<<'
 
