@@ -108,7 +108,7 @@ for attempt in {1..5}; do
         'tqdm==4.*' \
         'multiprocess==0.70.12.2' \
         'cppimport==21.*' \
-        'hstrat==0.13.1' \
+        'hstrat==1.13.1' \
     && git clone "${HSTRAT_REMOTE_URL}" "${BATCHDIR}/hstrat" \
     && python3.10 -m uv pip install -e "${BATCHDIR}/hstrat" \
     && break || echo "pip install attempt ${attempt} failed"
