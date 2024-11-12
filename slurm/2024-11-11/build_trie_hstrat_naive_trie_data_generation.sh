@@ -227,7 +227,6 @@ source "${BATCHDIR_ENV}/bin/activate"
 python3 << EOF_
 import pandas as pd
 import time
-from hstrat import hstrat
 
 # List of CSV files containing sample trees, pulled from GitHub
 csv_files = [
