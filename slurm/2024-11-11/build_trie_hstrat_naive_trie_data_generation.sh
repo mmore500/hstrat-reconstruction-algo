@@ -14,7 +14,7 @@ echo "JOBNAME ${JOBNAME}"
 JOBPROJECT="$(basename -s .git "$(git remote get-url origin)")"
 echo "JOBPROJECT ${JOBPROJECT}"
 
-HSTRAT_REMOTE_URL="https://github.com/mmore500/hstrat-reconstruction-algo"
+HSTRAT_REMOTE_URL="https://github.com/mmore500/hstrat-reconstruction-algo.git"
 echo "HSTRAT_REMOTE_URL ${HSTRAT_REMOTE_URL}"
 
 SOURCE_REVISION="$(git rev-parse HEAD)"
@@ -106,9 +106,10 @@ for attempt in {1..5}; do
         'pyarrow==15.*' \
         'scipy==1.*' \
         'tqdm==4.*' \
-        "git+${HSTRAT_REMOTE_URL}@main" \
         'multiprocess==0.70.12.2' \
         'cppimport==21.*' \
+    && git clone "${HSTRAT_REMOTE_URL}" "${BATCHDIR}/hstrat" \
+    && python3.10 -m uv pip install -e "${BATCHDIR}/hstrat" \
     && break || echo "pip install attempt ${attempt} failed"
     if [ ${attempt} -eq 3 ]; then
         echo "pip install failed"
@@ -119,6 +120,8 @@ done
 echo "setup dependencies ========================================== \${SECONDS}"
 source "${BATCHDIR_ENV}/bin/activate"
 python3.10 -m uv pip freeze
+
+
 
 echo "sbatch preamble ========================================================="
 JOB_PREAMBLE=$(cat << EOF
@@ -136,6 +139,8 @@ handlefail() {
 trap 'handlefail $LINENO' ERR
 
 echo "initialization telemetry ------------------------------------ \${SECONDS}"
+echo "HSTRAT_REVISION ${HSTRAT_REVISION}"
+echo "SOURCE_REVISION ${SOURCE_REVISION}"
 echo "BATCHDIR ${BATCHDIR}"
 
 echo "cc SLURM script --------------------------------------------- \${SECONDS}"
