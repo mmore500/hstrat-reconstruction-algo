@@ -197,7 +197,7 @@ echo "SBATCH_FILE ${SBATCH_FILE}"
 NTASKS=8
 cat > "${SBATCH_FILE}" << EOF
 #!/bin/bash
-#SBATCH --nnodes=1
+#SBATCH --nodes=1
 #SBATCH --ntasks=${NTASKS}
 #SBATCH --cpus-per-task=1
 #SBATCH --mem=64G
