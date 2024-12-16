@@ -194,11 +194,13 @@ echo "SBATCH_FILE ${SBATCH_FILE}"
 ###############################################################################
 # WORK ---------------------------------------------------------------------- #
 ###############################################################################
+NTASKS=8
 cat > "${SBATCH_FILE}" << EOF
 #!/bin/bash
-#SBATCH --ntasks=1
+#SBATCH --nnodes=1
+#SBATCH --ntasks=${NTASKS}
 #SBATCH --cpus-per-task=1
-#SBATCH --mem=16G
+#SBATCH --mem=64G
 #SBATCH --time=4:00:00
 #SBATCH --constraint=amr
 #SBATCH --output="/mnt/home/%u/joblog/%j"
@@ -206,6 +208,7 @@ cat > "${SBATCH_FILE}" << EOF
 #SBATCH --mail-type=FAIL,TIME_LIMIT
 #SBATCH --requeue
 #SBATCH --array=0-5
+#SBATCH --account=BEACON
 
 ${JOB_PREAMBLE}
 
@@ -223,13 +226,15 @@ git clone https://github.com/mmore500/hstrat.git
 cd hstrat
 git checkout v1.14.1
 cd ..
-singularity exec --bind /usr/bin/git:/usr/bin/git,/usr/bin/wget:/usr/bin/wget docker://ghcr.io/mmore500/hstrat python3 -m venv senv
-singularity exec --bind /usr/bin/git:/usr/bin/git,/usr/bin/wget:/usr/bin/wget docker://ghcr.io/mmore500/hstrat senv/bin/python3 -m pip install "./hstrat[jit]"
+container="docker://ghcr.io/mmore500/hstrat:v1.14.1"
+echo "container \${container}"
+singularity exec --bind /usr/bin/git:/usr/bin/git,/usr/bin/wget:/usr/bin/wget \${container} python3 -m venv senv
+singularity exec --bind /usr/bin/git:/usr/bin/git,/usr/bin/wget:/usr/bin/wget \${container} senv/bin/python3 -m pip install "./hstrat[jit]"
 wget -O osf-hm5wa.pqt https://osf.io/hm5wa/download
-singularity exec --bind /usr/bin/git:/usr/bin/git,/usr/bin/wget:/usr/bin/wget docker://ghcr.io/mmore500/hstrat senv/bin/python3 -m pip install "pyarrow"
+singularity exec --bind /usr/bin/git:/usr/bin/git,/usr/bin/wget:/usr/bin/wget \${container} senv/bin/python3 -m pip install "pyarrow"
 
 echo "do work ----------------------------------------------------- \${SECONDS}"
-singularity exec --bind /usr/bin/git:/usr/bin/git,/usr/bin/wget:/usr/bin/wget docker://ghcr.io/mmore500/hstrat senv/bin/python3 - << EOF_
+singularity exec --bind /usr/bin/git:/usr/bin/git,/usr/bin/wget:/usr/bin/wget \${container} senv/bin/python3 - << EOF_
 
 from hstrat.dataframe._surface_unpack_reconstruct import surface_unpack_reconstruct
 import itertools as it
@@ -259,7 +264,7 @@ replicates = it.product(
     ["foo", "bar", "baz"],
     range(int(1e6)),
 )
-treatment, replicate = next(it.islice(replicates, ${SLURM_ARRAY_TASK_ID:-0}, None))
+treatment, replicate = next(it.islice(replicates, \${SLURM_ARRAY_TASK_ID:-0}, None))
 print(f"{treatment=} {replicate=}")
 
 records = []
@@ -279,6 +284,9 @@ def measure_execution_time(head_count: int):
     records.append({"Head Count": head_count, "Unit": "CPU Seconds", "Time": cpuTime})
     records.append({"Head Count": head_count, "Unit": "Real Seconds", "Time": realTime})
 
+# warmup jit compile cashe
+measure_execution_time(5)
+records.clear()
 # different head counts
 for head_count in [100, 10000, 1000000]:
     measure_execution_time(head_count)
@@ -287,6 +295,7 @@ for head_count in [100, 10000, 1000000]:
 df_records = pd.DataFrame.from_records(records)
 df_records["replicate"] = replicate
 df_records["treatment"] = treatment
+df_records["NTASKS"] = ${NTASKS}
 
 print(df_records.describe())
 print(df_records.head())
