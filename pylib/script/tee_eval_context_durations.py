@@ -22,11 +22,11 @@ def parse_args() -> argparse.Namespace:
         help="Output file path.",
     )
     parser.add_argument(
-        "--with-col",
-        type=list,
+        "--with-column",
         action="append",
         default=[],
-        help="Additional columns for data file.",
+        dest="with_columns",
+        type=str,
     )
     return parser.parse_args()
 
@@ -59,7 +59,7 @@ def main() -> None:
             "duration (s)": float,
         },
     ).with_columns(
-        *(eval(col) for col in args.with_col),
+        *(eval(col) for col in args.with_columns),
     ).with_columns(
         cpu_count=pl.lit(multiprocessing.cpu_count()),
         date=pl.lit(datetime.datetime.now().isoformat()),
