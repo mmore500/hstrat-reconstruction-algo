@@ -260,7 +260,7 @@ echo "reconst_outpath \${reconst_outpath}"
 
 if [ -f "\${phylo_source_path}" ]; then
     echo "phylo_source_path exists, copying into place"
-    ls -l "\${genomes_source_path}"
+    ls -l "\${phylo_source_path}"
     cp "\${phylo_source_path}" "\${genomes_inpath}"
     ls -l "\${genomes_inpath}"
 else
