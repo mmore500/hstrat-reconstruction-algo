@@ -297,7 +297,7 @@ echo "/local/\$(basename "\${genomes_inpath}")" \
         2>&1 \
     | python3.8 -m pylib.script.tee_eval_context_durations \
         -o "\${JOBDIR}/a=result+ext=.csv" \
-        --with-column "pl.lit("\${phylo_source_path").alias("phylo_source_path")" \
+        --with-column "pl.lit('\${phylo_source_path}').alias('phylo_source_path')" \
         --with-column "pl.lit('${SOURCE_REVISION}').alias('revision')" \
         --with-column 'pl.lit(64).alias("dstream_S")' \
         --with-column 'pl.lit(1).alias("dstream_value_bitwidth")' \
