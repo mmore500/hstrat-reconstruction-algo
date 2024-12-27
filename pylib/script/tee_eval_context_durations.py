@@ -31,6 +31,12 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
+def remove_prefix(s: str, prefix: str) -> str:
+    if s.startswith(prefix):
+        return s[len(prefix):]
+    return s
+
+
 def tee_lines() -> typing.List[str]:
     lines = []
     for line in sys.stdin:
@@ -47,7 +53,7 @@ def main() -> None:
         k: v
         for line in lines
         if line.startswith("!!!")
-        for k, v in eval(line.strip().removeprefix("!!!")).items()
+        for k, v in eval(remove_prefix(line.strip(), "!!!")).items()
     }
     timing_results = pl.DataFrame(
         {
