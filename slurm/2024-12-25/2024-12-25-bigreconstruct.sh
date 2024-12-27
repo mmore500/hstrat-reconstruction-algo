@@ -293,6 +293,7 @@ echo "/local/\$(basename "\${genomes_inpath}")" \
         --head "\${num_tips}" \
         --drop "genomeFlavor" \
         --drop "is_extant" \
+        2>&1 \
     | python3.8 -m pylib.script.tee_eval_context_durations \
         -o "\${JOBDIR}/a=result+ext=.csv" \
         --with-column 'pl.lit("\${phylo_source_path").alias("phylo_source_path")' \
