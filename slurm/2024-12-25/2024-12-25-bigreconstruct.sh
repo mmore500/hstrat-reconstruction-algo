@@ -358,12 +358,12 @@ ls -1 "${BATCHDIR}"/__*/**/a=result+* \
 ls -l "${BATCHDIR_JOBRESULT}"
 du -h "${BATCHDIR_JOBRESULT}"
 
-echo "   - archive job dir"
-pushd "${BATCHDIR}/.."
-    tar czvf \
-    "${BATCHDIR_JOBRESULT}/a=jobarchive+date=${JOBDATE}+job=${JOBNAME}+ext=.tar.gz" \
-    "$(basename "${BATCHDIR}")"/__*
-popd
+echo "   - SKIP archive job dir"
+# pushd "${BATCHDIR}/.."
+#     tar czvf \
+#     "${BATCHDIR_JOBRESULT}/a=jobarchive+date=${JOBDATE}+job=${JOBNAME}+ext=.tar.gz" \
+#     "$(basename "${BATCHDIR}")"/__*
+# popd
 
 echo "   - archive joblog"
 pushd "${BATCHDIR}"
