@@ -62,11 +62,10 @@ def main() -> None:
             "what": timing_records.keys(),
             "duration (s)": timing_records.values(),
         },
-        schema={
+        schema_overrides={
             "what": str,
             "duration (s)": float,
         },
-        strict=False,
     ).with_columns(
         *(eval(col) for col in args.with_columns),
     ).with_columns(
