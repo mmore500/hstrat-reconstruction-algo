@@ -167,6 +167,27 @@ jobs:
   slurm:
     runs-on: ubuntu-22.04
     steps:
+      - name: Set up Apptainer
+        uses: nick-fields/retry@v3
+        with:
+          timeout_minutes: 15
+          max_attempts: 3
+          command: |
+            sudo apt-get update
+            sudo apt-get install -y rpm2cpio
+            sudo apt-get install -y golang-go
+            mkdir -p ~/apptainer
+            # echo 'export PATH="$HOME/apptainer/bin:$PATH"' >> ~/.bashrc
+            echo "$HOME/apptainer/bin" >> $GITHUB_PATH
+            curl -s https://raw.githubusercontent.com/apptainer/apptainer/03bb84afc90c9699816db2e2730b56f2d3501eff/tools/install-unprivileged.sh | bash -s - ~/apptainer
+      - name: Test Apptainer
+        uses: nick-fields/retry@v3
+        with:
+          timeout_minutes: 15
+          max_attempts: 3
+          command: |
+            apptainer --version
+            sudo "$(which apptainer)" exec docker://busybox:latest echo "Hello from Singularity and Docker!"
       - name: Checkout code
         uses: actions/checkout@v3
       - name: Set up Python 3.8
@@ -185,5 +206,5 @@ jobs:
         run: |
           for script in $(find slurm -name "*.sh"); do
             echo "${script}"
-            ./${script}
+            sudo -E env PATH=$PATH ./${script}
           done
