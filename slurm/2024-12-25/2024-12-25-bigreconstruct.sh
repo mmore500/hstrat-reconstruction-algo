@@ -244,8 +244,8 @@ MYLOCAL="\${LOCAL:-.}/\$(uuidgen)"
 echo "MYLOCAL \${MYLOCAL}"
 mkdir -p "\$MYLOCAL"
 
-export APPTAINER_BINDPATH="${MYLOCAL}:/local:rw"
-export SINGULARITY_BINDPATH="${MYLOCAL}:/local:rw"
+export APPTAINER_BINDPATH="\$(realpath \${MYLOCAL}):/local:rw"
+export SINGULARITY_BINDPATH="\$(realpath \${MYLOCAL}):/local:rw"
 
 genomes_inpath="\${MYLOCAL}/genomes.pqt"
 reconst_outpath="\${MYLOCAL}/reconst.pqt"
