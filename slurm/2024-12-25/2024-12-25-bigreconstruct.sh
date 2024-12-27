@@ -275,7 +275,7 @@ fi
 
 du -h "\${genomes_inpath}"
 
-container="docker://ghcr.io/mmore500/hstrat:v1.14.2"
+container="docker://ghcr.io/mmore500/hstrat:v1.14.3"
 echo "container \${container}"
 
 echo "do work ----------------------------------------------------- \${SECONDS}"
