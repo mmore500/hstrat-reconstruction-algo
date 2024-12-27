@@ -14,7 +14,7 @@ echo "JOBNAME ${JOBNAME}"
 JOBPROJECT="$(basename -s .git "$(git remote get-url origin)")"
 echo "JOBPROJECT ${JOBPROJECT}"
 
-SOURCE_REVISION="713f07ff7555bbbcabe313185e5b56c125ae5b11"
+SOURCE_REVISION="0c302e544893ceaf8cf2feebd3fdf58f661273e6"
 echo "SOURCE_REVISION ${SOURCE_REVISION}"
 SOURCE_REMOTE_URL="$(git config --get remote.origin.url)"
 echo "SOURCE_REMOTE_URL ${SOURCE_REMOTE_URL}"
@@ -359,6 +359,7 @@ ls -1 "${BATCHDIR}"/__*/**/a=result+* \
         "${BATCHDIR_JOBRESULT}/a=result+date=${JOBDATE}+job=${JOBNAME}+ext=.csv"
 ls -l "${BATCHDIR_JOBRESULT}"
 du -h "${BATCHDIR_JOBRESULT}"
+head "${BATCHDIR_JOBRESULT}/a=result+date=${JOBDATE}+job=${JOBNAME}+ext=.csv"
 
 echo "   - SKIP archive job dir"
 # pushd "${BATCHDIR}/.."
