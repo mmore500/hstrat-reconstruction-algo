@@ -350,13 +350,6 @@ echo "BATCHDIR ${BATCHDIR}"
 ls -l "${BATCHDIR}"
 
 echo "finalize ---------------------------------------------------- \${SECONDS}"
-echo "   - archive job dir"
-pushd "${BATCHDIR}/.."
-    tar czvf \
-    "${BATCHDIR_JOBRESULT}/a=jobarchive+date=${JOBDATE}+job=${JOBNAME}+ext=.tar.gz" \
-    "$(basename "${BATCHDIR}")"/__*
-popd
-
 echo "   - join result"
 ls -1 "${BATCHDIR}"/__*/**/a=result+* \
     | tee /dev/stderr \
@@ -364,6 +357,13 @@ ls -1 "${BATCHDIR}"/__*/**/a=result+* \
         "${BATCHDIR_JOBRESULT}/a=result+date=${JOBDATE}+job=${JOBNAME}+ext=.csv"
 ls -l "${BATCHDIR_JOBRESULT}"
 du -h "${BATCHDIR_JOBRESULT}"
+
+echo "   - archive job dir"
+pushd "${BATCHDIR}/.."
+    tar czvf \
+    "${BATCHDIR_JOBRESULT}/a=jobarchive+date=${JOBDATE}+job=${JOBNAME}+ext=.tar.gz" \
+    "$(basename "${BATCHDIR}")"/__*
+popd
 
 echo "   - archive joblog"
 pushd "${BATCHDIR}"
