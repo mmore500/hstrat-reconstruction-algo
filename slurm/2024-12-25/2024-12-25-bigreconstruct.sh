@@ -14,7 +14,7 @@ echo "JOBNAME ${JOBNAME}"
 JOBPROJECT="$(basename -s .git "$(git remote get-url origin)")"
 echo "JOBPROJECT ${JOBPROJECT}"
 
-SOURCE_REVISION="3a72c81c70d5874c0c0c6156a661ffd13ca3163f"
+SOURCE_REVISION="f9c054a01fd961b22731cde6fb22de84e23871d9"
 echo "SOURCE_REVISION ${SOURCE_REVISION}"
 SOURCE_REMOTE_URL="$(git config --get remote.origin.url)"
 echo "SOURCE_REMOTE_URL ${SOURCE_REMOTE_URL}"
