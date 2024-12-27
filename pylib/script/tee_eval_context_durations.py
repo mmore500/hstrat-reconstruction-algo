@@ -39,9 +39,11 @@ def remove_prefix(s: str, prefix: str) -> str:
 
 def tee_lines() -> typing.List[str]:
     lines = []
-    for line in sys.stdin:
+    # adapted from https://stackoverflow.com/a/45223675/17332200
+    for line in iter(sys.stdin.readline, ""):
         lines.append(line)
         sys.stdout.write(line)
+        sys.stdout.flush()
     return lines
 
 
