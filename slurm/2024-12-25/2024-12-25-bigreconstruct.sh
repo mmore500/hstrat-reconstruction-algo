@@ -27,6 +27,7 @@ echo "SLURM_JOB_ID ${SLURM_JOB_ID:-nojid}"
 echo "SLURM_ARRAY_TASK_ID ${SLURM_ARRAY_TASK_ID:-notid}"
 module purge || :
 module load python/3.8.6 || :
+module load Python/3.8.6-GCCcore-10.2.0 || :
 echo "python3.8 $(which python3.8)"
 echo "python3.8 --version $(python3.8 --version)"
 
@@ -162,6 +163,7 @@ echo "date \$(date)"
 echo "module setup ------------------------------------------------ \${SECONDS}"
 module purge || :
 module load python/3.8.6 || :
+module load Python/3.8.6-GCCcore-10.2.0 || :
 echo "python3.8 \$(which python3.8)"
 echo "python3.8 --version \$(python3.8 --version)"
 
