@@ -242,7 +242,7 @@ echo "configure --------------------------------------------------- \${SECONDS}"
 echo "LOCAL \${LOCAL:-}"
 MYLOCAL="\${LOCAL:-.}/\$(uuidgen)"
 echo "MYLOCAL \${MYLOCAL}"
-mkdr -p "\$MYLOCAL"
+mkdir -p "\$MYLOCAL"
 
 export APPTAINER_BINDPATH="${MYLOCAL}:/local:rw"
 export SINGULARITY_BINDPATH="${MYLOCAL}:/local:rw"
