@@ -97,6 +97,7 @@ for attempt in {1..5}; do
     python3.8 -m pip install --upgrade \
         "${BATCHDIR_JOBSOURCE}" \
         "joinem==0.9.1" \
+        "polars==1.8.2" \
     && break || echo "pip install attempt ${attempt} failed"
     if [ ${attempt} -eq 3 ]; then
         echo "pip install failed"
