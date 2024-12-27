@@ -382,12 +382,13 @@ popd
 ls -l "${BATCHDIR}"
 
 echo "cleanup ----------------------------------------------------- \${SECONDS}"
-cd "${BATCHDIR}"
-for f in _*; do
-    echo "tar and rm \$f"
-    tar cf "\${f}.tar" -h "\${f}"
-    rm -rf "\${f}"
-done
+echo "skipping cleanup"
+# cd "${BATCHDIR}"
+# for f in _*; do
+#     echo "tar and rm \$f"
+#     tar cf "\${f}.tar" -h "\${f}"
+#     rm -rf "\${f}"
+# done
 cd
 ls -l "${BATCHDIR}"
 
