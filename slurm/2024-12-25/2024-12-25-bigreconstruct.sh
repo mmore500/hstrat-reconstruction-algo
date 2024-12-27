@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -login
 
 set -e
 
@@ -183,7 +183,7 @@ echo "SBATCH_FILE ${SBATCH_FILE}"
 # WORK ---------------------------------------------------------------------- #
 ###############################################################################
 cat > "${SBATCH_FILE}" << EOF
-#!/bin/bash
+#!/bin/bash -login
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=128
 #SBATCH --mem=996G
@@ -329,7 +329,7 @@ echo "SBATCH_FILE ${SBATCH_FILE}"
 # COLLATE ------------------------------------------------------------------- #
 ###############################################################################
 cat > "${SBATCH_FILE}" << EOF
-#!/bin/bash
+#!/bin/bash -login
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=1
 #SBATCH --mem=16G
