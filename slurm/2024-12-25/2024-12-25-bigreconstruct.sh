@@ -240,8 +240,12 @@ echo "num_tips \${num_tips}"
 
 echo "configure --------------------------------------------------- \${SECONDS}"
 echo "LOCAL \${LOCAL:-}"
-MYLOCAL="\${LOCAL:-.}"
+MYLOCAL="\${LOCAL:-.}/\$(uuidgen)"
 echo "MYLOCAL \${MYLOCAL}"
+mkdr -p "\$MYLOCAL"
+
+export APPTAINER_BINDPATH="${MYLOCAL}:/local:rw"
+export SINGULARITY_BINDPATH="${MYLOCAL}:/local:rw"
 
 genomes_inpath="\${MYLOCAL}/genomes.pqt"
 reconst_outpath="\${MYLOCAL}/reconst.pqt"
@@ -266,17 +270,17 @@ echo "container \${container}"
 
 echo "do work ----------------------------------------------------- \${SECONDS}"
 echo "warmup jit cache"
-ls -1 "\${genomes_inpath}" \
-    | singularity exec \${container} --bind "\${LOCAL}" \
+echo "/local/\$(basename "\${genomes_inpath}")" \
+    | singularity exec \${container} \
         python3 -O -m hstrat.dataframe.surface_unpack_reconstruct \
         "/tmp/\$(uuidgen).pqt" \
         --head 100
 
 echo "do reconstruction"
-ls -1 "\${genomes_inpath}" \
-    | singularity exec \${container} --bind "\${LOCAL}" \
+echo "/local/\$(basename "\${genomes_inpath}")" \
+    | singularity exec \${container} \
         python3 -O -m hstrat.dataframe.surface_unpack_reconstruct \
-        "\${reconst_outpath}" \
+        "/local/\$(basename "\${reconst_outpath}")" \
         --shrink-dtypes --eager-write \
         --write-kwarg 'compression="lz4"' \
         --head "\${num_tips}" \
