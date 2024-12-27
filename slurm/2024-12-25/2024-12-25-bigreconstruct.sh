@@ -241,6 +241,9 @@ eval "\${config}"
 echo "phylo_source_path \${phylo_source_path}"
 echo "num_tips \${num_tips}"
 
+phylo_source_path="\$(realpath \${phylo_source_path})"
+echo "phylo_source_path \${phylo_source_path}"
+
 echo "configure --------------------------------------------------- \${SECONDS}"
 echo "LOCAL \${LOCAL:-}"
 MYLOCAL="\${LOCAL:-.}/\$(uuidgen)"
@@ -255,7 +258,7 @@ reconst_outpath="\${MYLOCAL}/reconst.pqt"
 echo "genomes_inpath \${genomes_inpath}"
 echo "reconst_outpath \${reconst_outpath}"
 
-if [ -e "\${phylo_source_path}" ]; then
+if [ -f "\${phylo_source_path}" ]; then
     echo "phylo_source_path exists, copying into place"
     ls -l "\${genomes_source_path}"
     cp "\${phylo_source_path}" "\${genomes_inpath}"
