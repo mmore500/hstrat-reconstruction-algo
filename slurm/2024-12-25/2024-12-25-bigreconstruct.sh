@@ -241,7 +241,6 @@ eval "\${config}"
 echo "phylo_source_path \${phylo_source_path}"
 echo "num_tips \${num_tips}"
 
-phylo_source_path="\$(realpath \${phylo_source_path})"
 echo "phylo_source_path \${phylo_source_path}"
 
 echo "configure --------------------------------------------------- \${SECONDS}"
@@ -261,6 +260,8 @@ echo "reconst_outpath \${reconst_outpath}"
 
 if [ -f "\${phylo_source_path}" ]; then
     echo "phylo_source_path exists, copying into place"
+    phylo_source_path="\$(realpath \${phylo_source_path})"
+    echo "phylo_source_path \${phylo_source_path}"
     ls -l "\${phylo_source_path}"
     cp "\${phylo_source_path}" "\${genomes_inpath}"
     ls -l "\${genomes_inpath}"
