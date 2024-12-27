@@ -248,7 +248,7 @@ echo "LOCAL \${LOCAL:-}"
 echo "TMPDIR \${TMPDIR:-}"
 MYLOCAL="\${LOCAL:-\${TMPDIR:-.}}/\$(uuidgen)"
 echo "MYLOCAL \${MYLOCAL}"
-mkdir -p "\$MYLOCAL"
+mkdir -p "\${MYLOCAL}"
 
 export APPTAINER_BINDPATH="\$(realpath \${MYLOCAL}):/local:rw"
 export SINGULARITY_BINDPATH="\$(realpath \${MYLOCAL}):/local:rw"
@@ -298,12 +298,12 @@ echo "/local/\$(basename "\${genomes_inpath}")" \
     | python3.8 -m pylib.script.tee_eval_context_durations \
         -o "\${JOBDIR}/a=result+ext=.csv" \
         --with-column "pl.lit("\${phylo_source_path").alias("phylo_source_path")" \
-        --with-column "pl.lit(\'${SOURCE_REVISION}\').alias("revision")" \
+        --with-column "pl.lit('${SOURCE_REVISION}').alias('revision')" \
         --with-column 'pl.lit(64).alias("dstream_S")' \
         --with-column 'pl.lit(1).alias("dstream_value_bitwidth")' \
-        --with-column "pl.lit(\${num_tips}).alias("num_tips")" \
-        --with-column "pl.lit(\${SLURM_ARRAY_TASK_ID:-0}).alias("replicate")" \
-        --with-column "pl.lit(\'\${SLURM_JOB_ID}\').alias("SLURM_JOB_ID")"
+        --with-column "pl.lit(\${num_tips}).alias('num_tips')" \
+        --with-column "pl.lit(\${SLURM_ARRAY_TASK_ID:-0}).alias('replicate')" \
+        --with-column "pl.lit('\${SLURM_JOB_ID}').alias('SLURM_JOB_ID')"
 
 echo "cleanup"
 du -h "\${reconst_outpath}"
