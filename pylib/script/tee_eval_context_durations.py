@@ -60,7 +60,7 @@ def main() -> None:
     timing_results = pl.DataFrame(
         {
             "what": timing_records.keys(),
-            "duration (s)": timing_records.values(),
+            "duration (s)": [*map(float, timing_records.values())],
         },
         schema_overrides={
             "what": str,
