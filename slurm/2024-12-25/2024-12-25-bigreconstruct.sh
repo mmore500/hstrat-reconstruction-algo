@@ -14,7 +14,7 @@ echo "JOBNAME ${JOBNAME}"
 JOBPROJECT="$(basename -s .git "$(git remote get-url origin)")"
 echo "JOBPROJECT ${JOBPROJECT}"
 
-SOURCE_REVISION="feb70cb101f40867072059bffaadfdef55c8cff9"
+SOURCE_REVISION="3a72c81c70d5874c0c0c6156a661ffd13ca3163f"
 echo "SOURCE_REVISION ${SOURCE_REVISION}"
 SOURCE_REMOTE_URL="$(git config --get remote.origin.url)"
 echo "SOURCE_REMOTE_URL ${SOURCE_REMOTE_URL}"
@@ -97,6 +97,7 @@ for attempt in {1..5}; do
     python3.8 -m pip install --upgrade \
         "${BATCHDIR_JOBSOURCE}" \
         "joinem==0.9.1" \
+        "polars==1.8.2" \
     && break || echo "pip install attempt ${attempt} failed"
     if [ ${attempt} -eq 3 ]; then
         echo "pip install failed"
