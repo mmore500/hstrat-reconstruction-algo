@@ -66,6 +66,7 @@ def main() -> None:
             "what": str,
             "duration (s)": float,
         },
+        strict=False,
     ).with_columns(
         *(eval(col) for col in args.with_columns),
     ).with_columns(
