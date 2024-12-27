@@ -216,8 +216,8 @@ dummy_sources = [
 ]
 
 real_sources = [
-    "~/scratch/2024-12-25/lex12+async-ga/wse-sketches+genome-flavor=genome_purifyingonly+seed=1/kernel-async-ga/a=fossils+flavor=genome_purifyingonly+seed=1+ncycle=5000000+ext=.pqt",
-    "~/scratch/2024-12-25/lex12+async-ga/wse-sketches+genome-flavor=genome_purifyingplus+seed=2/kernel-async-ga/a=fossils+flavor=genome_purifyingplus+seed=2+ncycle=5000000+ext=.pqt",
+    "${HOME}/scratch/2024-12-25/lex12+async-ga/wse-sketches+genome-flavor=genome_purifyingonly+seed=1/kernel-async-ga/a=fossils+flavor=genome_purifyingonly+seed=1+ncycle=5000000+ext=.pqt",
+    "${HOME}/scratch/2024-12-25/lex12+async-ga/wse-sketches+genome-flavor=genome_purifyingplus+seed=2/kernel-async-ga/a=fossils+flavor=genome_purifyingplus+seed=2+ncycle=5000000+ext=.pqt",
 ]
 
 replicates = it.product(
