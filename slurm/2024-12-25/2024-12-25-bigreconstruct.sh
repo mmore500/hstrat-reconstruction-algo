@@ -359,6 +359,7 @@ ls -1 "${BATCHDIR}"/__*/**/a=result+* \
         "${BATCHDIR_JOBRESULT}/a=result+date=${JOBDATE}+job=${JOBNAME}+ext=.csv"
 ls -l "${BATCHDIR_JOBRESULT}"
 du -h "${BATCHDIR_JOBRESULT}"
+head "${BATCHDIR_JOBRESULT}/a=result+date=${JOBDATE}+job=${JOBNAME}+ext=.csv"
 
 echo "   - SKIP archive job dir"
 # pushd "${BATCHDIR}/.."
