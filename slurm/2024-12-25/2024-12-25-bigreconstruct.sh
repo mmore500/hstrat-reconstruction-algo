@@ -284,11 +284,8 @@ echo "/local/\$(basename "\${genomes_inpath}")" \
         --shrink-dtypes --eager-write \
         --write-kwarg 'compression="lz4"' \
         --head "\${num_tips}" \
-        --drop "genomeFlavor" \  
---drop "is_extant" \  
-  --drop "fitness" \  
-        --drop "tile" \  
-        --drop "tsc" \
+        --drop "genomeFlavor" \
+        --drop "is_extant" \
     | python3.8 -m pylib.script.tee_eval_context_durations \
         -o "\${JOBDIR}/a=result+ext=.csv" \
         --with-column 'pl.lit("\${phylo_source_path").alias("phylo_source_path")' \
