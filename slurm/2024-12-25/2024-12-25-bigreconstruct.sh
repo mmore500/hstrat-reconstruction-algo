@@ -4,7 +4,7 @@ set -e
 
 cd "$(dirname "$0")"
 
-echo "configuration ==========================================================="
+echo "configuration ================================================ ${SECONDS}"
 JOBDATE="$(date '+%Y-%m-%d')"
 echo "JOBDATE ${JOBDATE}"
 
@@ -19,7 +19,7 @@ echo "SOURCE_REVISION ${SOURCE_REVISION}"
 SOURCE_REMOTE_URL="$(git config --get remote.origin.url)"
 echo "SOURCE_REMOTE_URL ${SOURCE_REMOTE_URL}"
 
-echo "initialization telemetry ==============================================="
+echo "initialization telemetry ==================================== ${SECONDS}"
 echo "date $(date)"
 echo "hostname $(hostname)"
 echo "PWD ${PWD}"
@@ -31,7 +31,7 @@ module load Python/3.8.6-GCCcore-10.2.0 || :
 echo "python3.8 $(which python3.8)"
 echo "python3.8 --version $(python3.8 --version)"
 
-echo "setup HOME dirs ========================================================"
+echo "setup HOME dirs ============================================= ${SECONDS}"
 mkdir -p "${HOME}/joblatest"
 mkdir -p "${HOME}/joblog"
 mkdir -p "${HOME}/jobscript"
@@ -43,7 +43,7 @@ if ! [ -e "${HOME}/scratch" ]; then
     fi
 fi
 
-echo "setup BATCHDIR =========================================================="
+echo "setup BATCHDIR =============================================== ${SECONDS}"
 BATCHDIR="${HOME}/scratch/${JOBPROJECT}/${JOBNAME}/${JOBDATE}"
 if [ -e "${BATCHDIR}" ]; then
     echo "BATCHDIR ${BATCHDIR} exists, clearing it"
@@ -104,11 +104,11 @@ for attempt in {1..5}; do
     fi
 done
 
-echo "setup dependencies ========================================== \${SECONDS}"
+echo "setup dependencies =========================================== ${SECONDS}"
 source "${BATCHDIR_ENV}/bin/activate"
 python3.8 -m pip freeze
 
-echo "sbatch preamble ========================================================="
+echo "sbatch preamble ============================================== ${SECONDS}"
 JOB_PREAMBLE=$(cat << EOF
 set -e
 shopt -s globstar
@@ -174,7 +174,7 @@ python3.8 -m pip freeze
 EOF
 )
 
-echo "create sbatch file: work ==============================================="
+echo "create sbatch file: work ==================================== ${SECONDS}"
 
 SBATCH_FILE="$(mktemp)"
 echo "SBATCH_FILE ${SBATCH_FILE}"
@@ -317,10 +317,10 @@ EOF
 ###############################################################################
 
 
-echo "submit sbatch file ====================================================="
+echo "submit sbatch file ========================================== ${SECONDS}"
 $(which sbatch && echo --job-name="${JOBNAME}" || which bash) "${SBATCH_FILE}"
 
-echo "create sbatch file: collate ============================================"
+echo "create sbatch file: collate ================================= ${SECONDS}"
 
 SBATCH_FILE="$(mktemp)"
 echo "SBATCH_FILE ${SBATCH_FILE}"
@@ -399,10 +399,10 @@ EOF
 # --------------------------------------------------------------------------- #
 ###############################################################################
 
-echo "submit sbatch file ====================================================="
+echo "submit sbatch file ========================================== ${SECONDS}"
 $(which sbatch && echo --job-name="${JOBNAME}" --dependency=singleton || which bash) "${SBATCH_FILE}"
 
-echo "finalization telemetry ================================================="
+echo "finalization telemetry ====================================== ${SECONDS}"
 echo "BATCHDIR ${BATCHDIR}"
 echo "SECONDS ${SECONDS}"
 echo '>>>complete<<<'
