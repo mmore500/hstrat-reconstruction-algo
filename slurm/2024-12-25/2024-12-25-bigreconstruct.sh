@@ -105,7 +105,7 @@ done
 
 echo "setup dependencies ========================================== \${SECONDS}"
 source "${BATCHDIR_ENV}/bin/activate"
-python3.8 -m uv pip freeze
+python3.8 -m pip freeze
 
 echo "sbatch preamble ========================================================="
 JOB_PREAMBLE=$(cat << EOF
@@ -167,7 +167,7 @@ echo "python3.8 --version \$(python3.8 --version)"
 
 echo "setup dependencies- ----------------------------------------- \${SECONDS}"
 source "${BATCHDIR_ENV}/bin/activate"
-python3.8 -m uv pip freeze
+python3.8 -m pip freeze
 
 EOF
 )
