@@ -246,7 +246,8 @@ echo "phylo_source_path \${phylo_source_path}"
 
 echo "configure --------------------------------------------------- \${SECONDS}"
 echo "LOCAL \${LOCAL:-}"
-MYLOCAL="\${LOCAL:-.}/\$(uuidgen)"
+echo "TMPDIR \${TMPDIR:-}"
+MYLOCAL="\${LOCAL:-\${TMPDIR:-.}}/\$(uuidgen)"
 echo "MYLOCAL \${MYLOCAL}"
 mkdir -p "\$MYLOCAL"
 
