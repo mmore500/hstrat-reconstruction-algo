@@ -8,6 +8,8 @@ classifiers = [
   "License :: OSI Approved :: MIT License",
   "Natural Language :: English",
   "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.8",
+  "Programming Language :: Python :: 3.9",
   "Programming Language :: Python :: 3.10",
   "Programming Language :: Python :: 3.11",
   "Programming Language :: Python :: 3.12",
@@ -21,7 +23,7 @@ name  =  "pylib"
 keywords = [
   "pylib",
 ]
-requires-python = ">=3.10"
+requires-python = ">=3.8"
 version = "0.0.0"
 
 [project.readme]
