@@ -188,12 +188,12 @@ cat > "${SBATCH_FILE}" << EOF
 #!/bin/bash -login
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=4
-#SBATCH --mem=256G
+#SBATCH --mem=128G
 #SBATCH --time=4:00:00
 #SBATCH --output="/mnt/home/%u/joblog/%A_%a"
 #SBATCH --mail-user=mawni4ah2o@pomail.net
 #SBATCH --mail-type=ALL
-#SBATCH --array=0-4
+#SBATCH --array=0-3
 #SBATCH --account=beacon
 
 ${JOB_PREAMBLE}
