@@ -288,7 +288,7 @@ echo "/local/\$(basename "\${genomes_inpath}")" \
     | singularity exec \${container} \
         python3 -O -m hstrat.dataframe.surface_unpack_reconstruct \
         "/local/\$(basename "\${reconst_outpath}")" \
-        --exploded-slice-size 10_000_000 \
+        --exploded-slice-size 50_000_000 \
         --shrink-dtypes --eager-write \
         --write-kwarg 'compression="lz4"' \
         --head "\${num_tips}" \
