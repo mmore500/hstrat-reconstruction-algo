@@ -278,6 +278,9 @@ du -h "\${genomes_inpath}"
 container="docker://ghcr.io/mmore500/hstrat:v1.16.0"
 echo "container \${container}"
 
+export PYTHONUNBUFFERED=1
+export SINGULARITYENV_PYTHONUNBUFFERED=1
+
 echo "do work ----------------------------------------------------- \${SECONDS}"
 echo "warmup jit cache"
 echo "/local/\$(basename "\${genomes_inpath}")" \
