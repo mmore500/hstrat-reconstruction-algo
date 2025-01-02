@@ -316,9 +316,6 @@ echo "/local/\$(basename "\${reconst_outpath}")" \
         --trie-postprocessor "hstrat.AssignOriginTimeNodeRankTriePostprocessor(t0='dstream_S')" \
         --shrink-dtypes --eager-write \
         --write-kwarg 'compression="lz4"' \
-        --head "\${num_tips}" \
-        --drop "genomeFlavor" \
-        --drop "is_extant" \
         2>&1 \
     | tr '\r' '\n' \
     | python3.8 -m pylib.script.tee_eval_context_durations \
