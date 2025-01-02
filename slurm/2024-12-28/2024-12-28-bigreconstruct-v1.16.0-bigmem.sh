@@ -290,8 +290,8 @@ echo "/local/\$(basename "\${genomes_inpath}")" \
         --head 100
 
 echo "do reconstruction"
-echo "/local/\$(basename "\${genomes_inpath}")" \
-    | singularity exec \${container} \
+stdbuf -o0 echo "/local/\$(basename "\${genomes_inpath}")" \
+    | stdbuf -o0 singularity exec \${container} \
         python3 -O -m hstrat.dataframe.surface_unpack_reconstruct \
         "/local/\$(basename "\${reconst_outpath}")" \
         --exploded-slice-size 50_000_000 \
@@ -301,8 +301,8 @@ echo "/local/\$(basename "\${genomes_inpath}")" \
         --drop "genomeFlavor" \
         --drop "is_extant" \
         2>&1 \
-    | tr '\r' '\n' \
-    | python3.8 -m pylib.script.tee_eval_context_durations \
+    | stdbuf -o0 tr '\r' '\n' \
+    | stdbuf -o0 python3.8 -m pylib.script.tee_eval_context_durations \
         -o "\${JOBDIR}/a=result+ext=.csv" \
         --with-column "pl.lit('\${phylo_source_path}').alias('phylo_source_path')" \
         --with-column "pl.lit('${SOURCE_REVISION}').alias('revision')" \
@@ -313,16 +313,16 @@ echo "/local/\$(basename "\${genomes_inpath}")" \
         --with-column "pl.lit('\${SLURM_JOB_ID}').alias('SLURM_JOB_ID')"
 
 echo "do postprocessing"
-echo "/local/\$(basename "\${reconst_outpath}")" \
-    | singularity exec \${container} \
+stdbuf -o0 echo "/local/\$(basename "\${reconst_outpath}")" \
+    | stdbuf -o0 singularity exec \${container} \
         python3 -O -m hstrat.dataframe.surface_postprocess_trie \
         "/local/\$(basename "\${phylo_outpath}")" \
         --trie-postprocessor "hstrat.AssignOriginTimeNodeRankTriePostprocessor(t0='dstream_S')" \
         --shrink-dtypes --eager-write \
         --write-kwarg 'compression="lz4"' \
         2>&1 \
-    | tr '\r' '\n' \
-    | python3.8 -m pylib.script.tee_eval_context_durations \
+    | stdbuf -o0 tr '\r' '\n' \
+    | stdbuf -o0 python3.8 -m pylib.script.tee_eval_context_durations \
         -o "\${JOBDIR}/a=result+ext=.csv" \
         --with-column "pl.lit('\${phylo_source_path}').alias('phylo_source_path')" \
         --with-column "pl.lit('${SOURCE_REVISION}').alias('revision')" \
