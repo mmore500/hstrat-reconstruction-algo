@@ -309,10 +309,10 @@ echo "/local/\$(basename "\${genomes_inpath}")" \
         --with-column "pl.lit('\${SLURM_JOB_ID}').alias('SLURM_JOB_ID')"
 
 echo "do postprocessing"
-echo "/local/\$(basename "\${genomes_inpath}")" \
+echo "/local/\$(basename "\${reconst_outpath}")" \
     | singularity exec \${container} \
         python3 -O -m hstrat.dataframe.surface_postprocess_trie \
-        "/local/\$(basename "\${reconst_outpath}")" \
+        "/local/\$(basename "\${phylo_outpath}")" \
         --trie-postprocessor "hstrat.AssignOriginTimeNodeRankTriePostprocessor(t0='dstream_S')" \
         --shrink-dtypes --eager-write \
         --write-kwarg 'compression="lz4"' \
