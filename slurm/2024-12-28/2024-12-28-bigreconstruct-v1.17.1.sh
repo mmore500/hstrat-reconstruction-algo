@@ -283,11 +283,18 @@ export SINGULARITYENV_PYTHONUNBUFFERED=1
 
 echo "do work ----------------------------------------------------- \${SECONDS}"
 echo "warmup jit cache"
+warmup_outpath="/tmp/\$(uuidgen).pqt"
 echo "/local/\$(basename "\${genomes_inpath}")" \
     | singularity exec \${container} \
         python3 -O -m hstrat.dataframe.surface_build_tree \
-        "/tmp/\$(uuidgen).pqt" \
+        "\${warmup_outpath}" \
         --head 100
+
+stdbuf -o0 singularity exec \${container} \
+        python3 -O -m hstrat._auxiliary_lib._alifestd_as_newick_asexual \
+        -i  "\${warmup_outpath}" \
+        -o "/tmp/\$(uuidgen).pqt"
+
 
 echo "do reconstruction and postprocessing"
 stdbuf -e0 -i0 -o0 echo "/local/\$(basename "\${genomes_inpath}")" \
