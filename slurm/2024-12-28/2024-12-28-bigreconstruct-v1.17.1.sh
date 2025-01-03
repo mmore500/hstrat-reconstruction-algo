@@ -332,6 +332,7 @@ ls "\${MYLOCAL}"
 echo "cleanup"
 du -h "\${reconst_outpath}"
 cp "\${phylo_outpath}" "\${JOBDIR}/a=phylo+ext=.pqt"
+cp "\${newick_outpath}" "\${JOBDIR}/a=phylo+ext=.newick"
 
 echo "finalization telemetry -------------------------------------- \${SECONDS}"
 ls -l \${JOBDIR}
