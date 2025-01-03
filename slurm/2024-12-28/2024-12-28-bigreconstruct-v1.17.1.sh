@@ -330,7 +330,7 @@ stdbuf -o0 singularity exec \${container} \
 ls "\${MYLOCAL}"
 
 echo "cleanup"
-du -h "\${reconst_outpath}"
+du -h "\${MYLOCAL}"
 cp "\${phylo_outpath}" "\${JOBDIR}/a=phylo+ext=.pqt"
 cp "\${newick_outpath}" "\${JOBDIR}/a=phylo+ext=.newick"
 
