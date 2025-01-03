@@ -193,7 +193,7 @@ cat > "${SBATCH_FILE}" << EOF
 #SBATCH --output="/mnt/home/%u/joblog/%A_%a"
 #SBATCH --mail-user=mawni4ah2o@pomail.net
 #SBATCH --mail-type=ALL
-#SBATCH --array=0-1
+#SBATCH --array=0-3
 #SBATCH --account=beacon
 
 ${JOB_PREAMBLE}
@@ -227,7 +227,6 @@ replicates = it.product(
     [
         10_000_000,
         100_000_000,
-        1_000_000_000,
     ] if "SLURM_ARRAY_TASK_ID" in os.environ else [1_000],
 )
 
