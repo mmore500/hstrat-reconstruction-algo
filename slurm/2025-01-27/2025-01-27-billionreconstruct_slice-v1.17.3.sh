@@ -187,7 +187,7 @@ echo "SBATCH_FILE ${SBATCH_FILE}"
 cat > "${SBATCH_FILE}" << EOF
 #!/bin/bash -login
 #SBATCH --ntasks=1
-#SBATCH --cpus-per-task=64
+#SBATCH --cpus-per-task=128
 #SBATCH --mem=996G
 #SBATCH --time=4:00:00
 #SBATCH --exclude=vim-[000-002],skl-012
