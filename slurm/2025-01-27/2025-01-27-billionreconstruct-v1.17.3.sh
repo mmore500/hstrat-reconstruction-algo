@@ -299,7 +299,7 @@ stdbuf -e0 -i0 -o0 echo "/local/\$(basename "\${genomes_inpath}")" \
     | stdbuf -o0 singularity exec \${container} \
         python3 -O -m hstrat.dataframe.surface_build_tree \
         "/local/\$(basename "\${phylo_outpath}")" \
-        --exploded-slice-size 50_000_000 \
+        --exploded-slice-size 100_000_000 \
         --trie-postprocessor "hstrat.AssignOriginTimeNodeRankTriePostprocessor(t0='dstream_S')" \
         --shrink-dtypes --eager-write \
         --write-kwarg 'compression="lz4"' \
