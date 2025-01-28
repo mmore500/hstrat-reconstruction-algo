@@ -189,7 +189,7 @@ cat > "${SBATCH_FILE}" << EOF
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=64
 #SBATCH --mem=996G
-#SBATCH --time=12:00:00
+#SBATCH --time=4:00:00
 #SBATCH --output="/mnt/home/%u/joblog/%A_%a"
 #SBATCH --mail-user=mawni4ah2o@pomail.net
 #SBATCH --mail-type=ALL
@@ -274,7 +274,7 @@ fi
 
 du -h "\${genomes_inpath}"
 
-container="docker://ghcr.io/mmore500/hstrat@sha256:06dd05d5368d475444577c0c1f623dd9a11c11826b1b9f8965fb060a520b6a91"
+container="docker://ghcr.io/mmore500/hstrat@sha256:2bd2ce23aee4a3a1e41552500c84d33af413400eaf21ca18e9430f1554bfbd99"
 echo "container \${container}"
 
 export PYTHONUNBUFFERED=1
