@@ -190,6 +190,7 @@ cat > "${SBATCH_FILE}" << EOF
 #SBATCH --cpus-per-task=64
 #SBATCH --mem=996G
 #SBATCH --time=4:00:00
+#SBATCH --exclude=vim-[000-002],skl-012
 #SBATCH --output="/mnt/home/%u/joblog/%A_%a"
 #SBATCH --mail-user=mawni4ah2o@pomail.net
 #SBATCH --mail-type=ALL
