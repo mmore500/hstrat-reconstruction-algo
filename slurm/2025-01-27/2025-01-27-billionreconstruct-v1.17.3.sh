@@ -272,7 +272,7 @@ fi
 
 du -h "\${genomes_inpath}"
 
-container="docker://ghcr.io/mmore500/hstrat@sha256:6c9483a4190a4dcba2223f5e7284eeed92ab629c2559125ffa982b508cd80e5b"
+container="docker://ghcr.io/mmore500/hstrat@sha256:bb94bada4ccece2b5920744af9a8fe458c157927cd6ef9a0d62f9521b6fa1b65"
 echo "container \${container}"
 
 export PYTHONUNBUFFERED=1
