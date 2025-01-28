@@ -254,10 +254,8 @@ export SINGULARITY_BINDPATH="\$(realpath \${MYLOCAL}):/local:rw"
 
 genomes_inpath="\${MYLOCAL}/genomes.pqt"
 phylo_outpath="\${MYLOCAL}/phylo.pqt"
-newick_outpath="\${MYLOCAL}/phylo.newick"
 echo "genomes_inpath \${genomes_inpath}"
 echo "phylo_outpath \${phylo_outpath}"
-echo "newick_outpath \${newick_outpath}"
 
 if [ -f "\${phylo_source_path}" ]; then
     echo "phylo_source_path exists, copying into place"
@@ -321,7 +319,6 @@ ls "\${MYLOCAL}"
 
 echo "cleanup"
 du -h "\${phylo_outpath}"
-du -h "\${newick_outpath}"
 cp "\${phylo_outpath}" "\${JOBDIR}/a=phylo+ext=.pqt"
 
 echo "finalization telemetry -------------------------------------- \${SECONDS}"
