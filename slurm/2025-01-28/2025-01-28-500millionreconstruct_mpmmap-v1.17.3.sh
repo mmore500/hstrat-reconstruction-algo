@@ -290,12 +290,6 @@ echo "/local/\$(basename "\${genomes_inpath}")" \
         "\${warmup_outpath}" \
         --head 100
 
-stdbuf -o0 singularity exec \${container} \
-        python3 -O -m hstrat._auxiliary_lib._alifestd_as_newick_asexual \
-        -i  "\${warmup_outpath}" \
-        -o "/tmp/\$(uuidgen).pqt"
-
-
 echo "do reconstruction and postprocessing"
 stdbuf -e0 -i0 -o0 echo "/local/\$(basename "\${genomes_inpath}")" \
     | stdbuf -o0 singularity exec \${container} \
