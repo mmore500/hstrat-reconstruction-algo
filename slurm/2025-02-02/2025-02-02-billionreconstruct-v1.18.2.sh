@@ -280,7 +280,7 @@ export PYTHONUNBUFFERED=1
 export SINGULARITYENV_PYTHONUNBUFFERED=1
 export POLARS_MAX_THREADS=98
 export NUMBA_NUM_THREADS=98
-exort TQDM_MININTERVAL=5
+export TQDM_MININTERVAL=5
 
 echo "do work ----------------------------------------------------- \${SECONDS}"
 echo "warmup jit cache"
