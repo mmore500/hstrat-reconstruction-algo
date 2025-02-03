@@ -297,7 +297,7 @@ stdbuf -e0 -i0 -o0 echo "/local/\$(basename "\${genomes_inpath}")" \
         python3 -O -m hstrat.dataframe.surface_build_tree \
         "/local/\$(basename "\${phylo_outpath}")" \
         --collapse-unif-freq 7 \
-        --exploded-slice-size 25_000_000 \
+        --exploded-slice-size 50_000_000 \
         --trie-postprocessor "hstrat.AssignOriginTimeNodeRankTriePostprocessor(t0='dstream_S')" \
         --shrink-dtypes --eager-write \
         --write-kwarg 'compression="lz4"' \
