@@ -226,7 +226,7 @@ real_sources = [
 replicates = it.product(
     real_sources if "SLURM_ARRAY_TASK_ID" in os.environ else dummy_sources,
     [
-        500_000_000,
+        1_000_000_000,
     ] if "SLURM_ARRAY_TASK_ID" in os.environ else [1_000],
 )
 
