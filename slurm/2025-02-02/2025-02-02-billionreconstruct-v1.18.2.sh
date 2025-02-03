@@ -188,7 +188,7 @@ cat > "${SBATCH_FILE}" << EOF
 #!/bin/bash -login
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=120
-#SBATCH --mem=996G
+#SBATCH --mem=2004G
 #SBATCH --time=4:00:00
 #SBATCH --exclude=vim-[000-002],skl-012
 #SBATCH --output="/mnt/home/%u/joblog/%A_%a"
