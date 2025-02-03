@@ -187,8 +187,8 @@ echo "SBATCH_FILE ${SBATCH_FILE}"
 cat > "${SBATCH_FILE}" << EOF
 #!/bin/bash -login
 #SBATCH --ntasks=1
-#SBATCH --cpus-per-task=120
-#SBATCH --mem=2004G
+#SBATCH --cpus-per-task=100
+#SBATCH --mem=1996G
 #SBATCH --time=4:00:00
 #SBATCH --exclude=vim-[000-002],skl-012
 #SBATCH --output="/mnt/home/%u/joblog/%A_%a"
@@ -278,8 +278,8 @@ echo "container \${container}"
 
 export PYTHONUNBUFFERED=1
 export SINGULARITYENV_PYTHONUNBUFFERED=1
-export POLARS_MAX_THREADS=118
-export NUMBA_NUM_THREADS=118
+export POLARS_MAX_THREADS=98
+export NUMBA_NUM_THREADS=98
 exort TQDM_MININTERVAL=5
 
 echo "do work ----------------------------------------------------- \${SECONDS}"
