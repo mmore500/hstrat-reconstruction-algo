@@ -157,12 +157,12 @@ jobs:
           name: manuscript
           path: tex/*-draft.pdf
       - name: Upload pages artifact
-        uses: actions/upload-pages-artifact@v2
+        uses: actions/upload-pages-artifact@v3
         with:
           path: deploy
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v2
+        uses: actions/deploy-pages@v4
 
   slurm:
     runs-on: ubuntu-22.04
