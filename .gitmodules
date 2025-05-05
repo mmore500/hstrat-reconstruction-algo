@@ -1,0 +1,45 @@
+[submodule "binder/binder"]
+	path = binder/binder
+	url = https://github.com/mmore500/hstrat-reconstruction-algo.git
+	branch = binder
+	shallow = true
+[submodule "binder/binder-2024-10-20-example.ipynb"]
+	path = binder/binder-2024-10-20-example.ipynb
+	url = https://github.com/mmore500/hstrat-reconstruction-algo.git
+	branch = binder-2024-10-20-example.ipynb
+	shallow = true
+[submodule "binder/binder-2024-11-11-build_trie_hstrat_searchtable_data_generation.ipynb"]
+	path = binder/binder-2024-11-11-build_trie_hstrat_searchtable_data_generation.ipynb
+	url = https://github.com/mmore500/hstrat-reconstruction-algo.git
+	branch = binder-2024-11-11-build_trie_hstrat_searchtable_data_generation.ipynb
+	shallow = true
+[submodule "binder/binder-2024-11-17-graph_comparison_barchart.ipynb"]
+	path = binder/binder-2024-11-17-graph_comparison_barchart.ipynb
+	url = https://github.com/mmore500/hstrat-reconstruction-algo.git
+	branch = binder-2024-11-17-graph_comparison_barchart.ipynb
+	shallow = true
+[submodule "binder/binder-2024-11-17-graph_comparison_boxplot.ipynb"]
+	path = binder/binder-2024-11-17-graph_comparison_boxplot.ipynb
+	url = https://github.com/mmore500/hstrat-reconstruction-algo.git
+	branch = binder-2024-11-17-graph_comparison_boxplot.ipynb
+	shallow = true
+[submodule "binder/binder-2024-11-25-graph_comparison_normalized_barchart.ipynb"]
+	path = binder/binder-2024-11-25-graph_comparison_normalized_barchart.ipynb
+	url = https://github.com/mmore500/hstrat-reconstruction-algo.git
+	branch = binder-2024-11-25-graph_comparison_normalized_barchart.ipynb
+	shallow = true
+[submodule "binder/binder-2024_12_30_End_to_End_Benchmarking.ipynb"]
+	path = binder/binder-2024_12_30_End_to_End_Benchmarking.ipynb
+	url = https://github.com/mmore500/hstrat-reconstruction-algo.git
+	branch = binder-2024_12_30_End_to_End_Benchmarking.ipynb
+	shallow = true
+[submodule "binder/binder-2025_01_16_slice_parsing.ipynb"]
+	path = binder/binder-2025_01_16_slice_parsing.ipynb
+	url = https://github.com/mmore500/hstrat-reconstruction-algo.git
+	branch = binder-2025_01_16_slice_parsing.ipynb
+	shallow = true
+[submodule "binder/binder-2025_03_13_preliminary_billion_tip_reconstruction_graphing.ipynb"]
+	path = binder/binder-2025_03_13_preliminary_billion_tip_reconstruction_graphing.ipynb
+	url = https://github.com/mmore500/hstrat-reconstruction-algo.git
+	branch = binder-2025_03_13_preliminary_billion_tip_reconstruction_graphing.ipynb
+	shallow = true
