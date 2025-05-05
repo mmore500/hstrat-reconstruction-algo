@@ -26,11 +26,11 @@ fi
 # Ensure the target directory for the symlink exists
 mkdir -p ~/.local/bin
 # Create a symlink for 'wtf', overwriting if it exists
-ln -sfn/tmp/wtf/wtf ~/.local/bin/wtf
+ln -sf /tmp/wtf/wtf ~/.local/bin/wtf
 # Prepare the hooks directory
 mkdir -p /tmp/hooks
 # Symlink the pre-commit hook, overwriting if it exists
-ln -sfn/tmp/wtf/pre-commit.careful /tmp/hooks/pre-commit
+ln -sf /tmp/wtf/pre-commit.careful /tmp/hooks/pre-commit
 
 git config --global core.hooksPath /tmp/hooks
 
