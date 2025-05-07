@@ -1,4 +1,4 @@
-\section{Introduction} \label{sec:introduction}
+\section{Introduction and Background} \label{sec:introduction}
 
 The field of evolution, whether biological or digital, often involves the study of a large group of organisms and their genetic material. A common question during these studies is how closely organisms are related to one another, and through phylogenetic analysis, ancestry trees can be built that outline the organisms' evolutionary history. These trees have countless applications throughout the field, emphasizing the importance of efficient and accurate methods to reconstruct them.
 
@@ -6,7 +6,7 @@ Phylogenetic analyses allow for characterizing and quantifying certain evolution
 
 Phylogenetic analysis is also cruicial in the field of epidemiology, which becomes urgent in the face of pandemics such as COVID-19. Through such methods, we could determine which clade a particular strain came from, enabling the pinpointing of where and how a particular person was infected -- potentially leading to more efficient disease control \citep{wang2020role}. In another case, researchers could find relationships between different variants of the disease, showing that the Omicron variant was very distant from other variants \citep{kandeel2021omicron}.
 
-\subsection{Phylogenies \& Digital Evolution}
+\subsection{Phylogenies \& Digital Evolution} \label{sec:introduction:digital}
 
 Often, studying evolution through biological means is not as feasible, as laboratory experiements may take years, or even decades, to complete. Therefore, by simulating the behavior of a population, experiements can instead be done digitally, with simulations running in a fraction of the time. These systems can model key characteristics of biological populations, such as facilitation, movement, predation, and more. So, due to the nature of these simulations, conclusions about digital evolution can even be generalized to biological evolution \citep{dolson2021digital}.
 
@@ -14,6 +14,50 @@ Since they use similar mechanisms as biological evolution, organisms that have e
 
 Digital evolution can also be performed in a manner that allows the testing of phylogenetic methods that are applicable to biological evolution. The Aevol\_4b system, for instance, uses a genetic system corresponding to that of DNA, allowing any genetic information to be processed using methods directly from bioinformatics \citep{daudey2024aevol}.
 
-\subsection{Reconstructing Phylogenies}
+\subsection{Reconstructing Phylogenies} \label{sec:introduction:reconst}
 
-TODO
+When dealing with biological data, common methods for phylogenetic reconstruction include the analysis of DNA, looking at nucleotide changes between aligned sequences from different organisms. Common methods include distance-based methods, where a distance matrix between organisms is computed and processed with methods such as neighbor-joining \citep{saitou1987neighbor}; or character-based methods, such as maximum-parsimony \citep{sober1991reconstructing}, which seeks to minimize the number of evolutionary changes -- and maximum-likelihood \citep{felsenstein1981evolutionary}, which infers parameters about the tree that makes the given set of data most likely \citep{de2014phylogenetic}.
+
+Although some digital simulations -- such as the aforementioned Aevol\_4b -- are created for the application of these methods, others run with their own system of phylogenetic tracking, making reconstruction significantly easier when compared to traditional bioinformatics methods. A simple example is perfect tracking: the idea that phylogenies can be tracked as the simulation runs. Many tools are designed specifically for this purpose \citep{dolson2024phylotrack}, while others simply incorporate it into their own processes \citep{bohm2017mabe}. However, large-scale distributed simulations, with limited memory and data integrity, are often unable to take advantage of perfect tracking and must instead opt for approximate tracking methods.
+
+A method for approximate tracking of asexual organisms is \texttt{hstrat}, which acknowledges the fact that distributed systems may have limited memory per organism, and utilizes various algorithms to select what data to retain and what data to discard \citep{moreno2022hstrat}. The end result is the genetic information of an organism being a series of rank-differentia pairs, where each rank represents a generation at which a datum was retained, and the differentia representing the datum itself. However, the presence of missing information is a hurdle that a phylogenetic reconstruction algorithm must overcome, and may cause significant slowdowns using traditional algorithms.
+
+\subsection{Problem Statement} \label{sec:introduction:problem}
+
+The existing algorithm functions by treating the ordered rank-differentia pairs as strings (with potential missing information), where each differentia could represent a character at the rank-th position. With this abstraction, we can essentially build a trie \citep{fredkin1960trie} from the organisms. 
+
+To begin, all organisms are sorted in ascending order by the number of generations elapsed; due to each organism using the same algorithm to determine which data to remove, if data at some rank is missing in one organism, it will be missing in all subsequent ones. This list of organisms is then processed one at a time, going through each rank-differentia pair and determining whether to branch off the trie, continue along, or address missing information (see Algorithm~\ref{alg:old}). 
+
+One thing to note is that every `level' of the trie will contain information from exactly one unique rank. Therefore, if coming across a rank that is larger than those at the current level, we know that information for the rank at the current level must have been deleted in the original organism, and we must infer the node at the current level to branch off of (i.e. we must infer the most likely differentia for that rank). The algorithm accomplished this by looking forwards and finding the path with the ``longest successive streak'' of matching differentia with the current organism \citep{moreno2024analysis}.
+
+\begin{algorithm}[h]
+    \caption{the main algorithm for creating a phylogenetic tree, using traditional trie-building approaches}
+    \label{alg:old}
+    \begin{algorithmic}[1]
+        \Require a list of organisms $O$ in ascending order by generations elapsed
+        \Function{ReconstructTree}{$O$}
+            \State $T \gets$ an empty tree
+            \For {$o \in O$} 
+                \State $\textsc{TreeInsert}(T, o)$
+            \EndFor
+            \State \Return $T$
+        \EndFunction
+
+        \Function{TreeInsert}{$T, o$}
+            \State $n \gets$ root of $T$
+            \For{each rank-differentia pair $(r, d) \in o$}
+                \While{$r >$ the rank of $n$'s children}
+                    \State $n \gets$ the child of $n$ most likely contain $o$
+                \EndWhile
+                \If{$\exists c \in \operatorname{children}(n) \text{ s.t.} \operatorname{differentia(c) = d}$}
+                    \State $n \gets c$
+                \Else 
+                    \State create a new child $c'$ branching off $n$ where $\operatorname{differentia}(c') = d$
+                    \State $n \gets c'$
+                \EndIf
+            \EndFor
+        \EndFunction
+    \end{algorithmic}
+\end{algorithm}
+
+However, despite being an accurate way of dealing with missing information, it suffers the cost of doing significant extra work each time. In the worst case, there could be many matching paths to check, each with many matching differentiae. In large-scale simulations, with limited differentia values (sometimes being represented with only one bit), this is a surprisingly common problem and significantly slows down the reconstruction process. Additionally, these searches would need to happen for each organism, regardless of whether or not a similar search was already done. Therefore, we present an improved algorithm that consolidates this extra work into a single step, never needing to be repeated.

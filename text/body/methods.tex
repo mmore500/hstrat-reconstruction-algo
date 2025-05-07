@@ -1,5 +1,44 @@
 \section{Methods} \label{sec:methods}
 
+\subsection{The Algorithm} \label{sec:algorithm}
+
+We present an iterative algorithm that processes each organism one at a time, inserting it into the tree at the appropriate location. The functions \textsc{ReconstructTree} and \textsc{TreeInsert} are, for the most part, conventional for trie-building algorithms \citep{crochemore2009trie}. However, the distinguishing factor of our algorithm is how it deals with missing information, through the \textsc{ConsolidateTree} process.
+
+\begin{algorithm}[h]
+    \caption{the main algorithm for creating a phylogenetic tree}
+    \begin{algorithmic}[1]
+        \Require a list of organisms $O$ in ascending order by generations elapsed
+        \Function{ReconstructTree}{$O$}
+            \State $T \gets$ an empty tree
+            \For {$o \in O$} 
+                \State $\textsc{TreeInsert}(T, o)$
+            \EndFor
+            \State \Return $T$
+        \EndFunction
+    \end{algorithmic}
+\end{algorithm}
+
+\begin{algorithm}[h]
+    \caption{the algorithm for inserting organisms into the tree}
+    \begin{algorithmic}[1]
+        \Require a phylogenetic tree $T$ and organism $o$
+        \Function{TreeInsert}{$T, o$}
+            \State $n \gets$ root of $T$
+            \For{each rank-differentia pair $(r, d) \in o$}
+                \If{$r >$ the rank of $n$'s children}
+                    \State $\textsc{ConsolidateTree}(T, \dotsc)$
+                \EndIf
+                \If{$\exists c \in \operatorname{children}(n) \text{ s.t.} \operatorname{differentia(c) = d}$}
+                    \State $n \gets c$
+                \Else 
+                    \State create a new child $c'$ branching off $n$ where $\operatorname{differentia}(c') = d$
+                    \State $n \gets c'$
+                \EndIf
+            \EndFor
+        \EndFunction
+    \end{algorithmic}
+\end{algorithm}
+
 \subsection{Software and Data Availability} \label{sec:materials}
 
 Supporting software and executable notebooks for this work are available via Zenodo at TODO \citep{moreno2024hsurf}.
