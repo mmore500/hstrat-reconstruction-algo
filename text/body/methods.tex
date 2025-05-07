@@ -2,42 +2,27 @@
 
 \subsection{The Algorithm} \label{sec:algorithm}
 
-We present an iterative algorithm that processes each organism one at a time, inserting it into the tree at the appropriate location. The functions \textsc{ReconstructTree} and \textsc{TreeInsert} are, for the most part, conventional for trie-building algorithms \citep{crochemore2009trie}. However, the distinguishing factor of our algorithm is how it deals with missing information, through the \textsc{ConsolidateTree} process.
+We present a modification of Algorithm~\ref{alg:old} where we replace the best path search in line 9 with more intelligent consolidation step to deal with missing ranks. The main idea of this algorithm is to realize that, as previously stated, once data from a specific rank is no longer included in one organism, it will not be included in any subsequent organisms, meaning that the level in the tree corresponding to that rank is no longer useful. Therefore, we can modify the tree to act as if that level was no longer there, building shortcuts from the previous level to the next used level, and `hiding', yet not entirely removing, all the nodes in the current level (steps 1-2 in Figure~\ref{fig:algo-diagram}). As a result, the children of the removed level now become the children of that level's parent. 
 
-\begin{algorithm}[h]
-    \caption{the main algorithm for creating a phylogenetic tree}
-    \begin{algorithmic}[1]
-        \Require a list of organisms $O$ in ascending order by generations elapsed
-        \Function{ReconstructTree}{$O$}
-            \State $T \gets$ an empty tree
-            \For {$o \in O$} 
-                \State $\textsc{TreeInsert}(T, o)$
-            \EndFor
-            \State \Return $T$
-        \EndFunction
-    \end{algorithmic}
-\end{algorithm}
+\input{fig/algo-diagram.tex}
 
-\begin{algorithm}[h]
-    \caption{the algorithm for inserting organisms into the tree}
-    \begin{algorithmic}[1]
-        \Require a phylogenetic tree $T$ and organism $o$
-        \Function{TreeInsert}{$T, o$}
-            \State $n \gets$ root of $T$
-            \For{each rank-differentia pair $(r, d) \in o$}
-                \If{$r >$ the rank of $n$'s children}
-                    \State $\textsc{ConsolidateTree}(T, \dotsc)$
-                \EndIf
-                \If{$\exists c \in \operatorname{children}(n) \text{ s.t.} \operatorname{differentia(c) = d}$}
-                    \State $n \gets c$
-                \Else 
-                    \State create a new child $c'$ branching off $n$ where $\operatorname{differentia}(c') = d$
-                    \State $n \gets c'$
-                \EndIf
-            \EndFor
-        \EndFunction
-    \end{algorithmic}
-\end{algorithm}
+However, this process may result in some nodes in the previous level having duplicate children in the next level. This can be resolved by essentially `merging' the duplicates by choosing one to keep and creating shortcuts from the kept one to the children of the removed one (see steps 3-4 in Figure~\ref{fig:algo-diagram}). Now, adding any organisms that are missing data from the removed level becomes trivial, as the algorithm can use the newly created shortcuts as if they are part the tree itself, skipping the missing information. The key savings lie in the fact that any subsequent organisms will also be able to use these shortcuts to traverse the tree much more quickly. Additionally, since we don't exactly delete the old information (as represented by the gray nodes in Figure~\ref{fig:algo-diagram}), we preserve the accuracy and granularity of the old approach. See Algorithm~\reg{alg:consolidation} to see psuedocode for this algorithm.
+
+\input{alg/consolidation.tex}
+
+This updated algorithm is implemented in the \texttt{hstrat} Python package \citep{moreno2024hstrat} as \texttt{build\_tree\_searchtable(\_cpp)?}. As the name suggests, it uses a table of records to represent a tree, being nearly equivalent in structure but being more cache-friendly. The shortcuts are implemented by maintaining two sets of information about ancestors, siblings, and children -- one set holding the original information and the other set holding information for the most recent shortcuts created. The latter is used whenever traversing the tree, while the former is used to preserve information. To start, these sets have the same data, but upon the creation of shortcuts, the shortcut set is updated; note that this can happen multiple times, as levels that already have shortcuts can later be removed as well.
+
+\subsection{Accuracy}
+
+We shall demonstrate the accuracy of this algorithm by providing a proof overview of how it is equivalent to the old algorithm (and assuming the old algorithm is a `good' reconstruction algorithm). Consider adding some organism $o$ to the reconstructed tree $T$, which follows exactly one of the following cases: there is no missing information (i.e. $\forall (r, d) \in o\ r = \operatorname{rank}(\operatorname{children}(n))$, where $n$ is the current node throughout iteration), or there is. The case where there is no missing information is trivial -- the only difference between the original and new algorithm lies when there is missing information, the absence of which rendering them the same. 
+
+Therefore, consider analyzing data at rank $r'$ and having some missing information at rank $r < r'$ (which is also the rank of the node $n$'s children). We know that the old algorithm selects the child (possibly (great)grandchild, depending on if there is even more missing information) $n'$ of $n$ that leads to the longest successive path of matching differentiae. Additionally, note that $\operatorname{rank}(\operatorname{children}(n')) = r'$, meaning $n'$ will become the new current node $n$ in the old algorithm. Suppose there is a child of $n'$ with a differntia equal to $d$ (otherwise, the choice is $n'$ is meaningless as there would be no longest matching path). The old algorithm, treating $n'$ as $n$, will detect this child and make it the new current node, essentially continuing along the path. 
+
+Looking at the new algorithm, notice that this node $n'$ would have actually been hidden through consolidation, with shortcuts build around it from $n$ to its children. However, notice that we had assumed that there was indeed a child of $n'$ with a differentia equal to $d$; since this is also a child of $n$ through the shortcuts, it will be chosen by the new algorithm to be the new current node $n$, also continuing along the path. We also address the fact that, in the new algorithm, this child may have more children than in the old algorithm, due to the collapse step merging it with another descendant of $n$. However, this is not a problem, as the original `longest path' is still preserved (and is still better than any paths along the children of the other descendant). In conclusion, the consolidated algorithm will make the same decisions as the original algorithm, meaning they are essentially equivalent. \qed
+
+\subsection{Performance Benchmarks}
+
+TODO.
 
 \subsection{Software and Data Availability} \label{sec:materials}
 

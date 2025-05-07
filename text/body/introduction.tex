@@ -30,34 +30,6 @@ To begin, all organisms are sorted in ascending order by the number of generatio
 
 One thing to note is that every `level' of the trie will contain information from exactly one unique rank. Therefore, if coming across a rank that is larger than those at the current level, we know that information for the rank at the current level must have been deleted in the original organism, and we must infer the node at the current level to branch off of (i.e. we must infer the most likely differentia for that rank). The algorithm accomplished this by looking forwards and finding the path with the ``longest successive streak'' of matching differentia with the current organism \citep{moreno2024analysis}.
 
-\begin{algorithm}[h]
-    \caption{the main algorithm for creating a phylogenetic tree, using traditional trie-building approaches}
-    \label{alg:old}
-    \begin{algorithmic}[1]
-        \Require a list of organisms $O$ in ascending order by generations elapsed
-        \Function{ReconstructTree}{$O$}
-            \State $T \gets$ an empty tree
-            \For {$o \in O$} 
-                \State $\textsc{TreeInsert}(T, o)$
-            \EndFor
-            \State \Return $T$
-        \EndFunction
-
-        \Function{TreeInsert}{$T, o$}
-            \State $n \gets$ root of $T$
-            \For{each rank-differentia pair $(r, d) \in o$}
-                \While{$r >$ the rank of $n$'s children}
-                    \State $n \gets$ the child of $n$ most likely contain $o$
-                \EndWhile
-                \If{$\exists c \in \operatorname{children}(n) \text{ s.t.} \operatorname{differentia(c) = d}$}
-                    \State $n \gets c$
-                \Else 
-                    \State create a new child $c'$ branching off $n$ where $\operatorname{differentia}(c') = d$
-                    \State $n \gets c'$
-                \EndIf
-            \EndFor
-        \EndFunction
-    \end{algorithmic}
-\end{algorithm}
+\input{alg/old-reconst.tex}
 
 However, despite being an accurate way of dealing with missing information, it suffers the cost of doing significant extra work each time. In the worst case, there could be many matching paths to check, each with many matching differentiae. In large-scale simulations, with limited differentia values (sometimes being represented with only one bit), this is a surprisingly common problem and significantly slows down the reconstruction process. Additionally, these searches would need to happen for each organism, regardless of whether or not a similar search was already done. Therefore, we present an improved algorithm that consolidates this extra work into a single step, never needing to be repeated.

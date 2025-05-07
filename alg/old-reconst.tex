@@ -1,0 +1,31 @@
+\begin{algorithm}[h]
+    \caption{the main algorithm for creating a phylogenetic tree, using traditional trie-building approaches}
+    \label{alg:old}
+    \begin{algorithmic}[1]
+        \Require a list of organisms $O$ in ascending order by generations elapsed
+        \Function{ReconstructTree}{$O$}
+            \State $T \gets$ an empty tree
+            \For {$o \in O$} 
+                \State $\textsc{TreeInsert}(T, o)$
+            \EndFor
+            \State \Return $T$
+        \EndFunction
+
+        \Function{TreeInsert}{$T, o$}
+            \State $n \gets$ root of $T$
+            \For{each rank-differentia pair $(r, d) \in o$}
+                \While{$r >$ the rank of $n$'s children}
+                    \State $n \gets$ the child of $n$ most likely contain $o$
+                \EndWhile
+                \If{$\exists c \in \operatorname{children}(n) \text{ s.t.} \operatorname{differentia(c) = d}$}
+                    \State $n \gets c$
+                \Else 
+                    \State create a new child $c'$ branching off $n$ 
+                    \State $\operatorname{differentia}(c') \gets d$
+                    \State $n \gets c'$
+                \EndIf
+            \EndFor
+            \State insert information about $o$ as a child of $n$
+        \EndFunction
+    \end{algorithmic}
+\end{algorithm}
