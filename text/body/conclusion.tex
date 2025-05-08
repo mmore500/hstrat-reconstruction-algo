@@ -1,1 +1,28 @@
 \section{Conclusion} \label{sec:conclusion}
+
+Upwards trends in technological capacity for massively parallel and distributed computation are continuing to profoundly redefine the scope of scientific questions and model systems that can be investigated using \textit{in silico} methods.
+As these systems scale, there become challenges with data overload in running and observing them.
+Sampling based approaches and approximations provide one possible approach to solving this issue.
+
+In a parallel vein, advances in high throughput sequencing technologies and phylogenetic inference algorithms over nucleotide data are making it possible to work with larger and larger trees.
+These have brought into realization phylogenies with millions or tens of millions of tips.
+On the extreme end, there was recentlly proof-of-concept work done using procedurally generated virtual sequence data related to barcoding procedures that built a 333 million tip tree \citep{konno2022deep}.
+
+
+
+Reflect on the fact that phylogeny data in biology is also getting larger scale due to better sequencing and reconstruction algorithms; there’s a larger question about what do you do with a multimillion/billion tip tree and how do you do it in an efficient manner
+Infrastructure for storing, measuring, manipulating, and visualizing phylogenies is a key bottleneck.
+Reference taxonium \citep{sanderson2022taxonium}
+Reference Niema projects on scalable phylogeny representations \citep{moshiri2025compacttree,moshiri2020treeswift}.
+https://niema.net/ has some recent papers (one on a C++ library and one on a python library, both of which we should cite; and we should cite the other scalable phylogeny software/references that Niema cites)
+
+Alife data standard and dataframe-oriented representations for phylogeny
+Which combine well with Numba, Numpy, Polars, and Pandas
+Which is kind of how Ape represents phylogenies in R
+There are prototype implementation in hstrat utils
+Future Work:
+Some work could use the algorithm and easy-to-use software for testing hypothesis on their own simulations
+Open source software:
+Ie hstrat is open source
+So you can do it too!
+
