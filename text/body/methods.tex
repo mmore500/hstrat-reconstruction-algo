@@ -2,6 +2,8 @@
 
 \input{fig/hstratschematic}
 
+\input{fig/shortcut-algo-diagram}
+
 \subsection{The Algorithm} \label{sec:algorithm}
 
 We present a modification of Algorithm~\ref{alg:old} where we replace the best path search in line 9 with more intelligent consolidation step to deal with missing ranks. The main idea of this algorithm is to realize that, as previously stated, once data from a specific rank is no longer included in one organism, it will not be included in any subsequent organisms, meaning that the level in the tree corresponding to that rank is no longer useful. Therefore, we can modify the tree to act as if that level was no longer there, building shortcuts from the previous level to the next used level, and `hiding', yet not entirely removing, all the nodes in the current level (steps 1-2 in Figure~\ref{fig:algo-diagram}). As a result, the children of the removed level now become the children of that level's parent. 
