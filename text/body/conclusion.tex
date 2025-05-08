@@ -8,13 +8,28 @@ In a parallel vein, advances in high throughput sequencing technologies and phyl
 These have brought into realization phylogenies with millions or tens of millions of tips.
 On the extreme end, there was recentlly proof-of-concept work done using procedurally generated virtual sequence data related to barcoding procedures that built a 333 million tip tree \citep{konno2022deep}.
 
-
-
-Reflect on the fact that phylogeny data in biology is also getting larger scale due to better sequencing and reconstruction algorithms; there’s a larger question about what do you do with a multimillion/billion tip tree and how do you do it in an efficient manner
-Infrastructure for storing, measuring, manipulating, and visualizing phylogenies is a key bottleneck.
+Reflect on the fact that phylogeny data in biology is also getting larger scale due to better sequencing and reconstruction algorithms.
+This presents a huge opportunity for deeper insight across a broad variery of evolving systems.
+Infrastructure for storing, measuring, manipulating, and visualizing phylogenies has been identified as a key bottleneck.
 Reference taxonium \citep{sanderson2022taxonium}
 Reference Niema projects on scalable phylogeny representations \citep{moshiri2025compacttree,moshiri2020treeswift}.
 https://niema.net/ has some recent papers (one on a C++ library and one on a python library, both of which we should cite; and we should cite the other scalable phylogeny software/references that Niema cites)
+
+In future work, it will be critical to address the question of:  what do you do with a multimillion/billion tip tree and how do you do it in an efficient manner?
+We have the opportunity to contribute meaningfully to this cross-disciplinary question from alife.
+Given the unique capability of alife study systems to generate large sets of detailed data that is directly observable across the span of simulated history, this motivated work on the alife data standard, which specified a tabular representation for phylogeny data (TODO cite alife standard).
+With some minor modifications to specialize the standard to specialize on asexual phylogenies, this actually has the potential to be a backbone of a larger high-performance analysis and tree manipulation strategies and not just the storage of data.
+
+Over the recent years, a robust ecosystem of high performance tools has arisen around the dataframe concept, including Pandas, Polars, Dask, and data.table.
+These include advanced features such as multithreading, data streaming, query optimization, file partitioning, and column-oriented binary datafile formats.
+Additionally, existing high performance toolkits like NumPy and Numba integrate tightly with these frameworks.
+In fact, it is this approach that enabled a large amouunt of the pre- and post-processing steps of the reconstruction algorithm pipeline generated in this work.
+
+As such, alife is well positioned to contribute both on the technical infrastructure and methodological statistics of developing next-generation workflows for ultra-large phylogenies.
+To this end, the tools described here in are published open source.
+
+Other future work ongoing will involve building out experimental pipelines to exploit the methods and tools developed herein.
+These should use large-scale simulations on emerging platforms such as the Cerebras Wafer-Scale engine in order to provide ground truth basis to test and interactively develop phylostatistical methodologies in addition to pursuing hypothesis-driven experiments using digital simulations as a model system.
 
 Alife data standard and dataframe-oriented representations for phylogeny
 Which combine well with Numba, Numpy, Polars, and Pandas
