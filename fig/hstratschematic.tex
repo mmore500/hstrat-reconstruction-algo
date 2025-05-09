@@ -1,27 +1,38 @@
 \begin{figure*}
 
 \centering
-\begin{minipage}{0.75\textwidth}
+\begin{minipage}{0.55\textwidth}
 
 \begin{minipage}{0.4\linewidth}
 \centering
-\includegraphics[height=1.5in]{img/hstratschematic-evolve}
+\includegraphics[height=1.2in]{img/hstratschematic-evolve}
 \subcaption{evolve}
+\label{fig:hstratschematic:evolve}
 \end{minipage}%
 \centering
 \begin{minipage}{0.2\linewidth}
-~~~
-\includegraphics[height=1.5in]{img/hstratschematic-sample}
+~
+\includegraphics[height=1.2in]{img/hstratschematic-sample}
 \subcaption{sample}
+\label{fig:hstratschematic:sample}
 \end{minipage}%
 \begin{minipage}{0.4\linewidth}
 \centering
-\includegraphics[height=1.5in]{img/hstratschematic-reconstruct}
+\includegraphics[height=1.2in]{img/hstratschematic-reconstruct}
 \subcaption{reconstruct}
+\label{fig:hstratschematic:reconstruct}
 \end{minipage}
 \end{minipage}%
-\begin{minipage}{0.25\textwidth}
-\caption{\textbf{TODO.}}
+~~
+\begin{minipage}{0.43\textwidth}
+\caption{%
+\textbf{Overview of hereditary stratigraphy.}
+\small
+At runtime, genomes are annotated with randomly-generated heritable markers (panel \ref{fig:hstratschematic:evolve}).
+To maintain fixed-memory footprint, some markers are overwritten.
+Geonomes of interest are sampled at runtime and from end state (panel \ref{fig:hstratschematic:sample}).
+Decoded genome markers enable estimation of evolutionary relatedness (panel \ref{fig:hstratschematic:reconstruct}), subject to error from marker-value collisions and discarded markers.
+}
 \label{fig:hstratschematic}
 \end{minipage}
 
