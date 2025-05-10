@@ -3,35 +3,48 @@
 \begin{minipage}{0.33\linewidth}
   \centering
   \includegraphics[width=\linewidth]{img/shortcut-algo-diagram-1}
-  \subcaption{Preparing to add organism D}
+  \subcaption{Preparing to add organism $D$}
+  \label{fig:shortcut-algo-diagram-1}
 \end{minipage}
 \begin{minipage}{0.33\linewidth}
   \centering
   \includegraphics[width=\linewidth]{img/shortcut-algo-diagram-2}
-  \subcaption{Recognizing outdated information}
+  \subcaption{Encountering dropped marker}
+  \label{fig:shortcut-algo-diagram-2}
 \end{minipage}
 \begin{minipage}{0.33\linewidth}
   \centering
   \includegraphics[width=\linewidth]{img/shortcut-algo-diagram-3}
-  \subcaption{Creation of shortcuts}
+  \subcaption{Shortcuts around dropped-marker nodes}
+  \label{fig:shortcut-algo-diagram-3}
 \end{minipage}
-
+\begin{minipage}{\linewidth}\par\end{minipage}
 \begin{minipage}{0.33\linewidth}
   \centering
   \includegraphics[width=\linewidth]{img/shortcut-algo-diagram-4}
-  \subcaption{Recognizing duplicates by shortcut}
+  \subcaption{Encountering redundant shorcuts}
+  \label{fig:shortcut-algo-diagram-4}
 \end{minipage}
 \begin{minipage}{0.33\linewidth}
   \centering
   \includegraphics[width=\linewidth]{img/shortcut-algo-diagram-5}
-  \subcaption{Collapsing indistinguishable nodes}
+  \subcaption{Collapsing redundant shortcuts}
+  \label{fig:shortcut-algo-diagram-5}
 \end{minipage}
 \begin{minipage}{0.33\linewidth}
   \centering
   \includegraphics[width=\linewidth]{img/shortcut-algo-diagram-6}
-  \subcaption{Adding organism D}
+  \subcaption{Organism $D$ added}
+  \label{fig:shortcut-algo-diagram-6}
 \end{minipage}
-\caption{\textbf{The shortcut algorithm dealing with missing information.} In steps (b) and (c), the missing information is consolidated and shortcuts are built around it. In steps (d) and (e), duplicates are resolved by merging them together and building more shortcuts.}
+\caption{%
+\textbf{Trie-consolidation procedure for proposed shortcut algorithm.}
+\small
+A dropped hereditary marker is encountered while extending trie with genome $D$ (panel \ref{fig:shortcut-algo-diagram-2}).
+All subsequent-added genomes will also have dropped markers at this position, so corresponding trie nodes may be bypassed by ``shortcut'' connections (panel \ref{fig:shortcut-algo-diagram-3}).
+Note that bypassed trie structure is retained (``grayed-out'' nodes), so corresponding phylogenetic structure remains when reconstruction is finalized.
+In a final step, shortcuts leading to identical nodes are further consolidated (panels \ref{fig:shortcut-algo-diagram-4} and \ref{fig:shortcut-algo-diagram-5}).
+}
 \label{fig:algo-diagram}
 
 \end{figure*}
