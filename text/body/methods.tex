@@ -1,47 +1,121 @@
 \section{Methods} \label{sec:methods}
 
-\subsection{The Algorithm} \label{sec:algorithm}
+In this section, we detail methodology for benchmark and validation experiments used to empirically assess performance of the prroposed shortcut-enabled reconstruction algorithm.
 
-We present a modification of Algorithm~\ref{alg:old} where we replace the best path search in line 9 with a more intelligent consolidation step to deal with missing ranks. The main idea of this algorithm is to realize that, as previously stated, once data from a specific rank is no longer included in one organism, it will not be included in any subsequent organisms, meaning that the nodes in the tree corresponding to that rank are no longer useful. So, by building shortcuts around any nodes that were made irrelevant, we can speed up the reconstruction process for all future nodes too.
+\subsection{Generation of Benchmark Data}
 
-We detect missing information the same way as in the naive trie algorithm: during iteration, we notice that when a child $c$ of the current node $n$ has a rank $r'$ that is less than the current rank $r$ being processed, we do not have information about that rank. The key insight to the way we manage this is that, in the big picture, we only care about this child if some of its descendants at rank $r$ have the differentia equal to $d$. Also, since every subsequent organism does not contain information at rank $r'$ (due to the sorting), this statement holds throughout the rest of the algorithm.
+For our benchmark experiments, we needed a sample large-scale genomes to draw from to perform reconstructions on.
+For this purpose, we performed simulations using the Cerebras Wafer-Scale Engine, a recently-introduced 850,000 core hardware accelerator device \citep{TODO}.
+Processor elements (PEs) in this architecture are arranged in a grid lattice where each processor is able to execute independently and communicate with neighboring PEs through message-passing, with tight per-core limitations on available memory.
 
-\input{fig/algo-diagram.tex}
+To conduct these simulations, we used an extension of the island-model genetic algorithm framework presented in \citep{moreno2024trackable}.
+This framework organizes simulated organisms into independent subpopulations hosted on each PE.
+Synchronous tournament selection of size 2 is applied within each PE, and between generations agents are migrated between PEs asynchronously.
 
-Extending this idea, since we know that any rank between $r'$ and $r$ is meaningless (as they all must have been deleted organism $o$ and any subsequent organisms), we create shortcuts from $n$ that bypass every one of its descendants that have a rank less than $r$. In other words, on every possible path down the tree starting from $n$, we build a shortcut from $n$ to the first node on the tree with a rank at least $r$. For an example of what this looks like, see steps (b) and (c) in Figure~\ref{fig:algo-diagram}. 
+%The purpose of this simulation was to generate large-scale data using a simple model that can be explicitly manipulated to explore evolutionary regimes differing substantially in the depth of shared ancestry between organisms (known as phylogenetic richness).
 
-However, since some descendants of $n$ may have children with equivalent information, we may end up with shortcuts from $n$ to effectively indistinguishable nodes (with different original parents but the same information). This can be resolved by essentially `merging' the duplicates by choosing one to keep and creating shortcuts from the kept one to the children of the removed one (see steps (d) and (e) in Figure~\ref{fig:algo-diagram}).
+A simple genome model was used, wherein agents were comprised of a single floating point value representing fitness.
+Reproduction occured asexually, with this value subject to mutation with TODO probability.
+In tournament competitions to select parents for the subsequent generation, the parent was selected according to the higher fitness value with 10\% probability and was otherwise selected randomly.
 
-Now, adding any organisms that are missing data from the removed level becomes trivial, as the algorithm can use the newly created shortcuts while skipping the missing information that was hidden by the consolidation step. We no longer need to look down branches from $n$ because each child of $n$ now has a rank greater than or equal to $r$. So, there is no longer a concern of missing information when processing $n$ at rank $r$, and these shortcuts are then used to add any subsequent organisms if need be. If, at some point in the algorithm, $r$ itself becomes a rank of missing information, additional shortcuts can be built.
+To generate data representative of different evolutionary conditions, two treatments were applied:
+\textbf{adaptive regime} and \textbf{purifying regime}.
+Under the adaptive regime, mutations increasing fitness were allowed, introducing the possibility of selective sweeps.
+By contrast, the purifying regime treatment allowed only the possibility of deleterious mutations
+Previous work with this system demonstrated the purifying regime to exhibit substantially greater phylogenetic richness --- in line with expectation.
 
-\input{alg/consolidation.tex}
+Fossil data were sampled on a rolling basis using asynchronous memcpy operations, where a representative agent was copied from device-to-host from each processor element on a rolling basis.
+The simulation was run for TODO processor element generation cycles, which took TODO minutes.
+A population size of TODO was used, and synchronous generations were used so that over the course of this simulation, TODO replication cycles were used.
+Over the course of the simulation, TODO memcopy cycles elapsed.
+Real time runtime for each was X and Y.
+For full details on the Wafer-Scale Engine, see \citep{moreno2024trackable}.
 
-The key savings lie in the fact that since we don't exactly delete the old information (as represented by the gray nodes in Figure~\ref{fig:algo-diagram}), we preserve the accuracy and granularity of the old approach. See Algorithm~\ref{alg:consolidation} to see psuedocode for this algorithm.
+We used hstrat annotations comprising 64 single-bit markers, managed at runtime using a \texttt{tilted} curation policy, which favors dense retention of more recent marker data.
 
-\subseection{Implementation Details}
+\subsection{Microbenchmark Experiments}
 
-This shortcut-based algorithm is implemented in the \texttt{hstrat} Python package \citep{moreno2024hstrat} as \texttt{build\_tree\_searchtable(\_cpp)?}. As the name suggests, it uses a table of records to represent a tree, being nearly equivalent in structure but being more cache-friendly. The shortcuts are implemented by maintaining two sets of information about ancestors, siblings, and children -- one set holding the original information and the other set holding information for the most recent shortcuts created. The latter is used whenever traversing the tree, while the former is used to preserve information. To start, these sets have the same data, but upon the creation (or updating) of shortcuts, the shortcut set is updated; therefore, no matter how many times the shortcuts are updated, the original information remains the same. 
+From this simulation (in both purifying and adaptive versions), we took a random sample of 10 million tips that could be used on a personal computer for various benchmarks, which were inteded to test reconstruction performance.
+First, we wanted to determine the asymptotic complexity of our new algorithm; to do this, we ran sub-samples of various sizes through the reconstruction pipeline and measured the time it took in the reconstruction step.
+This was done for both adaptive and purifying simulations in order to test different arrangements of data.
 
-\subsection{Correctness Proof}
+We then wanted to compare the performance of this algorithm with the previous naive trie algorithm. We did this by again taking subsamples of the 10 million tips, and running both algorithms on the subsample and timing how long it took to process all the tips. Given that the naive algorithm is significantly slower, our subsample sizes were limited to up to 10,000 tips. 
 
-We shall demonstrate the accuracy of this algorithm by providing a proof overview of how it is equivalent to the old algorithm (and assuming the old algorithm is a `good' reconstruction algorithm). Consider adding some organism $o$ to the reconstructed tree $T$, which follows exactly one of the following cases: there is no missing information (i.e. $\forall (r, d) \in o\ r = \operatorname{rank}(\operatorname{children}(n))$, where $n$ is the current node throughout iteration), or there is. The case where there is no missing information is trivial -- the only difference between the original and new algorithm lies when there is missing information, the absence of which rendering them the same. 
+Because of this, we also wanted to determine the performance of the search table algorithm on larger data, and more importantly, determine the asymptotic complexity of the approach. 
+To do this, we took a range of sub-samples from the original sample up to 10 million tips, ran the end-to-end pipeline, and measured the time taken on the reconstruction step alone.
+We also performed this process on both adaptive and purifying regimes, so that we could determine if there were potential differences depending on the evolutionary scheme.
 
-Therefore, consider analyzing data at rank $r$ and having some missing information between the $\operatorname{rank}(n)$ and $r$. Now, consider cases on whether there is some successive path of matching differentiae:
+These examples were all run on a 2019 MacBook Pro (2.3GHz 8-Core Intel i9, 16GB RAM) using a benchmark script attached with our supplemental material \citep{supplemental}.
 
-\begin{itemize}
-  \item There is some path. Therefore, we know that this path contains a descendant $n'$ of $n$ with rank $r$ and differentia $d$. In the naive algorithm, this descendant is select to be the next $n$ when processing the information of $o$, as the optimal path found includes $n'$. However, we also know that the shortcut algorithm must have created a shortcut from $n$ to $n'$ (and possibly collapsed it with other valid descendants, which is irrelevant as the path still remains). So, the shortcut algorithm (in line 11 of the naive Algorithm~\ref{alg:old}) finds this child and selects it to be the new $n$ as well.
-  \item There is no such path. Since there is no candidate path to follow, the naive algorithm simply creates a new node branching off $n$ with rank and differentia $(r, d)$. Then, this new node is made the new $n$. Since there was no valid path, we see that $n$ has no descendants with rank $r$ and differentia $d$. Therefore, there is no shortcut built from $n$ to such a node, as it does not exist. So, the shortcut algorithm will also branch off of $n$ by creating a new node in the same manner as the naive one. 
-\end{itemize}
+\subsection{Macrobenchmark Experiments}
 
-In either case, we have shown that both algorithms maker the same decisions when it comes to selecting nodes $n$ throughout iteration. Because original relationships between nodes are still preversed, choosing a particular node to branch off of conveys identical information in both algorithms. In conclusion, the two algorithms are equivalent in correctness. \qed
+To assess the performance of our approach on large-scale workloads under real-world conditions, we supplemented microbenchmarks focusing on core trie extension and consolidation operations with two macrobenchmark trials comprising the full end-to-end reconstruction pipeline described in Section \ref{sec:pipeline}.
+These end-to-end experiments used the \texttt{hstrat.dataframe.surface\_build\_tree} CLI module incorporated in the \texttt{hstrat} library.
 
-\subsection{Performance Benchmarks}
+These experiments were conducted using the full billion element corpus of sampled genomes from Wafer-Scale Engine simulations.
+We performed two trial reconstructions: one using genome data from the adaptive regime treatment and another under the purifying regime treatment.
 
-TODO.
+Reconstructions were conducted on dedicated cluster nodes.
+End-to-end experiments used the \texttt{hstrat.dataframe.surface\_build\_tree} CLI module incorporated in the \texttt{hstrat} library.
+
+TODO hardware specs.
+
+\subsection{Validation Tests}
+
+One part of our algorithm we aim to show is that it is essentially equivalent to the naive trie algorithm already implemented.
+We have already proven that any decisions it makes could be made by the naive trie algorithm (i.e. it is a valid arbitrary choice made by the algorithm); however, we do not know if they give similar results in practice.
+
+On the other hand, to demonstrate reconstruction accuracy, we used small evolutionary simulations run locally. 
+These simulations were relatively simple, running 500 generations where parents replicated and died out, and 500 generations where parents replicated and stayed in the population. These simulations were ran using perfect tracking as implemented in \texttt{phylotrackpy} \citep{dolson2024phylotrack} so that reconstructed phylogenies could be compared with the ground truth.
+We then obtained a numerical error measurement using a triplet distance calculation between the ground truth and reconstructed phylogenies \citep{critchlow1996triples}.
+
+\subsection{Algorithm Implementations}
+
+This shortcut-based algorithm is implemented in the \texttt{hstrat} Python package \citep{moreno2022hstrat} as \texttt{hstrat.build\_tree\_searchtable}.
+The reconstruction backend is selectable between independent implementations written in either pure Python or in C++, bound via Pybind11 \citep{pybind11}.
+Benchmarks comparing the shortcut-enabled approaches to the existing naive approach, implemented in pure Python, used the pure Python backend for the shortcut-enabled approach, to ensure apples-to-apples comparability.
+Other benchmarking and validation experiments used the C++ backend, which is expected to be better reflective of how the library will be used in practice, given the inherent speedup and memory savings associated with compiled code.
+
+As suggested by the function name, both shortcut-enabled backends represent trie data using an edge-list table, rather than a node-and-pointer approach, as is the case with the existing naive implementation.
+From an algorithmic perspective, tabular and node-and-pointer data structures provide identical properties for traversal and lookup operations.
+However, in practice, the former approach is often faster due to fewer memory allocation operations and better cache locality.
+
+At the implementation level, we represent trie shortcuts via additional columns in our edge table.
+When a new node is appended, its shortcut edge is initialized identically to its trie edge.
+From this point onwards, shortcut edges are used only for traversing the trie, while underlying trie edges -- treated as immutable from node initialization onwards -- are used when reading out the final reconstruction result.
+
+\subsection{Build-time Garbage Collection}
+
+To reduce memory usage for very large phylogeny reconstructions, we supplement the core trie extension and consolidation procedure detailed in Section \ref{sec:algorithm} with an intermittent garbage collection step.
+Because genomes are inserted in ascending order of generational depth, trie nodes at a generation with a single child node.
+Given that all trie nodes only have a single parent node, such a ``dropped unifurcation node'' can be excised and safely replaced with an edge directly connecting its parent and child.
+
+As currently implemented, we use the presence of modifications to shortcut edges to identify nodes for which corresponding hstrat markers have been dropped.
+We note that this does not detect all dropped unifurcations, and an alternate more aggressive approach could be implemented readily by incorporating information as to which markers have been dropped from the marker retention algorithm used at runtime.
+
+At implementation-level, the frequency of ``dropped unifurcation'' garbage collection is provided as a configurable function parameter, and so can be tuned as appropriate for a given use case scenario.
+Garbage collection was not necessary for the up to 10 million tip reconstructions evaluated in our microbenchmarking experiment, and so was not performed.
+For our macrobenchmark experiments, we ran this procedure at three evenly-spaced intervals during the build process.
+Figure \ref{fig:billion-tip-time} details the share of net execution time consumed by purging dropped unifurcations in these trials.
+
+\subsection{End-to-end Phylogeny Reconstruction Pipeline}
+\label{sec:pipeline}
+
+\input{fig/hstratpipeline}
+
+Figure \ref{fig:hstratpipeline} overviews the full end-to-end pipeline used to construct a phylogeny from raw hstrat-annotated genome data.
+First, hstrat annotation data is extracted and decoded.
+To take advantage of SIMD parallelism, the decoding of origin times for genome markers is performed using bulk operations orchestrated via NumPy, batched over available processors using the Numba library threading engine.
+Due to memory-intensity of the exploded representation, where each genome marker constitutes an individual dataframe row, a chunk size may be configured to limit the amount of data exploded at any one time.
+A chunk size of TODO was used for macrobenchmark trials.
+
+Subsequently, decoded marker data is fed batchwise into the trie-building backend.
+To ensure full hardware utilization, execution of the core trie-building procedure -- which is single-threaded -- is overlapped with decode/explode work on the upcoming chunk through multiprocessing.
+Finally, a phylogeny is extracted from the final trie, converted to alife standard format, and saved to disk.
+The Polars library is used for load/save and other pre-/post-processing operations, allowing some operations to be distributed over available processor cores by the underlying threading engine.
 
 \subsection{Software and Data Availability} \label{sec:materials}
 
-\input{fig/hstratpipeline}
 
 Supporting software and executable notebooks for this work are available via Zenodo at TODO \citep{moreno2024hsurf}.
 DStream algorithm implementations are also published on PyPI in the \texttt{downstream} Python package, where we plan to conduct longer-term, end-user-facing development and maintenance \citep{moreno2024downstream}.

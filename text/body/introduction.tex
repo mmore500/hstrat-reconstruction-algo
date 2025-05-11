@@ -1,6 +1,6 @@
-\section{Introduction and Background} \label{sec:introduction}
+\section{Introduction} \label{sec:introduction}
 
-The field of evolution, whether biological or digital, often involves the study of a large group of organisms and their genetic material.
+Key aspects of the study of evolution, whether biological or digital, revolve around understanding the flow of genetic material among large populations of organisms.
 A common question during these studies is how closely organisms are related to one another, and through phylogenetic analysis, ancestry trees can be built that outline the organisms' evolutionary history.
 These trees have countless applications throughout the field, emphasizing the importance of accurate and efficient methods to reconstruct them.
 However, with larger and larger datasets, latter becomes increasingly difficult, with some techniques proving infeasible at that scale.
@@ -18,7 +18,7 @@ In another case, researchers could use phylogenies to help identify ``super-spre
 
 \subsection{Phylogenies \& Digital Evolution} \label{sec:introduction:digital}
 
-Often, studying evolution through biological means is not as feasible, as laboratory experiements may take years, or even decades, to complete -- a canonical example being the long-term evolution experiment \citep{wiser2013long}.
+Often, studying evolution through biological means is not as feasible, as laboratory experiements may take years, or even decades, to complete -- a canonical example being the long-term evolution experiment \citep{wiser2013long}. 
 Therefore, by simulating the behavior of a population, experiements can instead be done digitally, with simulations running in a fraction of the time.
 These systems can model key characteristics of biological populations, such as variation, natural selection, facilitation, movement, predation, and more.
 So, due to the nature of these simulations, conclusions about digital evolution can even be generalized to biological evolution \citep{pennock2007models, dolson2021digital}.
@@ -37,37 +37,86 @@ When dealing with biological data, common methods for phylogenetic reconstructio
 Common methods include distance-based methods, where a distance matrix between organisms is computed and processed with methods such as neighbor-joining \citep{saitou1987neighbor}; or character-based methods, such as maximum-parsimony \citep{sober1991reconstructing}, which seeks to minimize the number of evolutionary changes -- and maximum-likelihood \citep{felsenstein1981evolutionary}, which infers parameters about the tree that makes the given set of data most likely \citep{de2014phylogenetic}.
 
 However, given the high controllability of digital simulations, many -- such as the aforementioned Aevol\_4b -- run with their own system of phylogenetic tracking, making (re)construction significantly easier when compared to traditional bioinformatics methods.
-A simple example is perfect tracking: the idea that phylogenies can be tracked as the simulation runs. Many tools are designed specifically for this purpose \citep{dolson2024phylotrack}, while others simply incorporate bespoke implementations into their own software \citep{ofria2004avida}. However, large-scale distributed simulations, with limited memory and data integrity, are often unable to take advantage of perfect tracking.
-When there are thousands -- if not millions -- of replications, perfect-tracking approaches become impractical due to \textbf{TODO}.
-Therefore, they must instead opt for approximate tracking methods.
+A simple example is perfect tracking: the idea that phylogenies can be tracked as the simulation runs. Many tools are designed specifically for this purpose \citep{dolson2024phylotrack}, while others simply incorporate bespoke implementations into their own software \citep{ofria2004avida}.
+
+However, in large-scale, many-processor simulations, challenges arise in managing a comprehensive record of ancestry.
+To control memory use, it is typically necessary to trim away records of extinct lineages.
+Detecting extinctions, however, introduces implementation complexity and overhead costs when lineage histories span across multiple processors.
+Such an approach is also sensitive to data loss from crashed hardware or dropped messages \citep{TODODAVEACKLEY}.
+Challenges associated with comprehensive tracking are especially acute in specialized hardware accelerator devices, which represent a promising emerging direction in High-Performance Computing (HPC) \citep{TODO}.
+In incorporating thousands of processor cores per device, these hardware architecture impose trade-offs in data locality restrictions and the amount of on-chip memory availble per core.
+
+An alternate approach to collecting phylogeny data is by estimating relatedness according to similarities among organisms.
+For instance, most phylogeny data in biology is estimated via sophisticated comparisons of similarities in DNA.
+As a key advantage, this approach is fully decentralized, with ancestry information captured within agent genomes rather than through external tracking.
 
 \subsection{Hereditary Stratigraphy} \label{sec:introduction:hstrat}
 
-One method for approximate tracking of asexual organisms is hereditary stratigraphy, which acknowledges the fact that distributed systems may have limited memory per organism, and utilizes various algorithms to select what data to retain and what data to discard \citep{moreno2022hstrat}.
-The end result is the genetic information of an organism being a series of rank-differentia pairs, where each rank represents a generation at which a datum was retained, and the differentia representing the datum itself.
-However, the presence of missing information is a hurdle that a phylogenetic reconstruction algorithm must overcome, and may cause significant slowdowns using traditional algorithms.
-
 \input{fig/hstratschematic}
 
-\textbf{TODO add more about hstrat}
+Under controlled conditions, such as laboratory experiments or evolution simulations, genetic material may be engineered to facilitate accuracy and efficiency of estimating phylogenetic relatedness \citep{li2024reconstructing}.
+In this vein, work with hereditary stratigraphy methods has sought to operate analogously, organizing genetic material to maximize reconstruction quality and minimize memory footprint \citep{moreno2022hereditary}.
+Hstrat material can be bundled with agent genomes in a manner akin to non-coding DNA, entirely neutral with respect to agent traits and fitness.
 
-\subsection{Problem Statement} \label{sec:introduction:problem}
+HStrat associates each generation along each lineage with an identifying ``fingerprint'' marker, referred to as a differentia.
+On birth, offspring receive a new differentia value and append it to an inherited chronological record of past values, each corresponding to a generation along that lineage.
+Under this scheme, mismatching differentia can be used to delimit the extent of common ancestry.
+Figure \ref{fig:hstratschematic} gives a schematic overview of the hereditary stratigraphy approach.
 
-The existing algorithm functions by treating the ordered rank-differentia pairs as strings (with potential missing information), where each differentia could represent a character at the rank-th position.
-With this abstraction, we can essentially build a trie \citep{fredkin1960trie} from the organisms.
+To save space, differentiae may be pruned away -- although, at the cost of reducing precision in inferring relatedness.
+Reducing the number of bits per differentia can also provide many-fold memory space savings.
+Using single bits or single bytes is appropriate for most use cases.
 
-To begin, all organisms are sorted in ascending order by the number of generations elapsed; due to each organism using the same algorithm to determine which data to remove, if data at some rank is missing in one organism, it will be missing in all subsequent ones.
-This list of organisms is then processed one at a time, going through each rank-differentia pair and determining whether to branch off the trie, continue along, or address missing information (see Algorithm~\ref{alg:old}).
+% and the possibility of collisions and missing data.
+Inferring relatedness from biological sequence data can be a highly challenging and computationally-intensive problem \citep{TODO}.
+The structured marker data used in hereditary stratigraphy ameliorates this challenge somewhat, by allowing phylogeny reconstruction to be approached as a trie-building procedure of identifying common string prefixes \citep{TODO}.
+However, the presence of missing data due to differentia dropped to save memory complicates matters.
+In the context of trie-building, markers possessed by only a subset of organisms effectively act as ``wildcard'' characters for organisms that do not possess them, possibly having taken on any differentia value.
+Placing an organism on a trie therefore requires evaluating possible subsequent paths following the wildcard fo identify further matches.
+With the possibility of differentia value collisions with small differentia sizes (e.g., 1 bit), identifying the best-matching path after a wildcard misisng value can require looking ahead several consecutive markers.
+Furhter, where consecutive wildcards are encountered, the number of possible paths that must be explored can grow exponentially.
+% resolving these wildcards can require possibly-exponential evaluation of alternate trie paths.
+% briefly mentions the naive trie-based approach we improve upon here, and remarks upon the wildcard matching problem associated with it \citep{moreno2024analysis}.
 
-If processing information corresponding to a rank $r$ that is larger than the rank $r'$ of a child $c$ of $n$, we know that the information at rank $r'$ must have been deleted in the original organism (otherwise, it would have been processed already).
-To maximize reconstruction accuracy, we must deterrmine if the missing datum is child $c$'s differentia, that of another child also with rank $r'$, or by none of the children of $n$ (where we would branch off).
-Essentially, when reaching missing information, we must infer that information, which we do by looking ahead on the tree. The naive  trie algorithm accomplished this by looking forwards and finding the path with the ``longest successive streak'' of matching differentia with the current organism \citep{moreno2024analysis}.
-If there is no matching path, we simply branch off $n$ rather than through its children.
+% Phylogeny inference is
+% A naive approach requires...
 
-\input{alg/old-reconst}
+Although previous work has investigated the quality of phylogenies constructed from hereditary stratigraphy data using trie-based approaches \citep{moreno2025testing}, the computational intensity of the naive wildcard-matching approach has limited the scale of phylogenetic reconstructions practical to work with and restricted experimental throughput for smaller reconstructions.
+Given the objective of the methodology to facilitate studying very large scale digital evolution experiments, achieving reconstruction efficiency sufficient to collect large-scale phylogeny data is critical to the overall utility of the methodology in enabling observable experiments.
+In this work, we develop algorithms for more efficient trie reconstruction in the face of missing data, and explore their practical scalability through benchmark trials of high-performance implementations.
 
-However, despite being an accurate way of dealing with missing information, this approach suffers the cost of doing significant extra work each time.
-In the worst case, there could be many matching paths to check, each with many matching differentiae.
-In large-scale simulations, with limited differentia values (sometimes being represented with only one bit), this is a surprisingly common problem and significantly slows down the reconstruction process.
-Additionally, these searches would need to happen for each organism, regardless of whether or not a similar search was already done.
-Therefore, we present an improved algorithm that consolidates this extra work into a single step, never needing to be repeated.
+The following section introduces our proposed ``shortcut'' algorithm for trie building approach explored in this paper. We then describe a set of to validate reconstruction quality and test empirical scaling behavior and performance on to billion-genome=scale workloads.
+
+% \citet{moreno2024trackable} used the naive trie building algorithms, and is the base for the benchmarking code that we did here (but we add some etensions here).
+% The trees built in this work were only TODO tips.
+% 
+
+% Earliest work with hereditary stratigraphy used a very simple UPGMA/neighbor joining approaches based on estimations of pairwise distance beteen taxa \citet{moreno2022hereditary}.
+
+% The end result is the genetic information of an organism being a series of rank-differentia pairs, where each rank represents a generation at which a datum was retained, and the differentia representing the datum itself.
+% However, the presence of missing information is a hurdle that a phylogenetic reconstruction algorithm must overcome, and may cause significant slowdowns using traditional algorithms.
+
+% Given the various work that has been done on hereditary stratigraphy, it is useful to overview the recent work and to highlight how present work differs from it.
+
+% \citet{moreno2022hereditary} introduced the general hereditary stratigraphy method, which was implemented in a accompanying software package \citep{moreno2022hstrat}.
+% \citet{moreno2023toward} investigated the nature of phylostatistical fingerprints left by evolutionary forces of ecology, selection pressure, and spatial structure, and the effects of approximation error from hereditary stratigraphy on detecting these fingerprints.
+% \citet{moreno2024methods} explored how the methodology might be extended from asexual systems, which we focus on here, to sexual systems through gene tree tracking and gene drive mechanisms.
+
+% \citet{moreno2024structured} introduced the ``surface'' data structure which is used in this work, taking a generalized ring buffer approach to storing differentia data \citet{gunther2014algorithm}.
+% The original trie-based reconstruction method is used in
+
+% \textbf{TODO add more about hstrat} 
+
+% \subsection{Problem Statement} \label{sec:introduction:problem}
+
+% TODO @mmore500
+
+% Unfortunately, the existing naive algorithm is simply not fast enough for large-scale simulations, with 
+
+
+% @MAM I moved the following content into the "algorithm" section in the "naive trie building algorithm" subsection.
+% I think what we want here is something that is going to be a tricky mix of vague and specific
+% ... maybe a good term is "evocative"
+% we want to evoke the core problem by describing "what" the challenge is rather than exactly "how" or "why"
+% and we can end with "A more detailed description of the challenge solved in this work is provided in Section \ref{sec:algorithm}...
+

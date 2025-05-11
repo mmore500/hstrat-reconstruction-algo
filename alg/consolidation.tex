@@ -2,16 +2,24 @@
   \caption{the consolidation step of the shortcut table algorithm, which builds shortcuts for a given node $n$ and collapses duplicate children caused by those shortcuts}
   \label{alg:consolidation}
   \begin{algorithmic}[1]
-    \Function{ConsolidateTree}{$T, n, r$}
+    \Function{ConsolidateTree}{$T$, $n$, $r$}
       \State $S \gets$ the set of (great)grandchildren of $n$ such that $\forall c \in S\ \operatorname{rank}(c) \ge r$ and $\forall c \in S\ \operatorname{rank}(\operatorname{parent}(c)) < r$ 
-      \State $\textsc{BuildShortcuts}(T, n, S)$
+      \State \textsc{BuildShortcuts}($T$, $n$, $S$)
       \For{each subset of duplicate\footnotemark nodes $S' \subseteq S$}
         \State $c \gets$ an arbitrary element in $S'$ 
         \For{$c' \in S \setminus \{c\}$}
-          \State $\textsc{BuildShortcuts}(T, c, \operatorname{children}(c'))$
-          \State $\textsc{RemoveShortcut}(T, n, c')$
+          \State \textsc{BuildShortcuts}($T$, $c$, $\operatorname{children}(c')$)
+          \State \textsc{RemoveShortcut}($T$, $n$, $c'$)
         \EndFor
       \EndFor 
+    \EndFunction
+    \Function{BuildShortcuts}{$T$, $n$, $S$}
+      \For{$c \in S$}
+        add a shortcut edge from $n$ to $c$
+      \EndFor
+    \EndFunction
+    \Function{RemoveShortcut}{$T$, $n$, $c$}
+        \State remove the shortcut edge from $n$ to $c$
     \EndFunction
   \end{algorithmic}
 \end{algorithm}

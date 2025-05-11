@@ -1,3 +1,18 @@
 \begin{abstract}
-TODO
+
+Digital evolution enables fast experiments that can be precisely controlled and observed in detail.
+This makes them useful both as a testbed for developing and validating statistical methodologies for phylogeny-based analyses.
+These platforms are also of interest in studying abstract concepts like evolvability and open-ended evolution, where the ability to explore parameter regimes outside thoseof natural life is relevant.
+Phylogeny-based analyses leveraging bioinformatics infrastructure are an important tool for this use case.
+Large-scale simulations are important to both of these use cases.
+Ongoing advances in hardware accelerator devices such as the Cerebras Wafer-Scale Engine have great potential to enable very large-scale simulations, but memory and bandwidth constraints introduce difficulties in exhaustively tracking phylogenies.
+Recent work has developed space-efficient mechanisms for heritable genetic markers to facilitate fully-decentralized approximate tracking of ancestry over evolving populations called hereditary stratigraphy.
+However, the process of reconstructing phylogenies from genetic markers has been a bottleneck to efficiently carrying out large-scale analyses.
+Here, we detail an improved phylogeny reconstruction algorithm and report empirical benchmarking experiments to assess its scalability.
+The proposed approach achieves TODO-fold speedup for constructing trees of size TODO, and, additionally, exhibits a more benign scaling relationship trajectory than the naive approach.
+In a set of large-scale trials using data sampled from a wafer-scale simulation encompassing TOOD quadrillion agent evaluations, we find build times for a 1 billion genome tree between 2.5 and 3.5 hours.
+The presented work provides a lynchpin to enable work in large-scale evolution simulations in a memory-efficient manner that harnesses large numbers of compute cores.
+This will allow experiments that require building very large phylogenetic trees, or high-throughput experiments that require building many smaller trees such as sampling-based methods or gene-tree analyses.
+To facilitate these use cases, a reference implementation is provided as a Python package and a standalone CLI interface.
+
 \end{abstract}

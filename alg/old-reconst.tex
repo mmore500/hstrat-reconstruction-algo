@@ -14,9 +14,7 @@
         \Function{TreeInsert}{$T, o$}
             \State $n \gets$ root of $T$
             \For{each rank-differentia pair $(r, d) \in o$}
-                \While{$r >$ the rank of $n$'s children}
-                    \State $n \gets$ the child of $n$ most likely contain $o$
-                \EndWhile
+                \State $n \gets$ the child of $n$ most likely contain $o$, $n$ if there is no such child
                 \If{$\exists c \in \operatorname{children}(n) \text{ s.t.} \operatorname{differentia(c) = d}$}
                     \State $n \gets c$
                 \Else 

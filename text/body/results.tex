@@ -2,23 +2,74 @@
 
 We now present the results of the experiements mentioned in the previous section, as well as their significance.
 
-\subsection{Billion-Tip Reconstruction}
-
-\input{fig/billion-tip-time.tex}
-
-\subsection{Asymptotic Results}
-
-\input{fig/asymptotic.tex}
-
 \subsection{Runtime Comparison}
 
-A direct comparison between the naive trie-based and the optimized shortcut table-based approches highlights the massive savings achieved by the new algorithm. As seen in Figure~\ref{fig:comparison}, the original algorithm explodes in runtime, whereas the new algorithm performs so well that there is no clear increase in runtime.
+A direct comparison between the naive trie-based and the optimized shortcut table-based approches highlights the massive savings achieved by the new algorithm.
+As seen in Figure~\ref{fig:comparison}, the original algorithm explodes in runtime, whereas the new algorithm performs so well that there is no clear increase in runtime.
 
 \input{fig/ntips-comparison.tex}
 
-The naive and optimized algorithms were implemented with all things constant except for two details: the optimized algorithm used a search table and included shortcut optimizations. Because a search table is merely a different data structure used for a tree (an alternative to using a node-pointer approach), with equivalent time complexities for all operations, one could expect this change to result in a constant speedup (if any) between the two algorithms.
+The naive and optimized algorithms were implemented with all things constant except for two details: the optimized algorithm used a tabular edge-list data structure and included shortcut optimizations.
+Because an edge-list table is merely a different data structure used for a tree (an alternative to using a node-pointer approach), with equivalent time complexities for all operations, one could expect this change to result in a constant speedup (if any) between the two algorithms.
 
-Because this result is not by a constant factor, we can assume that a majority of the speedup came from the shortcuts saving a significant amount of work that was unncessarily done in the naive approach. 
+Because this difference is seemingly not by a constant factor, we can assume that a majority of the speedup came from the shortcuts saving a significant amount of work that was unncessarily done in the naive approach. 
+Therefore, regardless of algorithm implementation details, the new shortcut-based approach can be used more generally for quicker trie-building.
+Python code was used for both algorithm implementations in this trial, to ensure fair comparability.
 
-\subsection{Asymptotic Results} \label{sec:results:asymptotic}
+\subsection{Microbenchmark: Empirical Scaling Analysis}
+
+\input{fig/asymptotic.tex}
+
+Having seen a substantial speedup in comparing the shortcut-enabled algorithm to the naive trie-building approach, we next sought to assess the scaling properties of the shortcut-enabled approach in isolation.
+To better reflect real-world conditions, we used the main C++ implementation of the trie-building algorithm for these trials.
+
+After running the reconstruction on both adaptive and purifying regimes, we see approximately linear scaling in the time taken to reconstruct a tree from a given number of tips (Figure \ref{fig:asymptotic}).
+Despite this, we cannot say for sure if the algorithm's runtime is indeed linear, as there could be a scaling factor not being captured by this benchmark.
+In fact, when computing the number of tips processed per section with respect to the number of tips overall, we found a TODO 
+
+\subsection{Macrobenchmark: One Billion-Tips}
+
+\input{fig/billion-tip-time.tex}
+
+Given the promising results of microbenchmark trials, particularly the favorable empirical scaling result, we next sought to assess the performance of our approach on an extremely large problem size.
+
+For this purpose, we used thr full corpus of 1 billion agent genomes extracted from our trial Wafer-Scale Engine expermiments.
+As a point of comparison, the largest reconstructions performed using the previous approach comprised only TODO tips \citep{moreno2024towards}.
+
+Input data comprised a Parquet format file storing raw agent genomes in a hexidecimal string representation.
+Population file size was TODO GB for and TODO GB for the sample adaptive- and purifying-selection regimes, respectively.
+
+\subsection{Validation: Comparison to Ground Truth}
+
+Finally, we conducted experiments to validate the quality of phylogenies produced by our algorithm.
+
+We began by testing accuracy of the reconstruction on ground-truth phylogenies.
+For these trials, we conducted experiments using a neutral evolution model on a single CPU where we were able to directly record the underlying phylogeny history. See the supplemental material for an example comparison between a ground-truth tree and estimated reconstruction \citep{supplemental}.
+
+To assess reconstruction error, we used the triplet distance metric to compare corresponding ground-truth and estimated phylogenies.
+This metric can be interpreted as the fraction of sampled three-node sets for which both trees report the same two nodes as more closely related.
+
+%TODO can we also report SD of error (this will give a sense for distribution of error)
+%MAYBE if time permits, it would be ideal to have a second row in this table where we have error measures from the naive algorithm
+\input{tab/validation}
+
+We obtained low mean error values (see Table~\ref{table:validation}) for medium to large surface sizes.
+%TODO report statistics for smallest and largest surface sizes in text
+As expected, for very small surface sizes comprising just 16 bits of information at a time, reconstruction error was elevated.
+As 
+
+In addition to experiments reported here, the \texttt{hstrat} library includes an extensive battery of unit tests that compare the reconstructed MRCA between organisms to the value expected by direct comparison of their hstrat marker records.
+
+\subsection{Validation: Comparison to Naive Algorithm}
+
+Previous work using the naive approach has been extensively validated and analyzed \citep{moreno2025testing}.
+
+When comparing tress reconstructed by the shortcut algorithm with those reconstructed by the naive algorithm, we noticed that, for the sub-sample data, the arbirary choices present in each algorithm made a very large difference when it came to producing different trees.
+Since there is no ground truth phylogeny for this dataset, and that the only way these algorithsm can differ is by these arbitrary choices, we can assume that both trees are equally likely to be more accurate.
+
+However, to try to minimize this difference, we generated synthetic data based on the sample data and attached various stream curation algorithms to discern their effects.
+It was found that algorithms with a higher emphasis on more recent data resulted in less data being present for older generations, leading to more arbitrary choices made in the naive and shortcut algorithms early on, as there is more uncertainty during those generations.
+These choices early on had a large impact on the resulting tree, resulting in the two algorithms having different outputs. However, theoretically, both outputs should be equally ``valid'' under the constraints of the naive algorithm. 
+
+Therefore, stream curation protocols with a higher retention of old data resulted in reconstructed trees by the naive and shortcut algorithms being more similar. Additionally, we found that trees were more similar by using data where ranks were more similar (from the tail of the billion-tip experiement rather than a sample throughout).
 
