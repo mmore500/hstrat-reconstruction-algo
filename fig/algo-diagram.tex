@@ -1,42 +1,45 @@
 \begin{figure*}
-
-\begin{minipage}{0.33\linewidth}
+\begin{minipage}{0.74\linewidth}
+\centering
+\begin{minipage}{0.32\linewidth}
   \centering
   \includegraphics[width=\linewidth]{img/shortcut-algo-diagram-1}
-  \subcaption{Preparing to add organism $D$}
+  \subcaption{Preparing to add $D$}
   \label{fig:shortcut-algo-diagram-1}
 \end{minipage}
-\begin{minipage}{0.33\linewidth}
+\begin{minipage}{0.32\linewidth}
   \centering
   \includegraphics[width=\linewidth]{img/shortcut-algo-diagram-2}
   \subcaption{Encountering dropped marker}
   \label{fig:shortcut-algo-diagram-2}
 \end{minipage}
-\begin{minipage}{0.33\linewidth}
+\begin{minipage}{0.32\linewidth}
   \centering
   \includegraphics[width=\linewidth]{img/shortcut-algo-diagram-3}
-  \subcaption{Shortcuts around dropped-marker nodes}
+  \subcaption{Building shortcuts around}
   \label{fig:shortcut-algo-diagram-3}
 \end{minipage}
 \begin{minipage}{\linewidth}\par\end{minipage}
-\begin{minipage}{0.33\linewidth}
+\begin{minipage}{0.32\linewidth}
   \centering
   \includegraphics[width=\linewidth]{img/shortcut-algo-diagram-4}
-  \subcaption{Encountering redundant shorcuts}
+  \subcaption{Indistinguishable nodes}
   \label{fig:shortcut-algo-diagram-4}
 \end{minipage}
-\begin{minipage}{0.33\linewidth}
+\begin{minipage}{0.32\linewidth}
   \centering
   \includegraphics[width=\linewidth]{img/shortcut-algo-diagram-5}
   \subcaption{Collapsing redundant shortcuts}
   \label{fig:shortcut-algo-diagram-5}
 \end{minipage}
-\begin{minipage}{0.33\linewidth}
+\begin{minipage}{0.32\linewidth}
   \centering
   \includegraphics[width=\linewidth]{img/shortcut-algo-diagram-6}
   \subcaption{Organism $D$ added}
   \label{fig:shortcut-algo-diagram-6}
 \end{minipage}
+\end{minipage}
+\begin{minipage}{0.24\linewidth}
 \caption{%
 \textbf{Trie-consolidation procedure for proposed shortcut algorithm.}
 \small
@@ -46,5 +49,6 @@ Note that bypassed trie structure is retained (``grayed-out'' nodes), so corresp
 In a final step, shortcuts leading to identical nodes are further consolidated (panels \ref{fig:shortcut-algo-diagram-4} and \ref{fig:shortcut-algo-diagram-5}).
 }
 \label{fig:algo-diagram}
-
+\end{minipage}
+\vspace{-1.5em}
 \end{figure*}

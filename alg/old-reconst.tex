@@ -1,8 +1,5 @@
 \begin{algorithm}[h]
-    \caption{the existing algorithm for creating a phylogenetic tree through hereditary stratigraphy, using a naive trie-building approach}
-    \label{alg:old}
     \begin{algorithmic}[1]
-        \Require a list of organisms $O$ in ascending order by generations elapsed
         \Function{ReconstructTree}{$O$}
             \State $T \gets$ an empty tree
             \For {$o \in O$} 
@@ -26,4 +23,6 @@
             \State insert information about $o$ as a child of $n$
         \EndFunction
     \end{algorithmic}
+    \caption{\textbf{The naive trie-buidling algorithm.} \small Iteratively builds a trie from organisms' genetic material. Requires a list of organisms $O$ in ascending order by generations elapsed. This is the existing algorithm for creating a phylogenetic tree through hereditary stratigraphy. \vspace{-1.5em}}
+    \label{alg:old}
 \end{algorithm}

@@ -1,18 +1,13 @@
 \begin{abstract}
 
-Digital evolution enables fast experiments that can be precisely controlled and observed in detail.
-This makes them useful both as a testbed for developing and validating statistical methodologies for phylogeny-based analyses.
-These platforms are also of interest in studying abstract concepts like evolvability and open-ended evolution, where the ability to explore parameter regimes outside thoseof natural life is relevant.
-Phylogeny-based analyses leveraging bioinformatics infrastructure are an important tool for this use case.
-Large-scale simulations are important to both of these use cases.
-Ongoing advances in hardware accelerator devices such as the Cerebras Wafer-Scale Engine have great potential to enable very large-scale simulations, but memory and bandwidth constraints introduce difficulties in exhaustively tracking phylogenies.
-Recent work has developed space-efficient mechanisms for heritable genetic markers to facilitate fully-decentralized approximate tracking of ancestry over evolving populations called hereditary stratigraphy.
-However, the process of reconstructing phylogenies from genetic markers has been a bottleneck to efficiently carrying out large-scale analyses.
-Here, we detail an improved phylogeny reconstruction algorithm and report empirical benchmarking experiments to assess its scalability.
-The proposed approach achieves TODO-fold speedup for constructing trees of size TODO, and, additionally, exhibits a more benign scaling relationship trajectory than the naive approach.
-In a set of large-scale trials using data sampled from a wafer-scale simulation encompassing TOOD quadrillion agent evaluations, we find build times for a 1 billion genome tree between 2.5 and 3.5 hours.
-The presented work provides a lynchpin to enable work in large-scale evolution simulations in a memory-efficient manner that harnesses large numbers of compute cores.
-This will allow experiments that require building very large phylogenetic trees, or high-throughput experiments that require building many smaller trees such as sampling-based methods or gene-tree analyses.
-To facilitate these use cases, a reference implementation is provided as a Python package and a standalone CLI interface.
-
+Agent-based simulation platforms play a key role in enabling fast-to-run evolution experiments that can be precisely controlled and observed in detail.
+Availability of high-resolution snapshots of lineage ancestries from digital experiments, in particular, is key to investigations of evolvability and open-ended evolution, as well as in providing a validation testbed for bioinformatics method development.
+Ongoing advances in hardware accelerator devices for high-performance computing, such as the 850,000-processor Cerebras Wafer-Scale Engine (WSE), are poised to broaden the scope of evolutionary questions that can be investigated \textit{in silico}, but memory and bandwidth constraints introduce difficulties in exhaustively tracking phylogenies.
+Recent work on hereditary stratigraphy algorithms has developed space-efficient genetic markers to facilitate fully-decentralized estimation of relatedness among digital organisms.
+However, computational intensity of reconstructing phylogenies from these genetic markers has proven a limiting factor in large-scale phyloanalyses.
+Here, we detail an improved trie-building algorithm designed to produce reconstructions equivalent to existing approaches, and report benchmarking and validation experiments assessing its properties.
+For modestly-sized 10,000-tip trees, the proposed approach achieves 300-fold speedup versus existing state-of-the-art.
+In scaling analysis, workloads up to 10 million genomes maintain a promising TODO\% of marginal throughput rate.
+Finally, using 1 billion genome datasets drawn from WSE simulations encompassing 954 trillion replication events, we report a pair of large-scale phylogeny reconstruction trials, achieving end-to-end reconstruction times of 2.5 and 3.5 hours.
+In substantially improving reconstruction scaling and throughput, presented work stands to help enable incorporation of powerful phyloanalysis techniques requiring large sample size in decentralized digital evolution experiments.
 \end{abstract}

@@ -1,7 +1,7 @@
 \section{Conclusion} \label{sec:conclusion}
 
 Upwards trends in technological capacity for massively parallel and distributed computation are continuing to profoundly redefine the scope of scientific questions and model systems that can be investigated using \textit{in silico} methods.
-As these systems scale, there become challenges with data accessibility and memory capacity, causing sampling-based approaches and approximations to become increasingly more relevant in solving this issue.
+As these systems scale, challenges arise in managing the quantity and velocity of data generation, causing sampling-based approaches and approximations to become increasingly more relevant in solving this issue.
 
 In a parallel vein, advances in high throughput sequencing technologies and phylogenetic inference algorithms over nucleotide data are making it possible to work with larger and larger trees.
 These have brought into realization phylogenies with many millions of tips.
@@ -9,28 +9,29 @@ In bioinformatics, there was recentlly proof-of-concept work done using procedur
 In digital evolution, sampling approaches and reconstruction algorithms such as the one presented in this paper can process billions of tips in a matter of hours.
 
 However, the question of what to do with multimillion/billion tip tree and how to do it in an efficient manner remains, and in future work, will be critical to address.
-We have the opportunity to contribute meaningfully to this cross-disciplinary question through ALIFE (artifical life).
-Given the unique capability of ALIFE study systems to generate large sets of detailed data that is directly observable across the span of simulated history, this motivated work on the ALIFE data standard, which specifies a tabular representation for phylogeny data (TODO cite alife standard). 
+We have the opportunity to contribute meaningfully to this cross-disciplinary question through artificial life approaches.
+Given the unique capability of ALIFE study systems to generate large sets of detailed data that is directly observable across the span of simulated history, this motivated work on the ALIFE data standard, which specifies a tabular representation for phylogeny data \citep{Lalejini2019data}.
 
-Over the recent years, a robust ecosystem of high performance tools has arisen around this DataFrame concept, including Pandas, Polars, Dask, and data.table, including advanced features such as multithreading, data streaming, query optimization, file partitioning, and column-oriented binary datafile formats. 
-Additionally, existing high performance toolkits like NumPy and Numba integrate tightly with these frameworks.
+Over the recent years, a robust ecosystem of high performance tools has arisen around this DataFrame concept, including Pandas, Polars, Dask, and data.table, including advanced features such as multithreading, data streaming, query optimization, file partitioning, and column-oriented binary datafile formats \citep{mckinney2010data,datatable,vink2024polars,rocklin2015dask}.
+Additionally, existing high performance toolkits like NumPy and Numba integrate tightly with these frameworks \citep{Harris2020array,lam2015numba}.
 In fact, it is this approach that enabled a large amount of the pre- and post-processing steps of the reconstruction algorithm pipeline generated in this work.
 As such, the ALIFE standard has the potential to be a backbone of a larger high-performance analysis and tree manipulation strategies, and is well positioned to contribute both on the technical infrastructure and methodological statistics of developing next-generation workflows for ultra-large phylogenies.
 
 \subsection{Future Work} \label{sec:conclusion:future}
 
-Because phylogeny data is increasing in scale due to better sequencing and reconstruction algorithms, a huge opportunity for deeper insight across a broad variery of evolving systems is presented. 
-However, infrastructure for storing, measuring, manipulating, and visualizing phylogenies has been identified as a key bottleneck. 
-Many recent projects have been developed to try to address this issue. 
-For example, taxonium \citep{sanderson2022taxonium} is a web-based software for visualizing large phylogenies in a flexible manner, and is able to handle browing millions of tips at a high frame rate. 
-Other projects aim to create methods for compact, scalable phylogeny representations \citep{moshiri2025compacttree, moshiri2020treeswift} enabling faster and more lightweight tree operations. 
+Because phylogeny data is increasing in scale due to better sequencing and reconstruction algorithms, a huge opportunity for deeper insight across a broad variery of evolving systems is presented.
+However, infrastructure for storing, measuring, manipulating, and visualizing phylogenies has been identified as a key bottleneck.
+Many recent projects have been developed to try to address this issue.
+For example, taxonium \citep{sanderson2022taxonium} is a web-based software for visualizing large phylogenies in a flexible, interactive manner, and is able to handle browing millions of tips at a high frame rate.
+Other projects aim to create methods for compact, scalable phylogeny representations \citep{moshiri2025compacttree, moshiri2020treeswift} enabling faster and more lightweight tree operations.
 Developing tools to deal with phylogenies that scale up to billions of tips is crucial to enabling analyses on a larger scale than ever before.
 
-There is a plethora of work pertinent to our proposed algorithm that could be done in the future. For example, testing the effectiveness on different data retention algorithms on reconstruction could prove crucial to selection the right algorithm during large simulations. 
-Additionally, through some testing, we found that collecting `fossils' throughout a simulation -- organisms which we copied out in the middle of the simulation and added to the final population at the end -- could improve the accuracy of reconstruction on the extant population. 
+There is a plethora of work pertinent to our proposed algorithm that could be done in the future.
+For example, testing the effectiveness on different data retention algorithms on reconstruction could prove crucial to selection the right algorithm during large simulations.
+Additionally, through some testing, we found that collecting `fossils' throughout a simulation -- organisms which we copied out in the middle of the simulation and added to the final population at the end -- could improve the accuracy of reconstruction on the extant population.
 This is likely because these fossils provide some extra information for reconstruction algorithms to use, but the effectiveness of this approach may depend on the retention policy as well.
 
 Other future work (even some ongoing) will involve building out experimental pipelines to exploit the methods and tools developed in this work.
-These could use large-scale simulations on emerging platforms such as the Cerebras Wafer-Scale engine in order to provide ground truth basis to test and interactively develop phylostatistical methodologies in addition to pursuing hypothesis-driven experiments using digital simulations as a model system.
-For example, complex populations could be modeled through digital evolution with different evolutionary characteristics, with our proposed reconstruction algorithm being the foundation for phylogenetic analyses. 
+These could use large-scale simulations on emerging platforms such as the Cerebras Wafer-Scale Engine in order to provide ground truth basis to test and interactively develop phylostatistical methodologies in addition to pursuing hypothesis-driven experiments using digital simulations as a model system.
+For example, complex populations could be modeled through digital evolution with different evolutionary characteristics, with our proposed reconstruction algorithm being the foundation for phylogenetic analyses.
 To this end, all tools described herein are published open source \citep{moreno2024hstrat} with an emphasis on usability, enabling anyone to control evolution.

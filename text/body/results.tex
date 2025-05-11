@@ -1,7 +1,5 @@
 \section{Results and Discussion} \label{sec:results}
 
-We now present the results of the experiements mentioned in the previous section, as well as their significance.
-
 \subsection{Runtime Comparison}
 
 A direct comparison between the naive trie-based and the optimized shortcut table-based approches highlights the massive savings achieved by the new algorithm.
@@ -18,14 +16,17 @@ Python code was used for both algorithm implementations in this trial, to ensure
 
 \subsection{Microbenchmark: Empirical Scaling Analysis}
 
-\input{fig/asymptotic.tex}
+\input{fig/scaling.tex}
 
 Having seen a substantial speedup in comparing the shortcut-enabled algorithm to the naive trie-building approach, we next sought to assess the scaling properties of the shortcut-enabled approach in isolation.
 To better reflect real-world conditions, we used the main C++ implementation of the trie-building algorithm for these trials.
 
-After running the reconstruction on both adaptive and purifying regimes, we see approximately linear scaling in the time taken to reconstruct a tree from a given number of tips (Figure \ref{fig:asymptotic}).
-Despite this, we cannot say for sure if the algorithm's runtime is indeed linear, as there could be a scaling factor not being captured by this benchmark.
-In fact, when computing the number of tips processed per section with respect to the number of tips overall, we found a TODO 
+Figure~\ref{fig:scaling} depicts the relationship between a tree size as 100 thousand tip batches are added and the time taken to insert each batch, over 5 samples of a 10 million tip reconstruction. 
+Fitting a simple linear regression model to this data, we found that, with a significance of $\alpha = 0.05$, that we should reject the null hypothesis of a constant slope, and infer that as tree sizes increase, the time taken to add tips increases as well.
+
+Analyzing the graph, we see that these results seem to by and large be as a result of outliers within the data, most likely due to expensive consolidation steps. A more fine-grained analysis (with batches of 5000) on average-case data (filtering out values above the 95th percentile) shows that past a certain point, insertion times do not increase (see supplemental \citep{supplemental} for more information).
+
+However, these outliers may be amortized away in practice -- after running the reconstruction on both adaptive and purifying regimes, we see approximately linear scaling in the time taken to reconstruct a tree from a given number of tips (see Figure~\ref{fig:asymptotic} in the supplemental material \citep{supplemental}).
 
 \subsection{Macrobenchmark: One Billion-Tips}
 
@@ -33,11 +34,27 @@ In fact, when computing the number of tips processed per section with respect to
 
 Given the promising results of microbenchmark trials, particularly the favorable empirical scaling result, we next sought to assess the performance of our approach on an extremely large problem size.
 
-For this purpose, we used thr full corpus of 1 billion agent genomes extracted from our trial Wafer-Scale Engine expermiments.
-As a point of comparison, the largest reconstructions performed using the previous approach comprised only TODO tips \citep{moreno2024towards}.
+For this purpose, we conducted trial reconstruction benchmarks comprising the full corpus of 1 billion agent genomes extracted from our trial Wafer-Scale Engine expermiments.
+As a point of comparison, the largest reconstructions performed using the previous approach comprised only 10,000 tips \citep{moreno2024trackable}.
 
+% log files:
+% https://osf.io/s3rzj and https://osf.io/gj52m
+Benchmarked operations included the full reconstruction operation pipeline shown in Figure \ref{fig:hstratschematic}.
 Input data comprised a Parquet format file storing raw agent genomes in a hexidecimal string representation.
-Population file size was TODO GB for and TODO GB for the sample adaptive- and purifying-selection regimes, respectively.
+Population file size was 34 GB for and 35 GB for the sample adaptive- and purifying-selection regimes, respectively.
+Output data comprised the reconstructed phylogeny in an edge-list format closely resembling the alife data standard.
+Several pieces of metadata (e.g., agent position and extraction batch) were forwarded to output data.
+For the adaptive-selection regime, output file size was 54 GB;
+for the purifying-selection regime, output file size was 55 GB.
+
+% log files:
+% https://osf.io/s3rzj and https://osf.io/gj52m
+Given the large problem-size scale tested, macrobenchmark trials were carried out on compute cluster node, rather than a desktop PC, as was used for microbenchmark experiments.
+Figure \ref{fig:billion-tip-time} profiles net runtime and its breakdown in our case study reconstruction trials.
+Reconstruction time was 2h:30m for the adaptive-regime data set.
+As expected, given associated richer phylogenetic history, reconstruction was more intensive for the purifying-regime data set, clocking in at 3h:29m.
+These figures correspond to a net throughput of 6.67 and 4.78 million tips per minute, respectively.
+Peak memory use for the adaptive- and purifying-selection regimes was 1.2 TB and 1.1 TB.
 
 \subsection{Validation: Comparison to Ground Truth}
 
@@ -53,10 +70,9 @@ This metric can be interpreted as the fraction of sampled three-node sets for wh
 %MAYBE if time permits, it would be ideal to have a second row in this table where we have error measures from the naive algorithm
 \input{tab/validation}
 
-We obtained low mean error values (see Table~\ref{table:validation}) for medium to large surface sizes.
+We obtained low mean error values (see Table~\ref{table:validation}) for medium to large surface sizes, with large surfaces of 64 bits achieving errors on average around 2\%. 
 %TODO report statistics for smallest and largest surface sizes in text
-As expected, for very small surface sizes comprising just 16 bits of information at a time, reconstruction error was elevated.
-As 
+As expected, for very small surface sizes comprising of not more than 16 bits of information at a time, reconstruction error was elevated, with the smallest surface averaging as much as 37\% error.
 
 In addition to experiments reported here, the \texttt{hstrat} library includes an extensive battery of unit tests that compare the reconstructed MRCA between organisms to the value expected by direct comparison of their hstrat marker records.
 

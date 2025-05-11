@@ -1,14 +1,23 @@
 \begin{figure*}
 % graphic source https://docs.google.com/presentation/d/1CKU1Rtz8Vbk-Std3zFmzBcACf7EBj3amTTOAGKdBluQ
+\centering
+\begin{minipage}{0.7\linewidth}
 \includegraphics[width=\linewidth]{img/hstratpipeline.pdf}
-\caption{%
-\textbf{Phylogeny reconstruction pipeline.}
+\end{minipage}
+\begin{minipage}{0.1\linewidth}\end{minipage}
+\begin{minipage}{0.1\linewidth}\end{minipage}
+\begin{minipage}{0.28\linewidth}
+\vspace{1em}
+\caption{
+\textbf{Phylogeny pipeline.}
 \small
-Raw hexidecimal genome strings in ``genomes'' dataframe are segmented to ``unpack'' hstrat marker region.
-Next, individual markers are decoded into ``exploded'' format.
-Reconstruction progressively extends inferred trie one genome marker sequence at a time, with intermittent unifurcation cleanup to reduce memory usage.
-Finally, trie is converted and saved as dataframe in alife data standard format.
-Implementation leverages high-performance scientific computing libraries to achieve efficient operation on large datasets.
+Hstrat markers ``unpacked'' from genome hexstrings.
+Individual markers are decoded into ``exploded'' format.
+Inferred trie progressively extended with genomes, purging dropped unifurcations.
+Finally, trie is exported to alife data standard.
+HPC libraries are leveraged to support large datasets.
 }
 \label{fig:hstratpipeline}
+\end{minipage}
+\vspace{-1.5em}
 \end{figure*}

@@ -1,0 +1,23 @@
+\begin{figure*}[t]
+  \centering
+  \begin{minipage}{0.33\textwidth}
+    \centering
+    \includegraphics[height=4.3cm]{img/series-purifying.pdf}
+    \subcaption{Purifying Regime}
+    \label{fig:scaling:purifying}
+  \end{minipage}%
+  \begin{minipage}{0.33\textwidth}
+    \centering
+    \includegraphics[height=4.3cm,trim={0.7cm 0 0 0},clip]{img/series-adaptive.pdf}
+    \subcaption{Adaptive Regime}
+    \label{fig:scaling:adaptive}
+  \end{minipage}%
+  \begin{minipage}{0.33\textwidth}
+    \caption{%
+    \textbf{Empirical performance scaling of shortcut table algorithm in microbenchmark trials.} \small
+    Panels \ref{fig:scaling:purifying} and \ref{fig:scaling:adaptive} differ in simulation data source of sampled genomes, with the former exhibiting higher phylogenetic richness. Data collected as batches are added in a 10 million tip reconstruction, sampled 5 times per panel. \vspace{2.5em}
+}
+    \label{fig:scaling}
+  \end{minipage}
+  \vspace{-1.5em}
+\end{figure*}

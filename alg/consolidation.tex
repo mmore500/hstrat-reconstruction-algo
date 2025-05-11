@@ -1,6 +1,4 @@
 \begin{algorithm}[h]
-  \caption{the consolidation step of the shortcut table algorithm, which builds shortcuts for a given node $n$ and collapses duplicate children caused by those shortcuts}
-  \label{alg:consolidation}
   \begin{algorithmic}[1]
     \Function{ConsolidateTree}{$T$, $n$, $r$}
       \State $S \gets$ the set of (great)grandchildren of $n$ such that $\forall c \in S\ \operatorname{rank}(c) \ge r$ and $\forall c \in S\ \operatorname{rank}(\operatorname{parent}(c)) < r$ 
@@ -22,5 +20,7 @@
         \State remove the shortcut edge from $n$ to $c$
     \EndFunction
   \end{algorithmic}
+  \caption{\textbf{The consolidation step of the shortcut table algorithm.} \small Builds shortcuts for a given node $n$ and collapses duplicate children caused by those shortcuts. \vspace{-1.5em}}
+  \label{alg:consolidation}
 \end{algorithm}
 \footnotetext{nodes $x$ and $y$ are duplicates iff $\operatorname{rank}(x) = \operatorname{rank}(y)$ and $\operatorname{differentia}(x) = \operatorname{differentia}(y)$}
