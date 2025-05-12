@@ -2,10 +2,10 @@
 
 Key aspects of the study of evolution, whether biological or digital, revolve around understanding the flow of genetic material among large populations of organisms.
 As such, phylogenetic analyses assessing ancestry trees representing organsisms' evolutionary histories are a core tool in evolutionary biology.
-A common question during these studies is how closely organisms are related to one another, and through phylogenetic analysis, ancestry trees can be built that outline the organisms' evolutionary history.
-These trees have countless applications throughout the field, emphasizing the importance of accurate and efficient methods to reconstruct them.
-However, with larger and larger datasets, the latter becomes increasingly difficult, with some techniques proving infeasible at that scale.
-Therefore, we present an algorithm that, in the scope of digital evolution, greatly improves the performance of phylogenetic reconstruction.
+In work with biological organisms, phylogenies are typically estimated through analysis of genetic similarities among organisms.
+Although direct tracking is often preferable in \textit{in silico} experiments, in memory-constrained parallel and distributed computing contexts, applying reconstruction-based methods to track generate phylogeny trees can become advantageous.
+As is also the case in biological studies, the efficacy of phylogenetic analysis in such \textit{in silico} work depends on efficient methods to generate accurate ancestry trees.
+It is this topic we focus on in this work, presenting a novel trie-building algorithm that, in the scope of digital evolution, greatly improves the performance of phylogenetic reconstruction wile producing equivalent results compared to a naive approach.
 
 Phylogenetic analyses allow for characterizing and quantifying certain evolutionary processes (and are often the only methods for doing so), allowing researchers to make conclusions about the way a population evolved over time with varying degrees of accuracy.
 Through large-scale analyses, patterns of evolutionary dynamics can be inferred, such as the effects of beneficial mutations on a population or fitness parameters like growth rate, probability of survival, speciation rate, and extinction rate \citep{genthon2023cell, levy2015quantitative, stadler2013recovering}.
