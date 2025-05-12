@@ -50,9 +50,10 @@ In such contexts, reconstruction-based approaches can provide an attractive bala
 
 \input{fig/hstratschematic}
 
-Under controlled conditions, such as laboratory experiments or evolution simulations, genetic material may be engineered to facilitate the accuracy and efficiency of estimating phylogenetic relatedness \citep{li2024reconstructing}.
-In this vein, work with hereditary stratigraphy methods has sought to operate analogously, organizing genetic material to maximize reconstruction quality and minimize memory footprint \citep{moreno2022hereditary}.
-Hstrat material can be bundled with agent genomes in a manner akin to non-coding DNA, entirely neutral with respect to agent traits and fitness.
+Under controlled conditions, such as laboratory experiments or evolution simulations, genetic material may be engineered to facilitate the accuracy and efficiency of estimating phylogenetic relatedness \citep{li2024reconstructing}.%
+\footnote{Notably, \citet{ackley2023robust} applied analogous barcoding approaches in tracking ancestry among replicators in a distributed fabric-computing context.}
+Work developing hereditary stratigraphy (``hstrat'') methods seeks to operate analogously, providing techniques to organize genetic material in digital organsisms that maximizes reconstruction quality while minimizing memory footprint \citep{moreno2022hereditary}.
+Hereditary stratigraphy components can be bundled with agent genomes in a manner akin to non-coding DNA ( neutral with respect to agent traits and fitness), enabling trivial incorporation into existing simulation systems.
 
 HStrat associates each generation along each lineage with an identifying ``fingerprint'' marker, referred to as a differentia.
 On birth, offspring receive a new differentia value and append it to an inherited chronological record of past values, each corresponding to a generation along that lineage.
@@ -63,27 +64,21 @@ To save space, differentiae may be pruned away -- although, at the cost of reduc
 Reducing the number of bits per differentia can also provide many-fold memory space savings.
 Using single bits or single bytes is appropriate for most use cases.
 
-% and the possibility of collisions and missing data.
-Inferring relatedness from biological sequence data can be a highly challenging and computationally-intensive problem \citep{miller2010creating}.
-The structured marker data used in hereditary stratigraphy somewhat ameliorates this challenge by allowing phylogeny reconstruction to be approached as a trie-building procedure of identifying common string prefixes \citep{delabriandais1959file,moreno2024analysis}.
-However, the presence of missing data due to differentia dropped to save memory complicates matters.
-In the context of trie-building, markers possessed by only a subset of organisms effectively act as ``wildcard'' characters for organisms that do not possess them, possibly having taken on any differentia value.
-Therefore, placing an organism on a trie requires evaluating possible subsequent paths following the wildcard to identify further matches.
-With the possibility of differentia value collisions with small differentia sizes (e.g., 1 bit), identifying the best-matching path after a wildcard missing value can require looking ahead several consecutive markers.
-Furthermore, where consecutive wildcards are encountered, the number of possible paths that must be explored can grow exponentially.
-% resolving these wildcards can require possibly-exponential evaluation of alternate trie paths.
-% briefly mentions the naive trie-based approach we improve upon here, and remarks upon the wildcard matching problem associated with it \citep{moreno2024analysis}.
-
-%TODO cite ackley2023robust for barcodes
-
-% Phylogeny inference is
-% A naive approach requires...
+While inferring relatedness from biological sequence data can be a highly challenging and computationally-intensive problem \citep{miller2010creating},
+the structured marker data used in hereditary stratigraphy somewhat ameliorates this challenge by allowing phylogeny reconstruction to be approached as a trie-building problem of identifying common string prefixes \citep{delabriandais1959file,moreno2024analysis}.
+However, the presence of missing data due to some differentia being dropped to save memory complicates matters.
+In the context of trie-building, markers possessed by only a subset of organisms effectively act as ``wildcard'' characters in the string prefixes organisms that do not possess them, possibly taking on any value.
+Therefore, placing an organism on a trie requires evaluating possible string paths beyond the wildcard to identify further matches.
+Given the possibility of differentia value collisions for small differentia sizes (e.g., 1 bit), identifying the best-matching path after a wildcard value can require looking ahead several consecutive markers.
+Furthermore, where consecutive wildcard values are encountered, the number of possible paths that must be explored can grow exponentially.
 
 Although previous work has investigated the quality of phylogenies constructed from hereditary stratigraphy data using trie-based approaches \citep{moreno2025testing}, the computational intensity of the naive wildcard-matching approach has limited the scale of phylogenetic reconstructions practical to work with and restricted experimental throughput for smaller reconstructions.
 Given the objective of the methodology to facilitate studying very large scale digital evolution experiments, achieving reconstruction efficiency sufficient to collect large-scale phylogeny data is critical to the overall utility of the methodology in enabling observable experiments.
 In this work, we develop algorithms for more efficient trie reconstruction in the face of missing data and explore their practical scalability through benchmark trials of high-performance implementations.
 
-The following section introduces our proposed ``shortcut'' algorithm for the trie building approach explored in this paper. We then describe a set of methods to validate reconstruction quality and test empirical scaling behavior and performance on to billion-genome-scale workloads.
+The following section introduces our proposed ``shortcut'' algorithm for the trie building approach explored in this paper.
+
+We then describe a set of methods to validate reconstruction quality and test empirical scaling behavior and performance on to billion-genome-scale workloads.
 
 % \citet{moreno2024trackable} used the naive trie building algorithms, and is the base for the benchmarking code that we did here (but we add some etensions here).
 % The trees built in this work were only TODO tips.
