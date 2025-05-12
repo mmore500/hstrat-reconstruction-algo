@@ -7,7 +7,7 @@ In a parallel vein, the volume of data processed in bioinformatics workflows is 
 As an illustrative example at the cutting edge of extreme scale, \citet{konno2022deep} reports phylogeny synthesis from 235 million sequence reads generated from an \textit{in silico} CRISPR barcoding model --- requiring 31 hours of compute time across 300 HPC nodes.
 % In digital evolution, sampling approaches and reconstruction algorithms such as the one presented in this paper can process billions of tips in a matter of hours.
 
-In both the context of both bioinformatics and artificial life research, very large-scale phylogeny data enabled by advances in sequencing and computing technology represent a new challenge as much as an opportunity, raising the question of how best to mine this data.
+In both the context of bioinformatics and artificial life research, very large-scale phylogeny data enabled by advances in sequencing and computing technology represent a new challenge as much as an opportunity, raising the question of how best to mine this data.
 On a practical level, work is needed not just to push the boundaries of what can be learned from phylogenies, but also how to store, load, traverse, quantify, visualize, and manipulate very large phylogenies in an efficient manner.
 Indeed,  projects are being developed to try to address this issue.
 For example, taxonium \citep{sanderson2022taxonium} is a web-based software for visualizing large phylogenies in a flexible, interactive manner, and is able to handle browsing millions of tips at a high frame rate.
@@ -25,5 +25,5 @@ Whereas existing analysis has focused on reconstructions from genomes drawn from
 Promisingly, in preliminary testing, we have found indications that incorporating fossil data into reconstructions can help improve inference accuracy of relationships among extant population members.
 
 Other future work will involve experiments putting the high-throughput phylogeny reconstruction capabilities developed into practice.
-In ongoing work, we are interested in using large scale digital evolution experiments to test phylostatistical methodologies for detecting signatures multilevel selection associated with major transitions in evolution \citep{BonettiFranceschi2024}, as well as pursuing hypothesis-driven experiments investigating mechanisms of open-ended evolution.
+In ongoing work, we are interested in using large scale digital evolution experiments to test phylostatistical methodologies for detecting signatures of multilevel selection associated with major transitions in evolution \citep{BonettiFranceschi2024}, as well as pursuing hypothesis-driven experiments investigating mechanisms of open-ended evolution.
 To this end, all tools described herein are published as modular open source library components \citep{moreno2024hstrat}, supporting the broader research community in exploring and extending this line of inquiry.
