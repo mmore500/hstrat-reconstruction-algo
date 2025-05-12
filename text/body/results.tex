@@ -64,23 +64,17 @@ Peak memory use for the adaptive and purifying selection regimes was 1.2 TB and 
 
 \subsection{Validation: Comparison to Ground Truth}
 
-Finally, we conducted experiments to validate the quality of phylogenies produced by our algorithm.
+In a first set of trials to validate the quality of phylogenies produced by the shortcut-enabled algorithm, we tested inference accuracy against ground-truth data.
+For these trials, we conducted experiments using a neutral evolution model on a single CPU, where we were able to directly record the underlying phylogeny history.
+Example visualizations of corresponding reconstruction and ground-truth phylogenies are provided in supplementary materials \citep{supplemental}.
 
-We began by testing the accuracy of the reconstruction on ground-truth phylogenies.
-For these trials, we conducted experiments using a neutral evolution model on a single CPU, where we were able to directly record the underlying phylogeny history. See the supplemental material for an example comparison between a ground-truth tree and estimated reconstruction \citep{supplemental}.
-
-To assess reconstruction error, we used the triplet distance metric to compare corresponding ground-truth and estimated phylogenies.
-This metric can be interpreted as the fraction of sampled three-node sets for which both trees report the same two nodes as more closely related.
-
-%TODO can we also report SD of error (this will give a sense for distribution of error)
 %MAYBE if time permits, it would be ideal to have a second row in this table where we have error measures from the naive algorithm
 \input{tab/validation}
 
-We obtained low mean error values (see Table~\ref{table:validation}) for medium to large surface sizes, with large surfaces of 64 bits achieving errors on average around 2\%. 
-%TODO report statistics for smallest and largest surface sizes in text
-As expected, for very small surface sizes comprising of not more than 16 bits of information at a time, reconstruction error was elevated, with the smallest surface averaging as much as 37\% error.
-
-In addition to experiments reported here, the \texttt{hstrat} library includes an extensive battery of unit tests that compare the reconstructed MRCA between organisms to the value expected by direct comparison of their hstrat marker records.
+Table~\ref{table:validation} reports reconstruction error across annotation sizes ranging from 8 single-bit markers up to 64 single-bit markers.
+As expected, medium and large annotation sizes produced lowest reconstruction error, with large annotations of 64 bits achieving triplet distance error on average around 2\%.%
+\footnote{This error measure corresponds to the fraction of sampled three-node sets for which both trees report the same two nodes as more closely related.}
+In contrast, very small 8-bit annotations averaged 37\% reconstruction error.
 
 \subsection{Validation: Comparison to Naive Algorithm}
 

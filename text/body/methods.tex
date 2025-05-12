@@ -74,7 +74,8 @@ End-to-end experiments used the \texttt{hstrat.dataframe.surface\_build\_tree} C
 \subsection{Validation Tests}
 
 By design, our proposed shortcut-enabled algorithm produces equivalent reconstruction results compared to the reference naive approach, up to arbitrary tie-breaking decisions (see supplemental material \citep{supplemental} for detailed discussion).
-To confirm correctness of our implementation, however, we performed several validation tests.
+To confirm correctness of our implementation, however, we report several validation tests.%
+\footnote{In addition to validation experiments reported here, note that the \texttt{hstrat} library includes an extensive unit tests that compare reconstructed most-recent common ancestor (MRCA) between organisms to the value expected by direct comparison of their hstrat marker records.}
 
 % https://github.com/mmore500/hstrat/blob/277ea0ee4d6e0bb6d259538b5fa7b62fe9085b10/examples/evolve_dstream_surf.py
 Validation tests employed small evolutionary simulations run locally, to allow collection of ground-truth data via \texttt{phylotrackpy} \citep{dolson2024phylotrack}.
