@@ -7,21 +7,22 @@ Although direct tracking is often preferable in \textit{in silico} experiments, 
 As is also the case in biological studies, the efficacy of phylogenetic analysis in such \textit{in silico} work depends on efficient methods to generate accurate ancestry trees.
 It is this topic we focus on in this work, presenting a novel trie-building algorithm that, in the scope of digital evolution, greatly improves the performance of phylogenetic reconstruction wile producing equivalent results compared to a naive approach.
 
-Phylogenetic analyses allow for characterizing and quantifying certain evolutionary processes (and are often the only methods for doing so), allowing researchers to make conclusions about the way a population evolved over time with varying degrees of accuracy.
-Through large-scale analyses, patterns of evolutionary dynamics can be inferred, such as the effects of beneficial mutations on a population or fitness parameters like growth rate, probability of survival, speciation rate, and extinction rate \citep{genthon2023cell, levy2015quantitative, stadler2013recovering}.
+\subsection{Applications of Phylogenetic Analysis}
 
-Phylogenetic analysis is also crucial in the field of epidemiology, which becomes urgent in the face of pandemics such as COVID-19.
-Through phylogenetic methods, we could determine which clade a particular strain came from, perhaps pinpointing where and how a particular person was infected -- thus leading to more efficient disease control \citep{wang2020role}.
-In another case, researchers could use phylogenies to help identify ``super-spreaders'' -- diseases with a particularly high transmission rate -- that may cause massive outbreaks \citep{colijn2014phylogenetic}.
+Phylogenetic analyses provide key means to characterize and quantifying a broad array of evolutionary processes.
+Clasically, these analyses have been applied to investigation of species-levewl macroevolutionary dynamics revolving around speciation and extinction rates; however, population- and organism-level dynamics can also be inferred, such as the spread of beneficial mutations within a population or fitness parameters like growth rate and probability of survival \citep{genthon2023cell, levy2015quantitative, stadler2013recovering}.
+Phylogenetic analysis is also crucial in the field of epidemiology, playing a key role in informing public health interventions.
+In this context, phylogenetic methods can be used to determine transmission history, pinpointing where and how chains of infection unfold \citep{wang2020role}.
+In this vein, phylogenies are also key in assessing the prevalence of  ``super-spreader'' dynamics wherin disease spread is driven by a small set of high-risk individuals \citep{colijn2014phylogenetic}.
 
-\subsection{Phylogenies \& Digital Evolution} \label{sec:introduction:digital}
+%\subsection{Phylogenies \& Digital Evolution} \label{sec:introduction:digital}
 
-In certain cases, however, the long runtime of biological evolution makes it infeasible to study; laboratory experiments may take years, or even decades, to complete -- a canonical example being the long-term evolution experiment \citep{wiser2013long}.
-Therefore, by simulating the behavior of a population, experiments can instead be done digitally, with simulations running in a fraction of the time.
-These systems can model key characteristics of biological populations, such as variation, natural selection, facilitation, movement, predation, and more.
-So, due to the nature of these simulations, conclusions about digital evolution can even be generalized to biological evolution \citep{pennock2007models, dolson2021digital}.
+%In certain cases, however, the long runtime of biological evolution makes it infeasible to study; laboratory experiments may take years, or even decades, to complete -- a canonical example being the long-term evolution experiment \citep{wiser2013long}.
+%Therefore, by simulating the behavior of a population, experiments can instead be done digitally, with simulations running in a fraction of the time.
+%These systems can model key characteristics of biological populations, such as variation, natural selection, facilitation, movement, predation, and more.
+%So, due to the nature of these simulations, conclusions about digital evolution can even be generalized to biological evolution \citep{pennock2007models, dolson2021digital}.
 
-Just as in biological evolution, phylogenies are an irreplaceable tool for analyzing organisms that have evolved digitally.
+Just as in biological evolution, phylogenies are a valuable tool for analyzing evolutionary dynamics within digital evolution simulations.
 One useful metric to determine if a population is likely to be successful is biodiversity, and digital populations are no exception.
 In fact, by using phylogenetic diversity (as opposed to other methods such as phenotypic diversity), stronger conclusions could be made about a digital population's fitness \citep{hernandez2022phylogenetic}.
 

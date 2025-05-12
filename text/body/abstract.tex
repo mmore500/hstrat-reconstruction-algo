@@ -7,7 +7,7 @@ Recent work on hereditary stratigraphy algorithms has developed space-efficient 
 However, computational intensity of reconstructing phylogenies from these genetic markers has proven a limiting factor in large-scale phyloanalyses.
 Here, we detail an improved trie-building algorithm designed to produce reconstructions equivalent to existing approaches, and report benchmarking and validation experiments assessing its properties.
 For modestly-sized 10,000-tip trees, the proposed approach achieves 300-fold speedup versus existing state-of-the-art.
-In scaling analysis, workloads up to 10 million genomes maintain a promising 87\% of marginal throughput rate.
+In scaling analysis, we find that tenfold increase in workload to 10 million genomes maintains approximately 87\% marginal throughput rate.
 Finally, using 1 billion genome datasets drawn from WSE simulations encompassing 954 trillion replication events, we report a pair of large-scale phylogeny reconstruction trials, achieving end-to-end reconstruction times of 2.5 and 3.5 hours.
 In substantially improving reconstruction scaling and throughput, presented work stands to help enable incorporation of powerful phyloanalysis techniques requiring large sample size in decentralized digital evolution experiments.
 \end{abstract}
