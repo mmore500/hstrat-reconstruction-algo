@@ -1,13 +1,13 @@
 \section{Methods} \label{sec:methods}
 
-In this section, we detail the methodology for benchmark and validation experiments used to assess the performance of the proposed shortcut-enabled reconstruction algorithm empirically.
+In this section, we detail the methodology for benchmark and validation experiments used to assess the empirical performance of the proposed shortcut-enabled trie-building reconstruction algorithm.
 
 \subsection{Generation of Benchmark Data}
 
-For our benchmark experiments, we needed a sample of large-scale genomes to draw from to perform reconstructions on.
+Across our benchmark experiments, we needed a large-scale sample of genomes to perform reconstructions on.
 For this purpose, we performed simulations using the Cerebras CS-2
-Wafer-Scale Engine, a recently introduced 850,000 core hardware accelerator device \citep{lie2023cerebras}.
-Processor elements (PEs) in this architecture are arranged in a grid lattice where each processor is able to execute independently and communicate with neighboring PEs through message-passing, with tight per-core limitations on available memory.
+Wafer-Scale Engine, an 850,000 core hardware accelerator device \citep{lie2023cerebras}.
+Processor elements (PEs) in this architecture are arranged in a grid lattice, with each processor able to execute independently and communicate with neighboring PEs through message-passing.
 
 To conduct these simulations, we used an extension of the island-model genetic algorithm framework presented in \citep{moreno2024trackable}.
 This framework organizes simulated organisms into independent subpopulations hosted on each PE.
@@ -15,28 +15,29 @@ Synchronous tournament selection of size 2 is applied within each PE, and betwee
 
 %The purpose of this simulation was to generate large-scale data using a simple model that can be explicitly manipulated to explore evolutionary regimes differing substantially in the depth of shared ancestry between organisms (known as phylogenetic richness).
 
-A simple genome model was used, wherein agents were comprised of a single floating point value representing fitness.
-Reproduction occurred asexually, with this value subject to normally-distributed mutation with 30\% probability.
+A simple genome model was used, comprised of a single floating point value representing fitness.
+Reproduction occurred asexually, with this value subject to a normally-distributed mutation with 30\% probability.
 (In the case of the purifying-regime treatment, the negative absolute value of a sampled mutation delta was applied.)
 In tournament competitions to select parents for the subsequent generation, the parent was selected according to the higher fitness value with 10\% probability and was otherwise selected randomly.
+Genomes were augmented with hstrat annotations comprising 64 single-bit markers, managed at runtime using a \texttt{tilted} curation policy, which favors dense retention of more recent marker data \citep{moreno2024structured}.
 
-To generate data representative of different evolutionary conditions, two treatments were applied:
-\textbf{adaptive regime} and \textbf{purifying regime}.
+To generate data representative of differing evolutionary conditions, two treatments were applied: an
+\textbf{adaptive regime} and a \textbf{purifying regime}.
 Under the adaptive regime, mutations increasing fitness were allowed, introducing the possibility of selective sweeps.
-By contrast, the purifying regime treatment allowed only the possibility of deleterious mutations
-Previous work with this system demonstrated the purifying regime to exhibit substantially greater phylogenetic richness -- in line with expectation.
+By contrast, the purifying regime treatment allowed only deleterious mutations.
+Previous work with this system demonstrated the purifying regime to exhibit substantially greater phylogenetic richness, in line with expectation for selective sweeps to diminish population-level phylogenetic diversity \citep{moreno2024trackable}.
 
-Fossil data were sampled on a rolling basis using asynchronous \texttt{memcpy} operations, where a representative agent was copied from device to host from each processor element on a rolling basis.
 % https://github.com/mmore500/wse-async-ga/blob/31034c3b1f8127763807992916f20d7d3ea62919/slurm/2024-12-25/2024-12-25%2Blex12-async-ga.sh
 The simulation was run for 5 million generation cycles.
 A per-PE population size of 256 organisms was used, providing a net population size of 190.8 million organisms.
 % https://osf.io/btg23 and https://osf.io/2my97
-Over the course of the simulation, fossil genome collection of 1,999 (purifying regime) and 2,014 (adaptive regime) memcopy cycles elapsed.
+``Fossil'' genome data was sampled on a rolling basis over the course of simulation using asynchronous \texttt{memcopy} operations, where sample genomes were copied from each PE on a rolling basis.
+In total, collection of 1,999 (purifying regime) and 2,014 (adaptive regime) memcopy cycles elapsed.
 % https://osf.io/btg23 and https://osf.io/2my97
-Real-time runtime for each was 24 minutes.
-For full details on the Wafer-Scale Engine, see \citep{moreno2024trackable}.
+Real-time runtime under each treatment was 24 minutes.
 
-We used hstrat annotations comprising 64 single-bit markers, managed at runtime using a \texttt{tilted} curation policy, which favors dense retention of more recent marker data.
+For implementation-level details on the Wafer-Scale Engine simulation, see \citep{moreno2024trackable}.
+
 
 \subsection{Microbenchmark Experiments}
 
