@@ -20,14 +20,20 @@ Thus, the notable difference in scaling properties between the shortcut-enabled 
 \input{fig/scaling.tex}
 
 Having seen a substantial speedup in comparing the shortcut-enabled algorithm to the naive trie-building approach, we next sought to assess the scaling properties of the shortcut-enabled approach in isolation.
-To better reflect real-world conditions, we used the main C++ implementation of the trie-building algorithm for these trials.
+To better reflect real-world conditions, we used the primary C++ implementation of the shortcut-enabled trie-building algorithm for these trials.
 
-Figure~\ref{fig:scaling} depicts the relationship between the tree size as 100 thousand tip batches are added and the time taken to insert each batch, over 5 samples of a 10 million tip reconstruction.
-Fitting a simple linear regression model to this data, we found that, with a significance of $\alpha = 0.05$, that we should reject the null hypothesis of a constant slope, and infer that as tree sizes increase, the time taken to add tips increases as well.
+Figure~\ref{fig:scaling} depicts the relationship between trie size as 100,000-tip batches are added and the time taken to insert each batch, over 5 replicates of 10 million tip reconstructions.
+Fitting a linear regression model to this data, for both the adaptive and purifying regime data sets we found that, with a significance of $\alpha = 0.05$, that we should reject the null hypothesis of a constant slope.
+Evidence indicates, therefore, that as trie size increases, the time required per tip added increases as well.
 
-Analyzing the graph, we see that these results seem to be a result of outliers within the data, most likely due to expensive consolidation steps. A more fine-grained analysis (with batches of 5000) on average-case data (filtering out values above the 95th percentile) shows that past a certain point, insertion times do not increase (see supplemental \citep{supplemental} for more information).
+Notably, batch processing times exhibit strong outliers for which trie extension was notably slower.
+This effect is due to the presence expensive consolidation steps within those batches.
+To assess this phenomenon, we performed a more fine-grained analysis (with batches of 5,000 tips) on non-outlier data (filtering out values above the 95th percentile).
+Further regression analysis using this data suggests that past a certain point, non-outlier batch times do not increase significantly with larger tree size.
+(See supplemental materials \citep{supplemental} for more information.)
+In an analytical investigation of scaling complexity, which is left to future work, we therefore expect the degree to which expensive trie consolidation operations are amortized over average-case insertions to play an important role in determining the scaling complexity of the shortcut-enabled approach.
 
-However, these outliers may be amortized away in practice -- after running the reconstruction on both adaptive and purifying regimes, we see approximately linear scaling in the time taken to reconstruct a tree from a given number of tips (see Figure~\ref{fig:asymptotic} in the supplemental material \citep{supplemental}).
+Microbenchmarks measuring net reconstruction time across problem sizes, rather than marginal batch-wise throughput, reach a similar conclusion and are provided in supplemental Figure~\ref{fig:asymptotic} \citep{supplemental}).
 
 \subsection{Macrobenchmark: One Billion-Tips}
 
