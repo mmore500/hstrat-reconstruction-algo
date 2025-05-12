@@ -72,13 +72,12 @@ Therefore, placing an organism on a trie requires evaluating possible string pat
 Given the possibility of differentia value collisions for small differentia sizes (e.g., 1 bit), identifying the best-matching path after a wildcard value can require looking ahead several consecutive markers.
 Furthermore, where consecutive wildcard values are encountered, the number of possible paths that must be explored can grow exponentially.
 
-Although previous work has investigated the quality of phylogenies constructed from hereditary stratigraphy data using trie-based approaches \citep{moreno2025testing}, the computational intensity of the naive wildcard-matching approach has limited the scale of phylogenetic reconstructions practical to work with and restricted experimental throughput for smaller reconstructions.
-Given the objective of the methodology to facilitate studying very large scale digital evolution experiments, achieving reconstruction efficiency sufficient to collect large-scale phylogeny data is critical to the overall utility of the methodology in enabling observable experiments.
-In this work, we develop algorithms for more efficient trie reconstruction in the face of missing data and explore their practical scalability through benchmark trials of high-performance implementations.
+Although previous work has investigated the quality of phylogenies constructed from hereditary stratigraphy data using trie-based approaches \citep{moreno2025testing}, the computational intensity of the naive wildcard-matching approach has limited the scale of phylogenetic reconstructions investigated and restricted experimental throughput for smaller reconstructions.
+Given the objective of hereditary stratigraphy methodology to facilitate studying very large scale digital evolution experiments, achieving reconstruction efficiency sufficient for large-scale phyloanalysis is critical to the overall utility of the methodology in enabling observable experiments.
 
+In this work, we describe an algorithm for efficient trie reconstruction in the face of missing data, and explore its performance characteristics.
 The following section introduces our proposed ``shortcut'' algorithm for the trie building approach explored in this paper.
-
-We then describe a set of methods to validate reconstruction quality and test empirical scaling behavior and performance on to billion-genome-scale workloads.
+We then detail methods and results for benchmark trials assessing empirical scaling behavior and performance on large-scale billion-genome workloads.
 
 % \citet{moreno2024trackable} used the naive trie building algorithms, and is the base for the benchmarking code that we did here (but we add some etensions here).
 % The trees built in this work were only TODO tips.
