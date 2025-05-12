@@ -38,32 +38,30 @@ Real-time runtime under each treatment was 24 minutes.
 
 For implementation-level details on the Wafer-Scale Engine simulation, see \citep{moreno2024trackable}.
 
-
 \subsection{Microbenchmark Experiments}
 
-From this simulation (in both purifying and adaptive versions), we took a random sample of 10 million tips that could be used on a personal computer for various benchmarks, which were intended to test reconstruction performance.
-First, we wanted to determine the asymptotic complexity of our new algorithm; to do this, we ran sub-samples of various sizes through the reconstruction pipeline and measured the time it took in the reconstruction step.
-This was done for both adaptive and purifying simulations in order to test different arrangements of data.
+In a first set of microbenchmark trials, we performed a head-to-head comparison of the proposed shortcut-enabled algorithm with the previous naive trie-building approach.
+Given performance limitations of the naive approach, the maximum reconstruction workload tested was limited to 10,000 genomes.
+Experiments used random subsamples of genomes from WSE fossil data described above.
+To facilitate informative comparison, timings measured just the trie-building component of reconstructions, excluding pre- and post-processing steps.
+Five replicate observations were taken per timing.
 
-We then wanted to compare the performance of this algorithm with the previous naive trie algorithm.
-We did this by again taking subsamples of the 10 million tips and running both algorithms on the subsample and timing how long it took to process all the tips.
-Given that the naive algorithm is significantly slower, our subsample sizes were limited to up to 10,000 tips.
+In a second set of microbenchmark trials, we investigated the empirical scaling behavior of the shortcut-enabled trie building algorithm across a wider spread of reconstruction workload sizes.
+To assess the relationship between marginal throughput and trie size, we performed trie reconstructions of 10 million WSE genomes, broken into successive batches of 100,000 genomes.
+This approach allowed us to independently measure time taken to insert each batch, with the goal determing how this time changes for later batches (i.e., larger trees).
+We also performed unbatched tests evaluating net execution time to build tries ranging from 1 to 10 million tips.
+For these experiments, 3 replicates were performed per observation.
 
-Because of this, we also wanted to determine the performance of the search table algorithm on larger data, and more importantly, determine the asymptotic complexity of the approach. 
-To do this, we performed runs of a 10 million tip reconstruction, where the time taken to insert each batch of 100 thousand tips was measured.
-This way, we could determine if this time increases for later batches (i.e. larger trees), or stays about constant.
-We also performed this process on both adaptive and purifying regimes, so that we could determine if there were potential differences depending on the evolutionary scheme.
-Another test we did to more directly measure complexity was taking a range of sub-samples from the original sample up to 10 million tips, ran the end-to-end pipeline, and measured the time taken on the reconstruction step alone.
-
-These examples were all run on a 2019 MacBook Pro (2.3GHz 8-Core Intel i9, 16GB RAM) using a benchmark script attached with our supplemental material \citep{supplemental}.
+All microbenchmarks were replicated using genomes generated under adaptive and purifying regimes, to assess sensitivity of performance to underlying phylogeny structure.
+Microbenchmarks were conducted on a 2019 MacBook Pro (2.3GHz 8-Core Intel i9, 16GB RAM) using a benchmark script provided with supplemental material \citep{supplemental}.
 
 \subsection{Macrobenchmark Experiments}
 
 To assess the performance of our approach on large-scale workloads under real-world conditions, we supplemented microbenchmarks focusing on core trie extension and consolidation operations with two macrobenchmark trials comprising the full end-to-end reconstruction pipeline described in Section \ref{sec:pipeline}.
-As mentioned in the figure, to save memory, we include a step that collapses unnecessary unifurcations (a parent having a single child, which is redundant information) -- for more details, see the supplemental \citep{supplemental}.
+To reduce peak memory use, we additionally included a step to collapse unnecessary unifurcations (i.e., parent nodes with only a single child) between trie-building batches --- for more details, see the supplemental \citep{supplemental}.
 These end-to-end experiments used the \texttt{hstrat.dataframe.surface\_build\_tree} CLI module incorporated in the \texttt{hstrat} library.
 
-These experiments were conducted using the full billion-element corpus of sampled genomes from Wafer-Scale Engine simulations.
+These experiments were conducted using the full billion-genome corpus of fossil data gathered from Wafer-Scale Engine simulations.
 We performed two trial reconstructions: one using genome data from the adaptive regime treatment and another under the purifying regime treatment.
 
 Reconstructions were conducted on 100-core cluster node allocations.
@@ -75,32 +73,36 @@ End-to-end experiments used the \texttt{hstrat.dataframe.surface\_build\_tree} C
 
 \subsection{Validation Tests}
 
-One part of our algorithm that we aim to show is that it is essentially equivalent to the naive trie algorithm already implemented.
-We assert that any decisions it makes could be made by the naive trie algorithm (see supplemental \citep{supplemental} for proof); however, we do not know if they give similar results in practice.
+By design, our proposed shortcut-enabled algorithm produces equivalent reconstruction results compared to the reference naive approach, up to arbitrary tie-breaking decisions (see supplemental material \citep{supplemental} for detailed discussion).
+To confirm correctness of our implementation, however, we performed several validation tests.
 
-On the other hand, to demonstrate reconstruction accuracy, we used small evolutionary simulations run locally. 
-These simulations were relatively simple, running 500 generations where parents replicated and died out, and 500 generations where parents replicated and stayed in the population. These simulations were run using perfect tracking as implemented in \texttt{phylotrackpy} \citep{dolson2024phylotrack} so that reconstructed phylogenies could be compared with the ground truth.
-We then obtained a numerical error measurement using a triplet distance calculation between the ground truth and reconstructed phylogenies \citep{critchlow1996triples}.
+% https://github.com/mmore500/hstrat/blob/277ea0ee4d6e0bb6d259538b5fa7b62fe9085b10/examples/evolve_dstream_surf.py
+Validation tests employed small evolutionary simulations run locally, to allow collection of ground-truth data via \texttt{phylotrackpy} \citep{dolson2024phylotrack}.
+Simulations propagated populations of 100 agents under neutral evolution conditions, with runs lasting 500 generations.
+We configured these simulations to consider both synchronous and asynchronous generations.
+Reconstructions over end-state genomes were tested, as well as reconstructions incorporating fossil genomes sampled at 50 generation intervals.
+To assess reconstruction quality, we calculated error as triplet distance between the ground truth and reconstructed phylogenies \citep{critchlow1996triples}.
 
 \subsection{End-to-end Phylogeny Reconstruction Pipeline}
 \label{sec:pipeline}
 
 \input{fig/hstratpipeline}
 
-Figure \ref{fig:hstratpipeline} overviews the full end-to-end pipeline used to construct a phylogeny from raw hstrat-annotated genome data.
+Figure \ref{fig:hstratpipeline} overviews the full end-to-end pipeline used to create a phylogenetic reconstruction from raw hstrat-annotated genome data.
 First, hstrat annotation data is extracted and decoded.
 To take advantage of SIMD parallelism, the decoding of origin times for genome markers is performed using bulk operations orchestrated via NumPy, batched over available processors using the Numba library threading engine.
 Due to memory-intensity of the exploded representation, where each genome marker constitutes an individual dataframe row, a chunk size may be configured to limit the amount of data exploded at any one time.
 A chunk size of 50 million genomes was used for macrobenchmark trials.
 
-Subsequently, decoded marker data is fed batchwise into the trie-building backend.
-To ensure full hardware utilization, execution of the core trie-building procedure -- which is single-threaded -- is overlapped with decode/explode work on the upcoming chunk through multiprocessing.
-Finally, a phylogeny is extracted from the final trie, converted to alife standard format, and saved to disk.
+Subsequently, decoded marker data is fed genome-by-genome into the trie-building backend.
+To ensure full hardware utilization, execution of the core trie-building procedure --- which is single-threaded --- is performed concurrently with decode/explode work on the upcoming chunk.
+Finally, a phylogeny is extracted from the end-state trie, converted to alife standard format, and saved to disk.
 The Polars library is used for load/save and other pre-/post-processing operations, allowing some operations to be distributed over available processor cores by the underlying threading engine.
 
 \subsection{Software and Data Availability} \label{sec:materials}
 
-Software used in this work is available via GitHub\footnote{The benchmarking and validation code is available at \href{https://github.com/anony4review/hstrat-reconstruction-algo}{\texttt{anony4review/hstrat-reconstruction-algo}}, WSE kernel code at \href{https://github.com/anony4review/wse-async-ga}{\texttt{anony4review/wse-async-ga}}, and hstrat library code at \href{https://github.com/anony4review/hstrat}{\texttt{anony4review/hstrat}}}.
+Software used in this work is available via GitHub.%
+\footnote{The benchmarking and validation code is available at \href{https://github.com/anony4review/hstrat-reconstruction-algo}{\texttt{anony4review/hstrat-reconstruction-algo}}, WSE kernel code at \href{https://github.com/anony4review/wse-async-ga}{\texttt{anony4review/wse-async-ga}}, and hstrat library code at \href{https://github.com/anony4review/hstrat}{\texttt{anony4review/hstrat}}.}
 Data and supplementary material is hosted via the Open Science Framework at \href{https://osf.io/63ucz/?view_only=2e3ec335c016436494ad125b14ffc8cb}{\texttt{osf.io/63ucz}} \citep{supplemental,foster2017open}.
 All accompanying materials are provided open-source under the MIT License.
 
