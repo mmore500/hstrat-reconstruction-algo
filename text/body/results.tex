@@ -2,7 +2,7 @@
 
 \subsection{Runtime Comparison}
 
-A direct comparison between the naive trie-based and the optimized shortcut table-based approches highlights the massive savings achieved by the new algorithm.
+A direct comparison between the naive trie-based and the optimized shortcut table-based approaches highlights the massive savings achieved by the new algorithm.
 As seen in Figure~\ref{fig:comparison}, the original algorithm explodes in runtime, whereas the new algorithm performs so well that there is no clear increase in runtime.
 
 \input{fig/ntips-comparison.tex}
@@ -10,7 +10,7 @@ As seen in Figure~\ref{fig:comparison}, the original algorithm explodes in runti
 The naive and optimized algorithms were implemented with all things constant except for two details: the optimized algorithm used a tabular edge-list data structure and included shortcut optimizations.
 Because an edge-list table is merely a different data structure used for a tree (an alternative to using a node-pointer approach), with equivalent time complexities for all operations, one could expect this change to result in a constant speedup (if any) between the two algorithms.
 
-Because this difference is seemingly not by a constant factor, we can assume that a majority of the speedup came from the shortcuts saving a significant amount of work that was unncessarily done in the naive approach. 
+Because this difference is seemingly not by a constant factor, we can assume that a majority of the speedup came from the shortcuts saving a significant amount of work that was unnecessarily done in the naive approach.
 Therefore, regardless of algorithm implementation details, the new shortcut-based approach can be used more generally for quicker trie-building.
 Python code was used for both algorithm implementations in this trial, to ensure fair comparability.
 
@@ -21,10 +21,10 @@ Python code was used for both algorithm implementations in this trial, to ensure
 Having seen a substantial speedup in comparing the shortcut-enabled algorithm to the naive trie-building approach, we next sought to assess the scaling properties of the shortcut-enabled approach in isolation.
 To better reflect real-world conditions, we used the main C++ implementation of the trie-building algorithm for these trials.
 
-Figure~\ref{fig:scaling} depicts the relationship between a tree size as 100 thousand tip batches are added and the time taken to insert each batch, over 5 samples of a 10 million tip reconstruction. 
+Figure~\ref{fig:scaling} depicts the relationship between the tree size as 100 thousand tip batches are added and the time taken to insert each batch, over 5 samples of a 10 million tip reconstruction.
 Fitting a simple linear regression model to this data, we found that, with a significance of $\alpha = 0.05$, that we should reject the null hypothesis of a constant slope, and infer that as tree sizes increase, the time taken to add tips increases as well.
 
-Analyzing the graph, we see that these results seem to by and large be as a result of outliers within the data, most likely due to expensive consolidation steps. A more fine-grained analysis (with batches of 5000) on average-case data (filtering out values above the 95th percentile) shows that past a certain point, insertion times do not increase (see supplemental \citep{supplemental} for more information).
+Analyzing the graph, we see that these results seem to be a result of outliers within the data, most likely due to expensive consolidation steps. A more fine-grained analysis (with batches of 5000) on average-case data (filtering out values above the 95th percentile) shows that past a certain point, insertion times do not increase (see supplemental \citep{supplemental} for more information).
 
 However, these outliers may be amortized away in practice -- after running the reconstruction on both adaptive and purifying regimes, we see approximately linear scaling in the time taken to reconstruct a tree from a given number of tips (see Figure~\ref{fig:asymptotic} in the supplemental material \citep{supplemental}).
 
@@ -34,34 +34,33 @@ However, these outliers may be amortized away in practice -- after running the r
 
 Given the promising results of microbenchmark trials, particularly the favorable empirical scaling result, we next sought to assess the performance of our approach on an extremely large problem size.
 
-For this purpose, we conducted trial reconstruction benchmarks comprising the full corpus of 1 billion agent genomes extracted from our trial Wafer-Scale Engine expermiments.
+For this purpose, we conducted trial reconstruction benchmarks comprising the full corpus of 1 billion agent genomes extracted from our trial Wafer-Scale Engine experiments.
 As a point of comparison, the largest reconstructions performed using the previous approach comprised only 10,000 tips \citep{moreno2024trackable}.
 
 % log files:
 % https://osf.io/s3rzj and https://osf.io/gj52m
 Benchmarked operations included the full reconstruction operation pipeline shown in Figure \ref{fig:hstratschematic}.
 Input data comprised a Parquet format file storing raw agent genomes in a hexidecimal string representation.
-Population file size was 34 GB for and 35 GB for the sample adaptive- and purifying-selection regimes, respectively.
-Output data comprised the reconstructed phylogeny in an edge-list format closely resembling the alife data standard.
-Several pieces of metadata (e.g., agent position and extraction batch) were forwarded to output data.
-For the adaptive-selection regime, output file size was 54 GB;
-for the purifying-selection regime, output file size was 55 GB.
+The population file size was 34 GB for and 35 GB for the sample adaptive- and purifying-selection regimes, respectively.
+The output data comprised the reconstructed phylogeny in an edge-list format closely resembling the ALIFE data standard.
+Several pieces of metadata (e.g., agent position and extraction batch) were forwarded to the output data.
+For the adaptive-selection regime, the output file size was 54 GB, and for the purifying-selection regime, the output file size was 55 GB.
 
 % log files:
 % https://osf.io/s3rzj and https://osf.io/gj52m
-Given the large problem-size scale tested, macrobenchmark trials were carried out on compute cluster node, rather than a desktop PC, as was used for microbenchmark experiments.
+Given the large problem-size scale tested, macrobenchmark trials were carried out on a compute cluster node, rather than a desktop PC, as was used for microbenchmark experiments.
 Figure \ref{fig:billion-tip-time} profiles net runtime and its breakdown in our case study reconstruction trials.
 Reconstruction time was 2h:30m for the adaptive-regime data set.
-As expected, given associated richer phylogenetic history, reconstruction was more intensive for the purifying-regime data set, clocking in at 3h:29m.
+As expected, given the associated richer phylogenetic history, reconstruction was more intensive for the purifying-regime data set, clocking in at 3h:29m.
 These figures correspond to a net throughput of 6.67 and 4.78 million tips per minute, respectively.
-Peak memory use for the adaptive- and purifying-selection regimes was 1.2 TB and 1.1 TB.
+Peak memory use for the adaptive and purifying selection regimes was 1.2 TB and 1.1 TB.
 
 \subsection{Validation: Comparison to Ground Truth}
 
 Finally, we conducted experiments to validate the quality of phylogenies produced by our algorithm.
 
-We began by testing accuracy of the reconstruction on ground-truth phylogenies.
-For these trials, we conducted experiments using a neutral evolution model on a single CPU where we were able to directly record the underlying phylogeny history. See the supplemental material for an example comparison between a ground-truth tree and estimated reconstruction \citep{supplemental}.
+We began by testing the accuracy of the reconstruction on ground-truth phylogenies.
+For these trials, we conducted experiments using a neutral evolution model on a single CPU, where we were able to directly record the underlying phylogeny history. See the supplemental material for an example comparison between a ground-truth tree and estimated reconstruction \citep{supplemental}.
 
 To assess reconstruction error, we used the triplet distance metric to compare corresponding ground-truth and estimated phylogenies.
 This metric can be interpreted as the fraction of sampled three-node sets for which both trees report the same two nodes as more closely related.
@@ -80,8 +79,8 @@ In addition to experiments reported here, the \texttt{hstrat} library includes a
 
 Previous work using the naive approach has been extensively validated and analyzed \citep{moreno2025testing}.
 
-When comparing tress reconstructed by the shortcut algorithm with those reconstructed by the naive algorithm, we noticed that, for the sub-sample data, the arbirary choices present in each algorithm made a very large difference when it came to producing different trees.
-Since there is no ground truth phylogeny for this dataset, and that the only way these algorithsm can differ is by these arbitrary choices, we can assume that both trees are equally likely to be more accurate.
+When comparing trees reconstructed by the shortcut algorithm with those reconstructed by the naive algorithm, we noticed that, for the sub-sample data, the arbitrary choices present in each algorithm made a very large difference when it came to producing different trees.
+Since there is no ground truth phylogeny for this dataset, and that the only way these algorithms can differ is by these arbitrary choices, we can assume that both trees are equally likely to be more accurate.
 
 However, to try to minimize this difference, we generated synthetic data based on the sample data and attached various stream curation algorithms to discern their effects.
 It was found that algorithms with a higher emphasis on more recent data resulted in less data being present for older generations, leading to more arbitrary choices made in the naive and shortcut algorithms early on, as there is more uncertainty during those generations.

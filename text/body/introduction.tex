@@ -1,35 +1,34 @@
 \section{Introduction} \label{sec:introduction}
 
 Key aspects of the study of evolution, whether biological or digital, revolve around understanding the flow of genetic material among large populations of organisms.
+As such, phylogenetic analyses assessing ancestry trees representing organsisms' evolutionary histories are a core tool in evolutionary biology.
 A common question during these studies is how closely organisms are related to one another, and through phylogenetic analysis, ancestry trees can be built that outline the organisms' evolutionary history.
 These trees have countless applications throughout the field, emphasizing the importance of accurate and efficient methods to reconstruct them.
-However, with larger and larger datasets, latter becomes increasingly difficult, with some techniques proving infeasible at that scale.
+However, with larger and larger datasets, the latter becomes increasingly difficult, with some techniques proving infeasible at that scale.
 Therefore, we present an algorithm that, in the scope of digital evolution, greatly improves the performance of phylogenetic reconstruction.
 
-Phylogenetic analyses allow for characterizing and quantifying certain evolutionary processes, allowing researchers to make conclusions about the way a population evolved over time with varying degrees of accuracy depending on the method.
-For example, fitness parameters such as growth rate, probability of survival, and so on \citep{genthon2023cell}.
-Through large-scale analyses, patterns of evolutionary dynamics can be inferred, such as the effects of beneficial mutations on a population with varying levels of frequency \citep{levy2015quantitative}.
-On the other hand, one may want to study the rate at which particular ancestor species split into many new species -- the speciation rate -- as well as the rate at which species die out -- the extinction rate.
-By studying reconstructed phylogenies, both of these results can be determined \citep{stadler2013recovering}.
+Phylogenetic analyses allow for characterizing and quantifying certain evolutionary processes (and are often the only methods for doing so), allowing researchers to make conclusions about the way a population evolved over time with varying degrees of accuracy.
+Through large-scale analyses, patterns of evolutionary dynamics can be inferred, such as the effects of beneficial mutations on a population or fitness parameters like growth rate, probability of survival, speciation rate, and extinction rate \citep{genthon2023cell, levy2015quantitative, stadler2013recovering}.
 
-Phylogenetic analysis is also cruicial in the field of epidemiology, which becomes urgent in the face of pandemics such as COVID-19.
-Through phylogenetic methods, we could determine which clade a particular strain came from, enabling the pinpointing of where and how a particular person was infected -- potentially leading to more efficient disease control \citep{wang2020role}.
+Phylogenetic analysis is also crucial in the field of epidemiology, which becomes urgent in the face of pandemics such as COVID-19.
+Through phylogenetic methods, we could determine which clade a particular strain came from, perhaps pinpointing where and how a particular person was infected -- thus leading to more efficient disease control \citep{wang2020role}.
 In another case, researchers could use phylogenies to help identify ``super-spreaders'' -- diseases with a particularly high transmission rate -- that may cause massive outbreaks \citep{colijn2014phylogenetic}.
 
 \subsection{Phylogenies \& Digital Evolution} \label{sec:introduction:digital}
 
-Often, studying evolution through biological means is not as feasible, as laboratory experiements may take years, or even decades, to complete -- a canonical example being the long-term evolution experiment \citep{wiser2013long}. 
-Therefore, by simulating the behavior of a population, experiements can instead be done digitally, with simulations running in a fraction of the time.
+In certain cases, however, the long runtime of biological evolution makes it infeasible to study; laboratory experiments may take years, or even decades, to complete -- a canonical example being the long-term evolution experiment \citep{wiser2013long}.
+Therefore, by simulating the behavior of a population, experiments can instead be done digitally, with simulations running in a fraction of the time.
 These systems can model key characteristics of biological populations, such as variation, natural selection, facilitation, movement, predation, and more.
 So, due to the nature of these simulations, conclusions about digital evolution can even be generalized to biological evolution \citep{pennock2007models, dolson2021digital}.
 
-Since they use similar mechanisms as biological evolution, organisms that have evolved digitally can also be analysed through phylogenies.
+Just as in biological evolution, phylogenies are an irreplaceable tool for analyzing organisms that have evolved digitally.
 One useful metric to determine if a population is likely to be successful is biodiversity, and digital populations are no exception.
 In fact, by using phylogenetic diversity (as opposed to other methods such as phenotypic diversity), stronger conclusions could be made about a digital population's fitness \citep{hernandez2022phylogenetic}.
 
 Digital evolution can also be performed in a manner that allows the testing of phylogenetic methods that are applicable to biological evolution.
 The Aevol\_4b system, for instance, uses a genetic system corresponding to that of DNA, allowing any genetic information to be processed using methods directly from bioinformatics \citep{daudey2024aevol}.
-Another system is SLiM which supports continuous-space modeling of multiple species at once \citep{haller2023slim}.
+Another system is SLiM, which supports continuous-space modeling of multiple species at once \citep{haller2023slim}.
+There is a rich ecosystem of digital evolution tools, each of which coming with its own unique features and motivations.
 
 \subsection{Reconstructing Phylogenies} \label{sec:introduction:reconst}
 
@@ -42,8 +41,8 @@ A simple example is perfect tracking: the idea that phylogenies can be tracked a
 However, in large-scale, many-processor simulations, challenges arise in managing a comprehensive record of ancestry.
 To control memory use, it is typically necessary to trim away records of extinct lineages.
 Detecting extinctions, however, introduces implementation complexity and overhead costs when lineage histories span across multiple processors.
-Such an approach is also sensitive to data loss from crashed hardware or dropped messages, a key concern highlighted in \citep{ackley2016indefinite,ackley2014indefinitely}.
-Challenges associated with comprehensive tracking are especially acute in specialized hardware accelerator devices, which represent a promising emerging direction in High-Performance Computing (HPC) \citep{TODO}.
+Such an approach is also sensitive to data loss from crashed hardware or dropped messages, which is a key concern highlighted in \citep{ackley2016indefinite,ackley2014indefinitely}.
+Challenges associated with comprehensive tracking are especially acute in specialized hardware accelerator devices, which represent a promising emerging direction in High-Performance Computing (HPC) \citep{emani2024democratizing}.
 In incorporating thousands of processor cores per device, these hardware architecture impose trade-offs in data locality restrictions and the amount of on-chip memory availble per core.
 
 An alternate approach to collecting phylogeny data is by estimating relatedness according to similarities among organisms.
@@ -54,7 +53,7 @@ As a key advantage, this approach is fully decentralized, with ancestry informat
 
 \input{fig/hstratschematic}
 
-Under controlled conditions, such as laboratory experiments or evolution simulations, genetic material may be engineered to facilitate accuracy and efficiency of estimating phylogenetic relatedness \citep{li2024reconstructing}.
+Under controlled conditions, such as laboratory experiments or evolution simulations, genetic material may be engineered to facilitate the accuracy and efficiency of estimating phylogenetic relatedness \citep{li2024reconstructing}.
 In this vein, work with hereditary stratigraphy methods has sought to operate analogously, organizing genetic material to maximize reconstruction quality and minimize memory footprint \citep{moreno2022hereditary}.
 Hstrat material can be bundled with agent genomes in a manner akin to non-coding DNA, entirely neutral with respect to agent traits and fitness.
 
@@ -69,12 +68,12 @@ Using single bits or single bytes is appropriate for most use cases.
 
 % and the possibility of collisions and missing data.
 Inferring relatedness from biological sequence data can be a highly challenging and computationally-intensive problem \citep{miller2010creating}.
-The structured marker data used in hereditary stratigraphy ameliorates this challenge somewhat, by allowing phylogeny reconstruction to be approached as a trie-building procedure of identifying common string prefixes \citep{delabriandais1959file,moreno2024analysis}.
+The structured marker data used in hereditary stratigraphy somewhat ameliorates this challenge by allowing phylogeny reconstruction to be approached as a trie-building procedure of identifying common string prefixes \citep{delabriandais1959file,moreno2024analysis}.
 However, the presence of missing data due to differentia dropped to save memory complicates matters.
 In the context of trie-building, markers possessed by only a subset of organisms effectively act as ``wildcard'' characters for organisms that do not possess them, possibly having taken on any differentia value.
-Placing an organism on a trie therefore requires evaluating possible subsequent paths following the wildcard fo identify further matches.
-With the possibility of differentia value collisions with small differentia sizes (e.g., 1 bit), identifying the best-matching path after a wildcard misisng value can require looking ahead several consecutive markers.
-Furhter, where consecutive wildcards are encountered, the number of possible paths that must be explored can grow exponentially.
+Therefore, placing an organism on a trie requires evaluating possible subsequent paths following the wildcard to identify further matches.
+With the possibility of differentia value collisions with small differentia sizes (e.g., 1 bit), identifying the best-matching path after a wildcard missing value can require looking ahead several consecutive markers.
+Furthermore, where consecutive wildcards are encountered, the number of possible paths that must be explored can grow exponentially.
 % resolving these wildcards can require possibly-exponential evaluation of alternate trie paths.
 % briefly mentions the naive trie-based approach we improve upon here, and remarks upon the wildcard matching problem associated with it \citep{moreno2024analysis}.
 
@@ -85,9 +84,9 @@ Furhter, where consecutive wildcards are encountered, the number of possible pat
 
 Although previous work has investigated the quality of phylogenies constructed from hereditary stratigraphy data using trie-based approaches \citep{moreno2025testing}, the computational intensity of the naive wildcard-matching approach has limited the scale of phylogenetic reconstructions practical to work with and restricted experimental throughput for smaller reconstructions.
 Given the objective of the methodology to facilitate studying very large scale digital evolution experiments, achieving reconstruction efficiency sufficient to collect large-scale phylogeny data is critical to the overall utility of the methodology in enabling observable experiments.
-In this work, we develop algorithms for more efficient trie reconstruction in the face of missing data, and explore their practical scalability through benchmark trials of high-performance implementations.
+In this work, we develop algorithms for more efficient trie reconstruction in the face of missing data and explore their practical scalability through benchmark trials of high-performance implementations.
 
-The following section introduces our proposed ``shortcut'' algorithm for trie building approach explored in this paper. We then describe a set of to validate reconstruction quality and test empirical scaling behavior and performance on to billion-genome=scale workloads.
+The following section introduces our proposed ``shortcut'' algorithm for the trie building approach explored in this paper. We then describe a set of methods to validate reconstruction quality and test empirical scaling behavior and performance on to billion-genome-scale workloads.
 
 % \citet{moreno2024trackable} used the naive trie building algorithms, and is the base for the benchmarking code that we did here (but we add some etensions here).
 % The trees built in this work were only TODO tips.

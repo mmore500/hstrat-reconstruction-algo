@@ -11,8 +11,8 @@ This list of organisms is then processed one at a time, going through each rank-
 \input{alg/old-reconst}
 
 If processing information corresponding to a rank $r$ that is larger than the rank $r'$ of a child $c$ of $n$, we know that the information at rank $r'$ must have been deleted in the original organism (otherwise, it would have been processed already).
-To maximize reconstruction accuracy, we must deterrmine if the missing datum is child $c$'s differentia, that of another child also with rank $r'$, or by none of the children of $n$ (where we would branch off).
-Essentially, when reaching missing information, we must infer that information, which we do by looking ahead on the tree. The naive  trie algorithm accomplished this by looking forwards and finding the path with the ``longest successive streak'' of matching differentia with the current organism \citep{moreno2024analysis}.
+To maximize reconstruction accuracy, we must determine if the missing datum is child $c$'s differentia, that of another child also with rank $r'$, or by none of the children of $n$ (where we would branch off).
+Essentially, when reaching missing information, we must infer that information, which we do by looking ahead in the tree. The naive  trie algorithm accomplished this by looking forward and finding the path with the ``longest successive streak'' of matching differentia with the current organism \citep{moreno2024analysis}.
 If there is no matching path, we simply branch off $n$ rather than through its children.
 
 However, despite being an accurate way of dealing with missing information, this approach suffers the cost of doing significant extra work each time.
@@ -23,13 +23,13 @@ Therefore, we present an improved algorithm that consolidates this extra work in
 
 \subsection{Proposed Shortcut Algorithm} \label{sec:algorithm:shortcut}
 
-We present a modification of Algorithm~\ref{alg:old} where we replace the best path search in line 9 with a more intelligent consolidation step to deal with missing ranks. The main idea of this algorithm is to realize that, as previously stated, once data from a specific rank is no longer included in one organism, it will not be included in any subsequent organisms, meaning that the nodes in the tree corresponding to that rank are no longer useful. So, by building shortcuts around any nodes that were made irrelevant, we can speed up the reconstruction process for all future nodes too.
+We present a modification of Algorithm~\ref{alg:old} where we replace the best path search in line 9 with a more intelligent consolidation step to deal with missing ranks. The main idea of this algorithm is to realize that, as previously stated, once data from a specific rank is no longer included in one organism, it will not be included in any subsequent organisms, meaning that the nodes in the tree corresponding to that rank are no longer useful. So, by building shortcuts around any nodes that were made irrelevant, we can speed up the reconstruction process for all future nodes, too.
 
 We detect missing information the same way as in the naive trie algorithm: during iteration, we notice that when a child $c$ of the current node $n$ has a rank $r'$ that is less than the current rank $r$ being processed, we do not have information about that rank. The key insight to the way we manage this is that, in the big picture, we only care about this child if some of its descendants at rank $r$ have the differentia equal to $d$. Also, since every subsequent organism does not contain information at rank $r'$ (due to the sorting), this statement holds throughout the rest of the algorithm.
 
 \input{fig/algo-diagram.tex}
 
-Extending this idea, since we know that any rank between $r'$ and $r$ is meaningless (as they all must have been deleted organism $o$ and any subsequent organisms), we create shortcuts from $n$ that bypass every one of its descendants that have a rank less than $r$.
+Extending this idea, since we know that any rank between $r'$ and $r$ is meaningless (as they all must have been deleted during organism $o$ and any subsequent organisms), we create shortcuts from $n$ that bypass every one of its descendants that have a rank less than $r$.
 In other words, on every possible path down the tree starting from $n$, we build a shortcut from $n$ to the first node on the tree with a rank at least $r$. For an example of what this looks like, see steps (b) and (c) in Figure~\ref{fig:algo-diagram}.
 
 However, since some descendants of $n$ may have children with equivalent information, we may end up with shortcuts from $n$ to effectively indistinguishable nodes (with different original parents but the same information).
@@ -41,4 +41,4 @@ If, at some point in the algorithm, $r$ itself becomes a rank of missing informa
 
 \input{alg/consolidation.tex}
 
-The key part in maintaining accuracy lie in the fact that since retain the old information (as represented by the gray nodes in Figure~\ref{fig:algo-diagram}), we preserve the full detail and granularity of the old approach. After the algorithm is run, we can simply use the remaining old information as the main phylogenetic tree. See Algorithm~\ref{alg:consolidation} to see psuedocode for this algorithm.
+The key part in maintaining accuracy lie in the fact that since retain the old information (as represented by the gray nodes in Figure~\ref{fig:algo-diagram}), we preserve the full detail and granularity of the old approach. After the algorithm is run, we can simply use the remaining old information as the main phylogenetic tree. See Algorithm~\ref{alg:consolidation} to see pseudocode for this algorithm. Details about algorithm implementation are in the supplemental \citep{supplemental}.

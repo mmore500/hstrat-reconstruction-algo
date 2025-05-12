@@ -20,7 +20,7 @@
 
 \vspace{0.8em}
 
-Below is supplemental material for our paper TODO with discussions and figures that were not put in the main paper.
+Below is supplemental material for our paper \citep{supplemental} with discussions and figures that were not put in the main paper.
 
 \subsection{Algorithm Equivalency}
 
@@ -57,7 +57,7 @@ However, it is worth noting that in cases where multiple paths are valid, the al
 \subsection{Algorithm Implementations}
 
 The shortcut-based algorithm is implemented in the \texttt{hstrat} Python package \citep{moreno2022hstrat} as \texttt{hstrat.build\_tree\_searchtable}.
-The reconstruction backend is selectable between independent implementations written in either pure Python or in C++, bound via Pybind11 \citep{pybind11}.
+The reconstruction backend is selectable between independent implementations written in either pure Python or in C++, bound via Pybind11 \citep{wenzel2017pybind11}.
 Benchmarks comparing the shortcut-enabled approaches to the existing naive approach, implemented in pure Python, used the pure Python backend for the shortcut-enabled approach, to ensure apples-to-apples comparability.
 Other benchmarking and validation experiments used the C++ backend, which is expected to be better reflective of how the library will be used in practice, given the inherent speedup and memory savings associated with compiled code.
 
@@ -71,7 +71,7 @@ From this point onwards, shortcut edges are used only for traversing the trie, w
 
 \subsection{Build-time Garbage Collection}
 
-To reduce memory usage for very large phylogeny reconstructions, we supplement the core trie extension and consolidation procedure detailed in Section \ref{sec:algorithm} with an intermittent garbage collection step.
+To reduce memory usage for very large phylogeny reconstructions, we supplement the core trie extension and consolidation procedure detailed in Section~\ref{sec:algorithm} with an intermittent garbage collection step.
 Because genomes are inserted in ascending order of generational depth, trie nodes at a generation with a single child node.
 Given that all trie nodes only have a single parent node, such a ``dropped unifurcation node'' can be excised and safely replaced with an edge directly connecting its parent and child.
 
@@ -81,7 +81,7 @@ We note that this does not detect all dropped unifurcations, and an alternate mo
 At implementation-level, the frequency of ``dropped unifurcation'' garbage collection is provided as a configurable function parameter, and so can be tuned as appropriate for a given use case scenario.
 Garbage collection was not necessary for the up to 10 million tip reconstructions evaluated in our microbenchmarking experiment, and so was not performed.
 For our macrobenchmark experiments, we ran this procedure at three evenly-spaced intervals during the build process.
-Figure \ref{fig:billion-tip-time} details the share of net execution time consumed by purging dropped unifurcations in these trials.
+Figure~\ref{fig:billion-tip-time} details the share of net execution time consumed by purging dropped unifurcations in these trials.
 
 \subsection{Validation with Ground Truth}
 

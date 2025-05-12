@@ -1,12 +1,12 @@
 \section{Methods} \label{sec:methods}
 
-In this section, we detail methodology for benchmark and validation experiments used to empirically assess performance of the prroposed shortcut-enabled reconstruction algorithm.
+In this section, we detail the methodology for benchmark and validation experiments used to assess the performance of the proposed shortcut-enabled reconstruction algorithm empirically.
 
 \subsection{Generation of Benchmark Data}
 
-For our benchmark experiments, we needed a sample large-scale genomes to draw from to perform reconstructions on.
+For our benchmark experiments, we needed a sample of large-scale genomes to draw from to perform reconstructions on.
 For this purpose, we performed simulations using the Cerebras CS-2
-Wafer-Scale Engine, a recently-introduced 850,000 core hardware accelerator device \citep{lie2023cerebras}.
+Wafer-Scale Engine, a recently introduced 850,000 core hardware accelerator device \citep{lie2023cerebras}.
 Processor elements (PEs) in this architecture are arranged in a grid lattice where each processor is able to execute independently and communicate with neighboring PEs through message-passing, with tight per-core limitations on available memory.
 
 To conduct these simulations, we used an extension of the island-model genetic algorithm framework presented in \citep{moreno2024trackable}.
@@ -16,7 +16,7 @@ Synchronous tournament selection of size 2 is applied within each PE, and betwee
 %The purpose of this simulation was to generate large-scale data using a simple model that can be explicitly manipulated to explore evolutionary regimes differing substantially in the depth of shared ancestry between organisms (known as phylogenetic richness).
 
 A simple genome model was used, wherein agents were comprised of a single floating point value representing fitness.
-Reproduction occured asexually, with this value subject to normally-distributed mutation with 30\% probability.
+Reproduction occurred asexually, with this value subject to normally-distributed mutation with 30\% probability.
 (In the case of the purifying-regime treatment, the negative absolute value of a sampled mutation delta was applied.)
 In tournament competitions to select parents for the subsequent generation, the parent was selected according to the higher fitness value with 10\% probability and was otherwise selected randomly.
 
@@ -24,28 +24,28 @@ To generate data representative of different evolutionary conditions, two treatm
 \textbf{adaptive regime} and \textbf{purifying regime}.
 Under the adaptive regime, mutations increasing fitness were allowed, introducing the possibility of selective sweeps.
 By contrast, the purifying regime treatment allowed only the possibility of deleterious mutations
-Previous work with this system demonstrated the purifying regime to exhibit substantially greater phylogenetic richness --- in line with expectation.
+Previous work with this system demonstrated the purifying regime to exhibit substantially greater phylogenetic richness -- in line with expectation.
 
-Fossil data were sampled on a rolling basis using asynchronous memcpy operations, where a representative agent was copied from device-to-host from each processor element on a rolling basis.
+Fossil data were sampled on a rolling basis using asynchronous \texttt{memcpy} operations, where a representative agent was copied from device to host from each processor element on a rolling basis.
 % https://github.com/mmore500/wse-async-ga/blob/31034c3b1f8127763807992916f20d7d3ea62919/slurm/2024-12-25/2024-12-25%2Blex12-async-ga.sh
 The simulation was run for 5 million generation cycles.
 A per-PE population size of 256 organisms was used, providing a net population size of 190.8 million organisms.
 % https://osf.io/btg23 and https://osf.io/2my97
 Over the course of the simulation, fossil genome collection of 1,999 (purifying regime) and 2,014 (adaptive regime) memcopy cycles elapsed.
 % https://osf.io/btg23 and https://osf.io/2my97
-Real time runtime for each was 24 minutes.
+Real-time runtime for each was 24 minutes.
 For full details on the Wafer-Scale Engine, see \citep{moreno2024trackable}.
 
 We used hstrat annotations comprising 64 single-bit markers, managed at runtime using a \texttt{tilted} curation policy, which favors dense retention of more recent marker data.
 
 \subsection{Microbenchmark Experiments}
 
-From this simulation (in both purifying and adaptive versions), we took a random sample of 10 million tips that could be used on a personal computer for various benchmarks, which were inteded to test reconstruction performance.
+From this simulation (in both purifying and adaptive versions), we took a random sample of 10 million tips that could be used on a personal computer for various benchmarks, which were intended to test reconstruction performance.
 First, we wanted to determine the asymptotic complexity of our new algorithm; to do this, we ran sub-samples of various sizes through the reconstruction pipeline and measured the time it took in the reconstruction step.
 This was done for both adaptive and purifying simulations in order to test different arrangements of data.
 
 We then wanted to compare the performance of this algorithm with the previous naive trie algorithm.
-We did this by again taking subsamples of the 10 million tips, and running both algorithms on the subsample and timing how long it took to process all the tips.
+We did this by again taking subsamples of the 10 million tips and running both algorithms on the subsample and timing how long it took to process all the tips.
 Given that the naive algorithm is significantly slower, our subsample sizes were limited to up to 10,000 tips.
 
 Because of this, we also wanted to determine the performance of the search table algorithm on larger data, and more importantly, determine the asymptotic complexity of the approach. 
@@ -59,25 +59,26 @@ These examples were all run on a 2019 MacBook Pro (2.3GHz 8-Core Intel i9, 16GB 
 \subsection{Macrobenchmark Experiments}
 
 To assess the performance of our approach on large-scale workloads under real-world conditions, we supplemented microbenchmarks focusing on core trie extension and consolidation operations with two macrobenchmark trials comprising the full end-to-end reconstruction pipeline described in Section \ref{sec:pipeline}.
+As mentioned in the figure, to save memory, we include a step that collapses unnecessary unifurcations (a parent having a single child, which is redundant information) -- for more details, see the supplemental \citep{supplemental}.
 These end-to-end experiments used the \texttt{hstrat.dataframe.surface\_build\_tree} CLI module incorporated in the \texttt{hstrat} library.
 
-These experiments were conducted using the full billion element corpus of sampled genomes from Wafer-Scale Engine simulations.
+These experiments were conducted using the full billion-element corpus of sampled genomes from Wafer-Scale Engine simulations.
 We performed two trial reconstructions: one using genome data from the adaptive regime treatment and another under the purifying regime treatment.
 
 Reconstructions were conducted on 100-core cluster node allocations.
 % purifying log: https://osf.io/gj52m
-Purifying-regime reconstruction was performed on an AMD EPYC 7763 Processor (2.445 GHz) with 128 cores and 2005 GB memory.
+Purifying-regime reconstruction was performed on an AMD EPYC 7763 Processor (2.445 GHz) with 128 cores and 2005 GB of memory.
 % purifying log: https://osf.io/s3rzj
-Adaptive-regime reconstructin was performed on an AMD EPYC 7H12 Processor (2.595 GHz) with 128 cores and 2005 GB memory.
+Adaptive-regime reconstruction was performed on an AMD EPYC 7H12 Processor (2.595 GHz) with 128 cores and 2005 GB of memory.
 End-to-end experiments used the \texttt{hstrat.dataframe.surface\_build\_tree} CLI module incorporated in the \texttt{hstrat} library.
 
 \subsection{Validation Tests}
 
-One part of our algorithm we aim to show is that it is essentially equivalent to the naive trie algorithm already implemented.
-We have already proven that any decisions it makes could be made by the naive trie algorithm (i.e. it is a valid arbitrary choice made by the algorithm); however, we do not know if they give similar results in practice.
+One part of our algorithm that we aim to show is that it is essentially equivalent to the naive trie algorithm already implemented.
+We assert that any decisions it makes could be made by the naive trie algorithm (see supplemental \citep{supplemental} for proof); however, we do not know if they give similar results in practice.
 
 On the other hand, to demonstrate reconstruction accuracy, we used small evolutionary simulations run locally. 
-These simulations were relatively simple, running 500 generations where parents replicated and died out, and 500 generations where parents replicated and stayed in the population. These simulations were ran using perfect tracking as implemented in \texttt{phylotrackpy} \citep{dolson2024phylotrack} so that reconstructed phylogenies could be compared with the ground truth.
+These simulations were relatively simple, running 500 generations where parents replicated and died out, and 500 generations where parents replicated and stayed in the population. These simulations were run using perfect tracking as implemented in \texttt{phylotrackpy} \citep{dolson2024phylotrack} so that reconstructed phylogenies could be compared with the ground truth.
 We then obtained a numerical error measurement using a triplet distance calculation between the ground truth and reconstructed phylogenies \citep{critchlow1996triples}.
 
 \subsection{End-to-end Phylogeny Reconstruction Pipeline}
@@ -98,8 +99,8 @@ The Polars library is used for load/save and other pre-/post-processing operatio
 
 \subsection{Software and Data Availability} \label{sec:materials}
 
-Software used in this work is available via GitHub: benchmarking and validation code at \href{https://github.com/mmore500/hstrat-reconstruction-algo}{\texttt{mmore500/hstrat-reconstruction-algo}}, WSE kernel code at \url{https://github.com/mmore500/wse-async-ga}{\texttt{mmore500/wse-async-ga}}, and hstrat library code at \url{https://github.com/mmore500/hstrat}{\texttt{mmore500/hstrat}}.
-Data and supplementary material is hosted via the Open Science Framework at \url{osf.io/63ucz} \citep{Moreno_Dolson_Zaman_Singhvi_Wagner_2025,foster2017open}.
+Software used in this work is available via GitHub\footnote{The benchmarking and validation code is available at \href{https://github.com/anony4review/hstrat-reconstruction-algo}{\texttt{anony4review/hstrat-reconstruction-algo}}, WSE kernel code at \href{https://github.com/anony4review/wse-async-ga}{\texttt{anony4review/wse-async-ga}}, and hstrat library code at \href{https://github.com/anony4review/hstrat}{\texttt{anony4review/hstrat}}}.
+Data and supplementary material is hosted via the Open Science Framework at \href{https://osf.io/63ucz/?view_only=2e3ec335c016436494ad125b14ffc8cb}{\texttt{osf.io/63ucz}} \citep{supplemental,foster2017open}.
 All accompanying materials are provided open-source under the MIT License.
 
-This project benefited significantly from open-source scientific software \citep{2020SciPy-NMeth,harris2020array,reback2020pandas,mckinney-proc-scipy-2010,waskom2021seaborn,hunter2007matplotlib,moreno2023teeplot,moreno2024downstream}.
+This project benefited significantly from open-source scientific software \citep{2020SciPy-NMeth,harris2020array,reback2020pandas,mckinney2010data,waskom2021seaborn,hunter2007matplotlib,moreno2023teeplot,moreno2024downstream}.

@@ -1,37 +1,29 @@
 \section{Conclusion} \label{sec:conclusion}
 
-Upwards trends in technological capacity for massively parallel and distributed computation are continuing to profoundly redefine the scope of scientific questions and model systems that can be investigated using \textit{in silico} methods.
-As these systems scale, challenges arise in managing the quantity and velocity of data generation, causing sampling-based approaches and approximations to become increasingly more relevant in solving this issue.
+Upward trends in technological capacity for massively parallel and distributed computation are continuing to profoundly broaden the scope of scientific questions that can be investigated using \textit{in silico} methods.
+As these systems scale, challenges arise in managing the volume and velocity of data generation, motivating the adoption of approximation and sampling-based analyses such as reconstruction-based phyloanalysis.
 
-In a parallel vein, advances in high throughput sequencing technologies and phylogenetic inference algorithms over nucleotide data are making it possible to work with larger and larger trees.
-These have brought into realization phylogenies with many millions of tips.
-In bioinformatics, there was recentlly proof-of-concept work done using procedurally generated virtual sequence data related to barcoding systems that built a 333 million tip tree \citep{konno2022deep}.
-In digital evolution, sampling approaches and reconstruction algorithms such as the one presented in this paper can process billions of tips in a matter of hours.
+In a parallel vein, the volume of data processed in bioinformatics workflows is also increasing with continuing advances in high-throughput sequencing technologies, enabling the construction of phylogenies containing millions of taxa.
+As an illustrative example at the cutting edge of extreme scale, \citet{konno2022deep} reports phylogeny synthesis from 235 million sequence reads generated from an \textit{in silico} CRISPR barcoding model --- requiring 31 hours of compute time across 300 HPC nodes.
+% In digital evolution, sampling approaches and reconstruction algorithms such as the one presented in this paper can process billions of tips in a matter of hours.
 
-However, the question of what to do with multimillion/billion tip tree and how to do it in an efficient manner remains, and in future work, will be critical to address.
-We have the opportunity to contribute meaningfully to this cross-disciplinary question through artificial life approaches.
-Given the unique capability of ALIFE study systems to generate large sets of detailed data that is directly observable across the span of simulated history, this motivated work on the ALIFE data standard, which specifies a tabular representation for phylogeny data \citep{Lalejini2019data}.
+In both the context of both bioinformatics and artificial life research, very large-scale phylogeny data enabled by advances in sequencing and computing technology represent a new challenge as much as an opportunity, raising the question of how best to mine this data.
+On a practical level, work is needed not just to push the boundaries of what can be learned from phylogenies, but also how to store, load, traverse, quantify, visualize, and manipulate very large phylogenies in an efficient manner.
+Indeed,  projects are being developed to try to address this issue.
+For example, taxonium \citep{sanderson2022taxonium} is a web-based software for visualizing large phylogenies in a flexible, interactive manner, and is able to handle browsing millions of tips at a high frame rate.
+Other projects aim to create methods for compact, scalable phylogeny representations \citep{moshiri2025compacttree, moshiri2020treeswift}, enabling faster and more memory-efficient tree operations.
 
-Over the recent years, a robust ecosystem of high performance tools has arisen around this DataFrame concept, including Pandas, Polars, Dask, and data.table, including advanced features such as multithreading, data streaming, query optimization, file partitioning, and column-oriented binary datafile formats \citep{mckinney2010data,datatable,vink2024polars,rocklin2015dask}.
-Additionally, existing high performance toolkits like NumPy and Numba integrate tightly with these frameworks \citep{Harris2020array,lam2015numba}.
-In fact, it is this approach that enabled a large amount of the pre- and post-processing steps of the reconstruction algorithm pipeline generated in this work.
-As such, the ALIFE standard has the potential to be a backbone of a larger high-performance analysis and tree manipulation strategies, and is well positioned to contribute both on the technical infrastructure and methodological statistics of developing next-generation workflows for ultra-large phylogenies.
+In pushing the boundaries of phylogenetic scale to billion-tip datasets, ALife research has the opportunity to contribute to an interdisciplinary ecosystem of software tools developing around working with very large-scale phylogenies.
+In particular, the ALife data standard, which specifies a tabular representation for phylogeny data \citep{Lalejini2019data}, has strong potential to develop a backbone of a larger high-performance phylogeny processing infrastructure.
+Although originally envisioned as a data storage format, the tabular nature of the standard allows integrations with high-performance software tools arisen around the ``Data Frame'' concept, including Pandas, Polars, Dask, and data.table.
+These libraries provide a structured, user-friendly interface to advanced performance features such as multithreading, data streaming, query optimization, file partitioning, and column-oriented binary datafile formats \citep{mckinney2010data,datatable,vink2024polars,rocklin2015dask}.
+Additionally, for Python users, the columnar array format typical in data frame libraries is compatible with NumPy and Numba, readily enabling on-the-fly SIMD vectorization and Just-In-Time compilation \citep{harris2020array,lam2015numba}.
+Indeed, this approach underlies much of the pre- and post-processing steps for end-to-end reconstruction demonstrated in this work.
 
-\subsection{Future Work} \label{sec:conclusion:future}
+Of more direct bearing to phylogeny reconstruction from heredity stratigraphy data, future work should also assess trade-offs in configuring hstrat annotations for phylogeny reconstructions incorporating fossil data drawn from earlier time points, as was the case in this work.
+Whereas existing analysis has focused on reconstructions from genomes drawn from a shared contemporary population \citep{moreno2025testing}, it is likely that configuration adjustments may be necessary for scenarios involving genomes of widely-varying generational depths.
+Promisingly, in preliminary testing, we have found indications that incorporating fossil data into reconstructions can help improve inference accuracy of relationships among extant population members.
 
-Because phylogeny data is increasing in scale due to better sequencing and reconstruction algorithms, a huge opportunity for deeper insight across a broad variery of evolving systems is presented.
-However, infrastructure for storing, measuring, manipulating, and visualizing phylogenies has been identified as a key bottleneck.
-Many recent projects have been developed to try to address this issue.
-For example, taxonium \citep{sanderson2022taxonium} is a web-based software for visualizing large phylogenies in a flexible, interactive manner, and is able to handle browing millions of tips at a high frame rate.
-Other projects aim to create methods for compact, scalable phylogeny representations \citep{moshiri2025compacttree, moshiri2020treeswift} enabling faster and more lightweight tree operations.
-Developing tools to deal with phylogenies that scale up to billions of tips is crucial to enabling analyses on a larger scale than ever before.
-
-There is a plethora of work pertinent to our proposed algorithm that could be done in the future.
-For example, testing the effectiveness on different data retention algorithms on reconstruction could prove crucial to selection the right algorithm during large simulations.
-Additionally, through some testing, we found that collecting `fossils' throughout a simulation -- organisms which we copied out in the middle of the simulation and added to the final population at the end -- could improve the accuracy of reconstruction on the extant population.
-This is likely because these fossils provide some extra information for reconstruction algorithms to use, but the effectiveness of this approach may depend on the retention policy as well.
-
-Other future work (even some ongoing) will involve building out experimental pipelines to exploit the methods and tools developed in this work.
-These could use large-scale simulations on emerging platforms such as the Cerebras Wafer-Scale Engine in order to provide ground truth basis to test and interactively develop phylostatistical methodologies in addition to pursuing hypothesis-driven experiments using digital simulations as a model system.
-For example, complex populations could be modeled through digital evolution with different evolutionary characteristics, with our proposed reconstruction algorithm being the foundation for phylogenetic analyses.
-To this end, all tools described herein are published open source \citep{moreno2024hstrat} with an emphasis on usability, enabling anyone to control evolution.
+Other future work will involve experiments putting the high-throughput phylogeny reconstruction capabilities developed into practice.
+In ongoing work, we are interested in using large scale digital evolution experiments to test phylostatistical methodologies for detecting signatures multilevel selection associated with major transitions in evolution \citep{BonettiFranceschi2024}, as well as pursuing hypothesis-driven experiments investigating mechanisms of open-ended evolution.
+To this end, all tools described herein are published as modular open source library components \citep{moreno2024hstrat}, supporting the broader research community in exploring and extending this line of inquiry.
