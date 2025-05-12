@@ -39,7 +39,7 @@ Given the programmatic observability of digital simulations, digital evolution p
 General-purpose phylogeny-tracking libraries exist for this purpose \citep{dolson2024phylotrack}, although many platforms simpli incorporate bespoke implementations into their own software \citep{ofria2004avida}.
 
 In large-scale, many-processor simulations, however, challenges arise in managing a comprehensive record of ancestry.
-To control memory use, it is typically necessary to trim away records of extinct lineages when performing direct tracking#
+To control memory use, it is typically necessary to trim away records of extinct lineages when performing direct tracking.
 Detecting extinctions, however, introduces implementation complexity and overhead costs when lineage histories span across multiple processors.
 Such an approach is also sensitive to data loss from crashed hardware or dropped messages, which has been highlighted as key consideration in achieving very large-scale artificial life systems \citep{ackley2016indefinite,ackley2014indefinitely}.
 Challenges associated with comprehensive tracking are especially acute in specialized hardware accelerator devices, which represent a promising emerging direction in High-Performance Computing (HPC) \citep{emani2024democratizing}.
@@ -53,14 +53,14 @@ In such contexts, reconstruction-based approaches can provide an attractive bala
 Under controlled conditions, such as laboratory experiments or evolution simulations, genetic material may be engineered to facilitate the accuracy and efficiency of estimating phylogenetic relatedness \citep{li2024reconstructing}.%
 \footnote{Notably, \citet{ackley2023robust} applied analogous barcoding approaches in tracking ancestry among replicators in a distributed fabric-computing context.}
 Work developing hereditary stratigraphy (``hstrat'') methods seeks to operate analogously, providing techniques to organize genetic material in digital organsisms that maximizes reconstruction quality while minimizing memory footprint \citep{moreno2022hereditary}.
-Hereditary stratigraphy components can be bundled with agent genomes in a manner akin to non-coding DNA ( neutral with respect to agent traits and fitness), enabling trivial incorporation into existing simulation systems.
+Hereditary stratigraphy components can be bundled with agent genomes in a manner akin to non-coding DNA (i.e., neutral with respect to agent traits and fitness), enabling trivial incorporation into existing simulation systems.
 
 HStrat associates each generation along each lineage with an identifying ``fingerprint'' marker, referred to as a differentia.
 On birth, offspring receive a new differentia value and append it to an inherited chronological record of past values, each corresponding to a generation along that lineage.
 Under this scheme, mismatching differentia can be used to delimit the extent of common ancestry.
 Figure \ref{fig:hstratschematic} gives a schematic overview of the hereditary stratigraphy approach.
 
-To save space, differentiae may be pruned away -- although, at the cost of reducing precision in inferring relatedness.
+To save space, differentiae may be pruned away --- although, at the cost of reducing precision in inferring relatedness.
 Reducing the number of bits per differentia can also provide many-fold memory space savings.
 Using single bits or single bytes is appropriate for most use cases.
 
