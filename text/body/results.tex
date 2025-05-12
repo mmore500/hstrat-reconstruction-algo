@@ -76,16 +76,18 @@ As expected, medium and large annotation sizes produced lowest reconstruction er
 \footnote{This error measure corresponds to the fraction of sampled three-node sets for which both trees report the same two nodes as more closely related.}
 In contrast, very small 8-bit annotations averaged 37\% reconstruction error.
 
-\subsection{Validation: Comparison to Naive Algorithm}
+%\subsection{Validation: Comparison to Naive Algorithm}
 
-Previous work using the naive approach has been extensively validated and analyzed \citep{moreno2025testing}.
+%Given that previous work using the naive reconstruction approach has been extensively validated and analyzed \citep{moreno2025testing}, we additionally assessed reconstruction quality under the shortcut-enabled approach vis-a-vis comparison to the naive approach.
 
-When comparing trees reconstructed by the shortcut algorithm with those reconstructed by the naive algorithm, we noticed that, for the sub-sample data, the arbitrary choices present in each algorithm made a very large difference when it came to producing different trees.
-Since there is no ground truth phylogeny for this dataset, and that the only way these algorithms can differ is by these arbitrary choices, we can assume that both trees are equally likely to be more accurate.
+%When comparing trees reconstructed by the shortcut algorithm with those reconstructed by the naive algorithm, we noticed that, for the sub-sample data, the arbitrary choices present in each algorithm made a very large difference when it came to producing different trees.
+%Since there is no ground truth phylogeny for this dataset, and that the only way these algorithms can differ is by these arbitrary choices, we can assume that both trees are equally likely to be more accurate.
 
-However, to try to minimize this difference, we generated synthetic data based on the sample data and attached various stream curation algorithms to discern their effects.
-It was found that algorithms with a higher emphasis on more recent data resulted in less data being present for older generations, leading to more arbitrary choices made in the naive and shortcut algorithms early on, as there is more uncertainty during those generations.
-These choices early on had a large impact on the resulting tree, resulting in the two algorithms having different outputs. However, theoretically, both outputs should be equally ``valid'' under the constraints of the naive algorithm. 
+%However, to try to minimize this difference, we generated synthetic data based on the sample data and attached various stream curation algorithms to discern their effects.
+%It was found that algorithms with a higher emphasis on more recent data resulted in less data being present for older generations, leading to more arbitrary choices made in the naive and shortcut algorithms early on, as there is more uncertainty during those generations.
+%These choices early on had a large impact on the resulting tree, resulting in the two algorithms having different outputs.
+%However, theoretically, both outputs should be equally ``valid'' under the constraints of the naive algorithm.
 
-Therefore, stream curation protocols with a higher retention of old data resulted in reconstructed trees by the naive and shortcut algorithms being more similar. Additionally, we found that trees were more similar by using data where ranks were more similar (from the tail of the billion-tip experiement rather than a sample throughout).
+%Therefore, stream curation protocols with a higher retention of old data resulted in reconstructed trees by the naive and shortcut algorithms being more similar.
+%Additionally, we found that trees were more similar by using data where ranks were more similar (from the tail of the billion-tip experiement rather than a sample throughout).
 
