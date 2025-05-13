@@ -2,17 +2,17 @@
     \begin{algorithmic}[1]
         \Function{ReconstructTree}{$O$}
             \State $T \gets$ an empty tree
-            \For {$o \in O$} 
-                \State $\textsc{TreeInsert}(T, o)$
+            \For {$o \in O$}
+                \State $\textsc{TreeInsert}(T,\; o)$
             \EndFor
             \State \Return $T$
         \EndFunction
 
-        \Function{TreeInsert}{$T, o$}
+        \Function{TreeInsert}{$T,\; o$}
             \State $n \gets$ root of $T$
-            \For{each rank-differentia pair $(r, d) \in o$}
+            \For{each rank-differentia pair $(r,\; d) \in o$}
                 \State $n \gets$ the child of $n$ most likely contain $o$, $n$ if there is no such child
-                \If{$\exists c \in \operatorname{children}(n) \text{ s.t.} \operatorname{differentia(c) = d}$}
+                \If{$\exists c \in \operatorname{children}(n) \text{ s.t.} \; \operatorname{differentia(c) = d}$}
                     \State $n \gets c$
                 \Else 
                     \State create a new child $c'$ branching off $n$ 
