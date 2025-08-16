@@ -15,12 +15,17 @@ Phylogenetic analysis is also crucial in the field of epidemiology, playing a ke
 In this context, phylogenetic methods can be used to determine transmission history, pinpointing where and how chains of infection unfold \citep{wang2020role}.
 In this vein, phylogenies are also key in assessing the prevalence of  ``super-spreader'' dynamics wherin disease spread is driven by a small set of high-risk individuals \citep{colijn2014phylogenetic}.
 
-%\subsection{Phylogenies \& Digital Evolution} \label{sec:introduction:digital}
+% \subsection{Reconstructing Biological Phylogenies} \label{sec:introduction:bioreconst}
 
-%In certain cases, however, the long runtime of biological evolution makes it infeasible to study; laboratory experiments may take years, or even decades, to complete -- a canonical example being the long-term evolution experiment \citep{wiser2013long}.
-%Therefore, by simulating the behavior of a population, experiments can instead be done digitally, with simulations running in a fraction of the time.
-%These systems can model key characteristics of biological populations, such as variation, natural selection, facilitation, movement, predation, and more.
-%So, due to the nature of these simulations, conclusions about digital evolution can even be generalized to biological evolution \citep{pennock2007models, dolson2021digital}.
+% In biological studies, phylogenetic reconstruction methods typically work by assessing nucleotide changes between aligned DNA sequences from sample organisms.
+% Approaches include distance-based methods, where a distance matrix between organisms is computed and processed with methods such as neighbor-joining \citep{saitou1987neighbor}; or character-based methods, such as maximum-parsimony \citep{sober1991reconstructing}, which seeks to minimize the number of evolutionary changes necessary to explain an evolutionary history --- and maximum-likelihood \citep{felsenstein1981evolutionary}, which infers tree topologies maximizing a likelihood function \citep{de2014phylogenetic}.
+
+\subsection{Phylogenies \& Digital Evolution} \label{sec:introduction:digital}
+
+In certain cases, however, the long runtime of biological evolution makes it infeasible to study; laboratory experiments may take years, or even decades, to complete -- a canonical example being the long-term evolution experiment \citep{wiser2013long}.
+Therefore, by simulating the behavior of a population, experiments can instead be done digitally, with simulations running in a fraction of the time.
+These systems can model key characteristics of biological populations, such as variation, natural selection, facilitation, movement, predation, and more.
+So, due to the nature of these simulations, conclusions about digital evolution can even be generalized to biological evolution \citep{pennock2007models, dolson2021digital}.
 
 Phylogenies are also a valuable tool for analyzing evolutionary dynamics within digital evolution experiments.
 In application-oriented contexts, phylogeny-based biodiversity metrics have been shown as predictive of solution quality outcomes for evolutionary computation-based optimization \citep{hernandez2022phylogenetic}.
@@ -30,30 +35,30 @@ Digital evolution approaches can also serve as a testbed to assess bioinformatic
 The Aevol\_4b system, for instance, uses a genetic system corresponding to that of DNA, allowing any genetic information to be processed using methods directly from bioinformatics \citep{daudey2024aevol}.
 Likewise, population genetics work often incorporates SLiM, which supports sophisticated continuous-space modeling of single- and multi-species systems \citep{haller2023slim}.
 
-\subsection{Reconstructing Phylogenies} \label{sec:introduction:reconst}
-
-In biological studies, phylogenetic reconstruction methods typically work by assessing nucleotide changes between aligned DNA sequences from sample organisms.
-Approaches include distance-based methods, where a distance matrix between organisms is computed and processed with methods such as neighbor-joining \citep{saitou1987neighbor}; or character-based methods, such as maximum-parsimony \citep{sober1991reconstructing}, which seeks to minimize the number of evolutionary changes necessary to explain an evolutionary history --- and maximum-likelihood \citep{felsenstein1981evolutionary}, which infers tree topologies maximizing a likelihood function \citep{de2014phylogenetic}.
-
 Given the programmatic observability of digital simulations, digital evolution platforms typically incorporate direct tracking methods that record lineage ancestry as the simulation runs.
-General-purpose phylogeny-tracking libraries exist for this purpose \citep{dolson2024phylotrack}, although many platforms simpli incorporate bespoke implementations into their own software \citep{ofria2004avida}.
+General-purpose phylogeny-tracking libraries exist for this purpose \citep{dolson2024phylotrack}, although many platforms simply incorporate bespoke implementations into their own software \citep{ofria2004avida}.
 
+\subsection{Considering Larger, Distributed Simulations} \label{sec:introduction:distributed}
+
+
+To scale digital evolution up to more realistic sizes, it is necessary to move from a single-processor system to a more distributed approach with many computing units \citep{moreno2024trackable}.
 In large-scale, many-processor simulations, however, challenges arise in managing a comprehensive record of ancestry.
 To control memory use, it is typically necessary to trim away records of extinct lineages when performing direct tracking.
 Detecting extinctions, however, introduces implementation complexity and overhead costs when lineage histories span across multiple processors.
 Such an approach is also sensitive to data loss from crashed hardware or dropped messages, which has been highlighted as key consideration in achieving very large-scale artificial life systems \citep{ackley2016indefinite,ackley2014indefinitely}.
+
 Challenges associated with comprehensive tracking are especially acute in specialized hardware accelerator devices, which represent a promising emerging direction in High-Performance Computing (HPC) \citep{emani2024democratizing}.
 In incorporating thousands of processor cores per device, these hardware architecture impose trade-offs in memory capacity limitations and data locality restrictions that limit the feasibility of comprehensive tracking.
-In such contexts, reconstruction-based approaches can provide an attractive balance between data fidelity anddata collection overhead.
+In such contexts, reconstruction-based approaches can provide an attractive balance between data fidelity and data collection overhead.
 
 \subsection{Hereditary Stratigraphy} \label{sec:introduction:hstrat}
 
 \input{fig/hstratschematic}
 
-Under controlled conditions, such as laboratory experiments or evolution simulations, genetic material may be engineered to facilitate the accuracy and efficiency of estimating phylogenetic relatedness \citep{li2024reconstructing}.%
+Under controlled conditions, such as laboratory experiments or evolution simulations, genetic material may be engineered to facilitate the accuracy and efficiency of estimating phylogenetic relatedness \citep{li2024reconstructing}.
 \footnote{Notably, \citet{ackley2023robust} applied analogous barcoding approaches in tracking ancestry among replicators in a distributed fabric-computing context.}
 Work developing hereditary stratigraphy (``hstrat'') methods seeks to operate analogously, providing techniques to organize genetic material in digital organsisms that maximizes reconstruction quality while minimizing memory footprint \citep{moreno2022hereditary}.
-Hereditary stratigraphy components can be bundled with agent genomes in a manner akin to non-coding DNA (i.e., neutral with respect to agent traits and fitness), enabling trivial incorporation into existing simulation systems.
+Hereditary stratigraphy components can be bundled with agent genomes in a manner akin to non-coding DNA (i.e., neutral with respect to agent traits and fitness), enabling trivial incorporation into distributed simulation systems through its agent-centric approach.
 
 HStrat associates each generation along each lineage with an identifying ``fingerprint'' marker, referred to as a differentia.
 On birth, offspring receive a new differentia value and append it to an inherited chronological record of past values, each corresponding to a generation along that lineage.
