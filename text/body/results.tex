@@ -9,7 +9,7 @@ In contrast, runtime for the shortcut-enabled approach at this scale is approxim
 
 \input{fig/ntips-comparison.tex}
 
-Although Python code was used for both algorithms in this trial to ensure apples-to-apples comparability, implementations did differ in the underlying data structure used to store trie data.
+Although the same programming language was used for both implementations in this trial to ensure apples-to-apples comparability, implementations did differ in the underlying data structure used to store trie data.
 The shortcut-enabled implementation used a contiguous edge-list table to store trie data, while the naive implementation used a node-and-pointer approach.
 Typically, table-based approaches are faster in practice due to cache locality effects and reduced memory allocation calls.
 However, both data structures provide equivalent time complexities for all relevant initialization and lookup operations.
@@ -20,7 +20,6 @@ Thus, the notable difference in scaling properties between the shortcut-enabled 
 \input{fig/scaling.tex}
 
 Having seen a substantial speedup in comparing the shortcut-enabled algorithm to the naive trie-building approach, we next sought to assess the scaling properties of the shortcut-enabled approach in isolation.
-To better reflect real-world conditions, we used the primary C++ implementation of the shortcut-enabled trie-building algorithm for these trials.
 
 Figure~\ref{fig:scaling} depicts the relationship between trie size as 100,000-tip batches are added and the time taken to insert each batch, over 5 replicates of 10 million tip reconstructions.
 Fitting a linear regression model to this data, for both the adaptive and purifying regime data sets we found that, with a significance of $\alpha = 0.05$, that we should reject the null hypothesis of a constant slope.
