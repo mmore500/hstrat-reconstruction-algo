@@ -46,7 +46,7 @@ Experiments used random subsamples of genomes from WSE fossil data described abo
 To facilitate informative comparison, timings measured just the trie-building component of reconstructions, excluding pre- and post-processing steps.
 Five replicate observations were taken per timing.
 
-In a second set of microbenchmark trials, we investigated the empirical scaling behavior of the shortcut-enabled trie building algorithm across a wider spread of reconstruction workload sizes.
+In a second set of microbenchmark trials, we conducted an empirical scaling analysis of the shortcut-enabled trie building algorithm across a wider spread of reconstruction workload sizes.
 To assess the relationship between marginal throughput and trie size, we performed trie reconstructions of 10 million WSE genomes, broken into successive batches of 100,000 genomes.
 This approach allowed us to independently measure time taken to insert each batch, with the goal determing how this time changes for later batches (i.e., larger trees).
 We also performed unbatched tests evaluating net execution time to build tries ranging from 1 to 10 million tips.
@@ -102,7 +102,7 @@ All accompanying materials are provided open-source under the MIT License.
 
 Microbenchmarks experiments were conducted on a 2019 MacBook Pro (2.3GHz 8-Core Intel i9, 16GB RAM) using a benchmark script provided with supplemental material \citep{supplemental}.
 Head-to-head trie-building comparisons were performed using Python implementations of both algorithms.
-Scaling behavior experiments used a C++ implementation of the shortcut-enabled trie-building algorithm.
+Empirical scaling analysis experiments used a C++ implementation of the shortcut-enabled trie-building algorithm.
 
 Macrobenchmarks were performed on AMD EPYC compute cluster nodes with 128 cores and 2005 GB of memory.
 Purifying- and adaptive-regime reconstructions were performed on separate nodes with EPYC 7763 (2.445 GHz) and EPYC 7H12 (2.595 GHz) processors, respectively.
