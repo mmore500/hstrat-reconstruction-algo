@@ -32,7 +32,7 @@ The simulation was run for 5 million generation cycles.
 A per-PE population size of 256 organisms was used, providing a net population size of 190.8 million organisms.
 % https://osf.io/btg23 and https://osf.io/2my97
 ``Fossil'' genome data was sampled on a rolling basis over the course of simulation using asynchronous \texttt{memcopy} operations, where sample genomes were copied from each PE on a rolling basis.
-In total, collection of 1,999 (purifying regime) and 2,014 (adaptive regime) memcopy cycles elapsed.
+In total, collection of 1,999 (purifying regime) and 2,014 (adaptive regime) \texttt{memcopy} cycles elapsed.
 % https://osf.io/btg23 and https://osf.io/2my97
 Real-time runtime under each treatment was 24 minutes.
 
@@ -48,7 +48,7 @@ Five replicate observations were taken per timing.
 
 In a second set of microbenchmark trials, we conducted an empirical scaling analysis of the shortcut-enabled trie building algorithm across a wider spread of reconstruction workload sizes.
 To assess the relationship between marginal throughput and trie size, we performed trie reconstructions of 10 million WSE genomes, broken into successive batches of 100,000 genomes.
-This approach allowed us to independently measure time taken to insert each batch, with the goal determing how this time changes for later batches (i.e., larger trees).
+This approach allowed us to independently measure time taken to insert each batch, with the goal determining how this time changes for later batches (i.e., larger trees).
 We also performed unbatched tests evaluating net execution time to build tries ranging from 1 to 10 million tips.
 For these experiments, 3 replicates were performed per observation.
 
