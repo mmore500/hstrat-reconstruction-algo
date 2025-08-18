@@ -22,6 +22,15 @@
 
 Below is supplemental material for our paper \citep{supplemental} with discussions and figures that were not put in the main paper.
 
+\subsection{Naive Algorithm Definition}
+
+\label{sec:algorithm:naivedefinition}
+
+As stated in the original work, we use the concept of the ``longest successive streak'' \citep{moreno2024analysis} to determine the most likely path to follow in the trie when adding some organism.
+We do this by performing the \textsc{MostLikelyChild} step as described in Algorithm~\ref{alg:old} in the main paper, defined here in Algorithm~\ref{alg:mostlikely}.
+
+\input{alg/mostlikely.tex}
+
 \subsection{Algorithm Equivalency}
 
 \label{sec:algorithm:equivalency}

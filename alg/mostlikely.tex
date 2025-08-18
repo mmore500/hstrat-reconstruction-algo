@@ -1,0 +1,33 @@
+\begin{algorithm}[h]
+    \begin{algorithmic}[1]
+    \small{
+        \Function{DifferentiaAtRank}{organism $o$, rank $r$}
+            \For{$(r', d') \in o$}
+                \If{$r' = r$}
+                    \Return $d'$
+                \EndIf
+            \EndFor
+            \State \Return $-1$
+        \EndFunction
+        \Function{DeepestRank}{node $n$, organism $o$, rank $r$}
+            \State $d \gets \textsc{DifferentiaAtRank}(o, \operatorname{rank}(n))$
+            \If{$d \ne -1 \land d \ne \operatorname{differentia}(n)$}
+                \State \Return $r$
+            \EndIf
+            \If{$|\operatorname{children}(n)| = 0$}
+                \State \Return $r$
+            \EndIf
+            \State \Return $\max_{c \in \operatorname{children}(n)} \textsc{DeepestRank}(c, o, \operatorname{rank}(n))$
+        \EndFunction
+        \Function{MostLikelyChild}{node $n$, organism $o$}
+            \State $c' \gets \arg\max_{c \in \operatorname{children}(n)} \textsc{DeepestRank}(c, o, \operatorname{rank}(n))$
+            \If{$\textsc{DeepestRank}(c', o, \operatorname{rank}(n)) = \operatorname{rank}(n)$}
+                \State \Return $n$
+            \EndIf
+            \State \Return $c'$
+        \EndFunction
+    }
+    \end{algorithmic}
+    \caption{\textbf{The most likely child algorithm.} \small Determines the child of $n$ most likely to contain the organism $o$ somewhere in its subtree, returning $n$ itself if there are no candidate children. \vspace{-1.5em}}
+    \label{alg:mostlikely}
+\end{algorithm}
