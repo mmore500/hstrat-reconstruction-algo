@@ -9,7 +9,7 @@ In contrast, runtime for the shortcut-enabled approach at this scale is approxim
 
 \input{fig/ntips-comparison.tex}
 
-Although Python code was used for both algorithms in this trial to ensure apples-to-apples comparability, implementations did differ in the underlying data structure used to store trie data.
+Although the same programming language was used for both implementations in this trial to ensure apples-to-apples comparability, implementations did differ in the underlying data structure used to store trie data.
 The shortcut-enabled implementation used a contiguous edge-list table to store trie data, while the naive implementation used a node-and-pointer approach.
 Typically, table-based approaches are faster in practice due to cache locality effects and reduced memory allocation calls.
 However, both data structures provide equivalent time complexities for all relevant initialization and lookup operations.
@@ -20,7 +20,6 @@ Thus, the notable difference in scaling properties between the shortcut-enabled 
 \input{fig/scaling.tex}
 
 Having seen a substantial speedup in comparing the shortcut-enabled algorithm to the naive trie-building approach, we next sought to assess the scaling properties of the shortcut-enabled approach in isolation.
-To better reflect real-world conditions, we used the primary C++ implementation of the shortcut-enabled trie-building algorithm for these trials.
 
 Figure~\ref{fig:scaling} depicts the relationship between trie size as 100,000-tip batches are added and the time taken to insert each batch, over 5 replicates of 10 million tip reconstructions.
 Fitting a linear regression model to this data, for both the adaptive and purifying regime data sets we found that, with a significance of $\alpha = 0.05$, that we should reject the null hypothesis of a constant slope.
@@ -33,7 +32,7 @@ Further regression analysis using this data suggests that past a certain point, 
 (See supplemental materials \citep{supplemental} for more information.)
 In an analytical investigation of scaling complexity, which is left to future work, we therefore expect the degree to which expensive trie consolidation operations are amortized over average-case insertions to play an important role in determining the scaling complexity of the shortcut-enabled approach.
 
-Microbenchmarks measuring net reconstruction time across problem sizes, rather than marginal batch-wise throughput, reach a similar conclusion and are provided in supplemental Figure~\ref{fig:asymptotic} \citep{supplemental}).
+Microbenchmarks measuring net reconstruction time across problem sizes, rather than marginal batch-wise throughput, reach a similar conclusion and are provided in supplemental Figure~\ref{fig:asymptotic} \citep{supplemental}.
 
 \subsection{Macrobenchmark: One Billion-Tips}
 
@@ -47,7 +46,7 @@ As a point of comparison, the largest reconstructions performed using the previo
 % log files:
 % https://osf.io/s3rzj and https://osf.io/gj52m
 Benchmarked operations included the full reconstruction operation pipeline shown in Figure \ref{fig:hstratschematic}.
-Input data comprised a Parquet format file storing raw agent genomes in a hexidecimal string representation.
+Input data comprised a Parquet format file storing raw agent genomes in a hexadecimal string representation.
 The population file size was 34 GB for and 35 GB for the sample adaptive- and purifying-selection regimes, respectively.
 The output data comprised the reconstructed phylogeny in an edge-list format closely resembling the ALife data standard.
 Several pieces of metadata (e.g., agent position and extraction batch) were forwarded to the output data.
@@ -90,4 +89,3 @@ In contrast, very small 8-bit annotations averaged 37\% reconstruction error.
 
 %Therefore, stream curation protocols with a higher retention of old data resulted in reconstructed trees by the naive and shortcut algorithms being more similar.
 %Additionally, we found that trees were more similar by using data where ranks were more similar (from the tail of the billion-tip experiement rather than a sample throughout).
-
