@@ -27,7 +27,7 @@ Fitting a linear regression model to this data, for both the adaptive and purify
 Evidence indicates, therefore, that as trie size increases, the time required per tip added increases as well.
 
 Notably, batch processing times exhibit strong outliers for which trie extension was notably slower.
-This effect is due to the presence expensive consolidation steps within those batches.
+This effect is due to the presence of expensive consolidation steps within those batches.
 To assess this phenomenon, we performed a more fine-grained analysis (with batches of 5,000 tips) on non-outlier data (filtering out values above the 95th percentile).
 Further regression analysis using this data suggests that past a certain point, non-outlier batch times do not increase significantly with larger tree size.
 (See supplemental materials \citep{supplemental} for more information.)
