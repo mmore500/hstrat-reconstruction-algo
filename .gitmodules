@@ -43,3 +43,8 @@
 	url = https://github.com/mmore500/hstrat-reconstruction-algo.git
 	branch = binder-2025_03_13_preliminary_billion_tip_reconstruction_graphing.ipynb
 	shallow = true
+[submodule "binder/binder-2025-05-11-billion-tip-benchmark-v1_20_10.ipynb"]
+	path = binder/binder-2025-05-11-billion-tip-benchmark-v1_20_10.ipynb
+	url = https://github.com/mmore500/hstrat-reconstruction-algo.git
+	branch = binder-2025-05-11-billion-tip-benchmark-v1_20_10.ipynb
+	shallow = true
