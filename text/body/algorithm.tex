@@ -30,25 +30,25 @@ Therefore, we present an improved algorithm that consolidates this extra work in
 
 \subsection{Proposed Shortcut Algorithm} \label{sec:algorithm:shortcut}
 
+\input{fig/algo-diagram.tex}
+
 We present a modification of Algorithm~\ref{alg:old} where we replace the best path search in line 9 with a more intelligent consolidation step to deal with missing ranks.
 The main idea of this algorithm is to realize that, as previously stated, once data from a specific rank is no longer included in one organism, it will not be included in any subsequent organisms, meaning that the nodes in the tree corresponding to that rank are no longer useful.
 So, by building shortcuts around any nodes that have become irrelevant, we can speed up the reconstruction process for all future nodes, too.
 
 We detect missing information the same way as in the naive trie algorithm: during iteration, we notice that when a child $c$ of the current node $n$ has a rank $r'$ that is less than the current rank $r$ being processed.
-In this case, we know we do not have information about the rank $r'$.
+In this case, we know we do not have information for any rank between $r'$ and $r$ for this organism and any subsequent organism (due to sorting by generational depth).
 % The key insight to the way we manage this scenario is that, in the big picture, we only care about this child if some of its descendants at rank $r$ have a differentia value $d$.
-Also, since every subsequent organism does not contain information at rank $r'$ (due to sorting by generational depth), this statement holds throughout the rest of the algorithm.
 
-\input{fig/algo-diagram.tex}
+Extending this idea, we know that information for any rank between $r'$ and $r$ is meaningless (as they all have been deleted for organism $o$ and any subsequent organisms). 
+So, we can bypass every one of $n$'s descendants that have a rank less than $r$, as their information is now meaningless.
+More clearly, we do this by creating shortcut edges from $n$ to the set of descendants whose rank is at least $r$, but whose parent's rank isn't. For example, see Figure~\ref{fig:algo-diagram}, where we detect a dropped rank in (b) and create shortcut edges in (c), around each descendant with that dropped rank.
 
-Extending this idea, since we know that any rank between $r'$ and $r$ is meaningless (as they all must have been deleted for organism $o$ and any subsequent organisms), we create shortcuts from $n$ that bypass every one of its descendants that have a rank less than $r$.
-In other words, on every possible path down the tree starting from $n$, we build a shortcut from $n$ to the first node on the tree with a rank of at least $r$. For an example of what this process looks like, see steps (b) and (c) in Figure~\ref{fig:algo-diagram}.
-
-However, since some descendants of $n$ may have children with equivalent information, we may end up with shortcuts from $n$ to effectively indistinguishable nodes (with different original parents but the same differentia value).
-This situation can be resolved by essentially `merging' the duplicates by choosing one to keep and creating shortcuts from the kept one to the children of the removed one (see steps (d) and (e) in Figure~\ref{fig:algo-diagram}).
+However, since some descendants of $n$ may have children with equivalent information (like step (d) in Figure~\ref{fig:algo-diagram}), we may end up with shortcuts from $n$ to effectively indistinguishable nodes (with different original parents but the same differentia value).
+This situation can be resolved by essentially `merging' the duplicates by choosing one to keep and creating more shortcut edges from the kept one to the children of the removed one (see step (e) in Figure~\ref{fig:algo-diagram}).
 
 Now, adding any organisms that are missing data from the removed level becomes trivial, as the algorithm can use the newly created shortcuts while skipping the missing information that was hidden by the consolidation step.
-We no longer need to look down branches from $n$ because the ``wildcard'' value has been eliminated ---each child of $n$ now has a rank greater than or equal to $r$.
+We no longer need to look down branches from $n$ because the ``wildcard'' value has been eliminated --- each child of $n$ now has a rank greater than or equal to $r$.
 % So, there is no longer a concern of missing information when processing $n$ at rank $r$, and these shortcuts are then used to add any subsequent organisms if need be.
 If, at some point in the algorithm, $r$ itself becomes a rank of missing information, additional shortcuts are built according to the same procedure.
 

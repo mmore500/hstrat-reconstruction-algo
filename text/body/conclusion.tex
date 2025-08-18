@@ -1,7 +1,10 @@
 \section{Conclusion} \label{sec:conclusion}
 
-Upward trends in technological capacity for massively parallel and distributed computation are continuing to profoundly broaden the scope of scientific questions that can be investigated using \textit{in silico} methods.
-As these systems scale, challenges arise in managing the volume and velocity of data generation, motivating the adoption of approximation and sampling-based analyses such as reconstruction-based phyloanalysis.
+We have presented and benchmarked a new algorithm for phylogenetic reconstruction from synthetic hstrat \citep{moreno2024hstrat} data with significantly better performance, both empirically and asymptotically, rectifying the existing bottleneck of slow phylogenetic reconstruction in wafer-scale distributed simulations.
+
+Our work aims to ``catch up'' with upward trends in technological capacity for massively parallel and distributed digital evolution.
+The scope of scientific questions that can be investigated using \textit{in silico} methods is being continuously broadened, but as systems scale in volume and velocity, challenges arise in managing large amounts of data.
+Along with existing sampling-based phylogenetic tracking methods like hstrat, our new reconstruction algorithm enables fast phyloanalysis on simulations of unforeseen size.
 
 In a parallel vein, the volume of data processed in bioinformatics workflows is also increasing with continuing advances in high-throughput sequencing technologies, enabling the construction of phylogenies containing millions of taxa.
 As an illustrative example at the cutting edge of extreme scale, \citet{konno2022deep} reports phylogeny synthesis from 235 million sequence reads generated from an \textit{in silico} CRISPR barcoding model --- requiring 31 hours of compute time across 300 HPC nodes.
@@ -20,7 +23,7 @@ These libraries provide a structured, user-friendly interface to advanced perfor
 Additionally, for Python users, the columnar array format typical in data frame libraries is compatible with NumPy and Numba, readily enabling on-the-fly SIMD vectorization and Just-In-Time compilation \citep{harris2020array,lam2015numba}.
 Indeed, this approach underlies much of the pre- and post-processing steps for end-to-end reconstruction demonstrated in this work.
 
-Of more direct bearing to phylogeny reconstruction from heredity stratigraphy data, future work should also assess trade-offs in configuring hstrat annotations for phylogeny reconstructions incorporating fossil data drawn from earlier time points, as was the case in this work.
+Of more direct bearing to phylogeny reconstruction from heredity stratigraphy data, future work should also assess trade-offs in configuring hstrat annotations for phylogeny reconstructions incorporating fossil data (including extinct lineages) drawn from earlier time points, as was the case in this work.
 Whereas existing analysis has focused on reconstructions from genomes drawn from a shared contemporary population \citep{moreno2025testing}, it is likely that configuration adjustments may be necessary for scenarios involving genomes of widely varying generational depths.
 Promisingly, in preliminary testing, we have found indications that incorporating fossil data into reconstructions can help improve inference accuracy of relationships among extant population members.
 

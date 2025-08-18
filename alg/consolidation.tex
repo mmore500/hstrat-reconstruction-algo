@@ -1,26 +1,31 @@
 \begin{algorithm}[h]
   \begin{algorithmic}[1]
-    \Function{ConsolidateTree}{$T$, $n$, $r$}
-      \State $S \gets$ the set of (great)grandchildren of $n$ such that $\forall c \in S\ \operatorname{rank}(c) \ge r$ and $\forall c \in S\ \operatorname{rank}(\operatorname{parent}(c)) < r$ 
-      \State \textsc{BuildShortcuts}($T$, $n$, $S$)
+  \small{
+    \Function{ConsolidateTree}{tree $T$, node $n$, rank $r$}
+      \State $S \gets \{c \in \operatorname{descendants}(n) : \operatorname{rank}(c) \ge r \land  \operatorname{rank}(\operatorname{parent}(c)) < r\}$ 
+      \For{$c$ in $S$} 
+        \textsc{BuildShortcut}($T$, $n$, $c$)
+      \EndFor
       \For{each subset of duplicate\footnotemark nodes $S' \subseteq S$}
-        \State $c \gets$ an arbitrary element in $S'$ 
-        \For{$c' \in S \setminus \{c\}$}
-          \State \textsc{BuildShortcuts}($T$, $c$, $\operatorname{children}(c')$)
+        \State $c^* \gets$ an arbitrary element in $S'$ 
+        \For{$c' \in S \setminus \{c^*\}$}
+          \For{$c$ in $\operatorname{children}(c)$} 
+            \State \textsc{BuildShortcut}($T$, $c^*$, $c$)
+          \EndFor
           \State \textsc{RemoveShortcut}($T$, $n$, $c'$)
         \EndFor
       \EndFor 
     \EndFunction
-    \Function{BuildShortcuts}{$T$, $n$, $S$}
-      \For{$c \in S$}
-        add a shortcut edge from $n$ to $c$
-      \EndFor
+    \Function{BuildShortcut}{tree $T$, node $n$, node $c$}
+      \State $\operatorname{edges}(T) \gets \operatorname{edges}(T) \cup \{(n, c)\}$
+      \State $\operatorname{edges}(T)[(n, c)]\text{.is\_shortcut} \gets \textsc{True}$
     \EndFunction
-    \Function{RemoveShortcut}{$T$, $n$, $c$}
-        \State remove the shortcut edge from $n$ to $c$
+    \Function{RemoveShortcut}{tree $T$, node $n$, node $c$}
+        \State $\operatorname{edges}(T) \gets \operatorname{edges}(T) \setminus \{(n, c)\}$
     \EndFunction
+  }
   \end{algorithmic}
-  \caption{\textbf{The consolidation step of the shortcut table algorithm.} \small Builds shortcuts for a given node $n$ and collapses duplicate children caused by those shortcuts. \vspace{-1.5em}}
+  \caption{\textbf{The consolidation step of the shortcut table algorithm.} \small Builds shortcuts for a given node $n$ and collapses duplicate children caused by those shortcuts. Note that \vspace{-1.5em}}
   \label{alg:consolidation}
 \end{algorithm}
 \footnotetext{nodes $x$ and $y$ are duplicates iff $\operatorname{rank}(x) = \operatorname{rank}(y)$ and $\operatorname{differentia}(x) = \operatorname{differentia}(y)$}

@@ -1,6 +1,7 @@
 \begin{algorithm}[h]
     \begin{algorithmic}[1]
-        \Function{ReconstructTree}{$O$}
+    \small{
+        \Function{ReconstructTree}{organism list $O$}
             \State $T \gets$ an empty tree
             \For {$o \in O$}
                 \State $\textsc{TreeInsert}(T,\; o)$
@@ -8,21 +9,22 @@
             \State \Return $T$
         \EndFunction
 
-        \Function{TreeInsert}{$T,\; o$}
+        \Function{TreeInsert}{tree $T$, organism $o$}
             \State $n \gets$ root of $T$
-            \For{each rank-differentia pair $(r,\; d) \in o$}
-                \State $n \gets$ the child of $n$ most likely contain $o$, $n$ if there is no such child
+            \For{$(r,\; d) \in o$} \text{ } $\triangleright$ \textit{loop over rank-differentia pairs}
+                \State $n \gets \textsc{MostLikelyChild}(n, o)$ \text{ } $\triangleright$ \textit{see naive algorithm description, and appendix for definition}
                 \If{$\exists c \in \operatorname{children}(n) \text{ s.t.} \; \operatorname{differentia(c) = d}$}
                     \State $n \gets c$
                 \Else 
-                    \State create a new child $c'$ branching off $n$ 
+                    \State $c' \gets \textsc{CreateChild}(n)$ \text{ } $\triangleright$ \textit{new child off $n$} 
                     \State $\operatorname{differentia}(c') \gets d$
                     \State $n \gets c'$
                 \EndIf
             \EndFor
             \State insert information about $o$ as a child of $n$
         \EndFunction
+    }
     \end{algorithmic}
-    \caption{\textbf{The naive trie-buidling algorithm.} \small Iteratively builds a trie from organisms' genetic material. Requires a list of organisms $O$ in ascending order by generations elapsed. This is the existing algorithm for creating a phylogenetic tree through hereditary stratigraphy. \vspace{-1.5em}}
+    \caption{\textbf{The naive trie-buidling algorithm.} \small Iteratively builds a trie from organisms' genetic material. Requires a list of organisms $O$ in ascending order by generations elapsed. This is the existing algorithm for creating a phylogenetic tree through hereditary stratigraphy. Recall that the genetic information of an organism is stored as a list of rank-differentia pairs. \vspace{-1.5em}}
     \label{alg:old}
 \end{algorithm}
