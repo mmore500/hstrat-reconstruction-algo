@@ -15,8 +15,8 @@
                 \State $n \gets \textsc{MostLikelyChild}(n, o)$ \text{ } $\triangleright$ \textit{see supplement}
                 \If{$\exists c \in \operatorname{children}(n) \text{ s.t.} \; \operatorname{differentia(c) = d}$}
                     \State $n \gets c$
-                \Else 
-                    \State $c' \gets \textsc{CreateChild}(n)$ \text{ } $\triangleright$ \textit{new child off $n$} 
+                \Else
+                    \State $c' \gets \textsc{CreateChild}(n)$ \text{ } $\triangleright$ \textit{new child off $n$}
                     \State $\operatorname{differentia}(c') \gets d$
                     \State $n \gets c'$
                 \EndIf
