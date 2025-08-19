@@ -2,7 +2,7 @@
   \begin{algorithmic}[1]
   \small{
     \Function{ConsolidateTree}{tree $T$, node $n$, rank $r$}
-      \State $S \gets \{c \in \operatorname{descendants}(n) : \operatorname{rank}(c) \ge r \land  \operatorname{rank}(\operatorname{parent}(c)) < r\}$ 
+      \State $S \gets \{c \in \operatorname{descendants}(n) \\~~~~~~~~~~~: \operatorname{rank}(c) \ge r \land  \operatorname{rank}(\operatorname{parent}(c)) < r\}$
       \For{$c$ in $S$} 
         \textsc{BuildShortcut}($T$, $n$, $c$)
       \EndFor

@@ -11,8 +11,8 @@
 
         \Function{TreeInsert}{tree $T$, organism $o$}
             \State $n \gets$ root of $T$
-            \For{$(r,\; d) \in o$} \text{ } $\triangleright$ \textit{loop over rank-differentia pairs}
-                \State $n \gets \textsc{MostLikelyChild}(n, o)$ \text{ } $\triangleright$ \textit{see naive algorithm description, and appendix for definition}
+            \For{$(r,\; d) \in o$} \text{ } $\triangleright$ \textit{successive rank-differentia pairs}
+                \State $n \gets \textsc{MostLikelyChild}(n, o)$ \text{ } $\triangleright$ \textit{see supplement}
                 \If{$\exists c \in \operatorname{children}(n) \text{ s.t.} \; \operatorname{differentia(c) = d}$}
                     \State $n \gets c$
                 \Else 
@@ -21,7 +21,7 @@
                     \State $n \gets c'$
                 \EndIf
             \EndFor
-            \State insert information about $o$ as a child of $n$
+            \State $o$.parent $\gets n$ ~~~ $\triangleright$ \textit{attach organism $o$ to tree}
         \EndFunction
     }
     \end{algorithmic}
