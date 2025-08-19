@@ -1,16 +1,21 @@
-\begin{algorithm}[h]
+
+ \begin{algorithm}[h]
   \begin{algorithmic}[1]
   \small{
-    \Function{ConsolidateTree}{tree $T$, node $n$, rank $r$}
-      \State $S \gets \{c \in \operatorname{descendants}(n) \\~~~~~~~~~~~: \operatorname{rank}(c) \ge r \land  \operatorname{rank}(\operatorname{parent}(c)) < r\}$
+      \Function{ConsolidateTree}{tree $T$, node $n$, rank $r$}
+      \State $S \gets \{c \in \operatorname{descendants}(n) \\~~~~~~~~~~~: \operatorname{rank}(c) \ge r \text{ and }  \operatorname{rank}(\operatorname{parent}(c)) < r\}$
       \For{$c$ in $S$}
         \textsc{BuildShortcut}($T$, $n$, $c$)
       \EndFor
-      \For{each subset of duplicate\footnotemark nodes $S' \subseteq S$}
+      \For{ $(r,\;d) \in \{(\operatorname{rank}(s),\; \operatorname{differentia}(s)) : s \in S \}$}
+        \State $S' \gets \{s \in S : \operatorname{rank}(s) = r \text{ and } \operatorname{differentia}(s) = d\}$
+        \If {$|S'| = 1$}
+          \State \textbf{continue}
+        \EndIf
         \State $c^* \gets$ an arbitrary element in $S'$
         \For{$c' \in S \setminus \{c^*\}$}
-          \For{$c$ in $\operatorname{children}(c)$}
-            \State \textsc{BuildShortcut}($T$, $c^*$, $c$)
+          \For{$c''$ in $\operatorname{children}(c)$}
+            \State \textsc{BuildShortcut}($T$, $c^*$, $c''$)
           \EndFor
           \State \textsc{RemoveShortcut}($T$, $n$, $c'$)
         \EndFor
@@ -18,14 +23,13 @@
     \EndFunction
     \Function{BuildShortcut}{tree $T$, node $n$, node $c$}
       \State $\operatorname{edges}(T) \gets \operatorname{edges}(T) \cup \{(n, c)\}$
-      \State $\operatorname{edges}(T)[(n, c)]\text{.is\_shortcut} \gets \textsc{True}$
+      \State $\operatorname{edges}(T)[(n,\; c)]\text{.is\_shortcut} \gets \textsc{True}$
     \EndFunction
     \Function{RemoveShortcut}{tree $T$, node $n$, node $c$}
-        \State $\operatorname{edges}(T) \gets \operatorname{edges}(T) \setminus \{(n, c)\}$
+        \State $\operatorname{edges}(T) \gets \operatorname{edges}(T) \setminus \{(n,\; c)\}$
     \EndFunction
   }
   \end{algorithmic}
   \caption{\textbf{Shortcut-building and consolidation procedure.} \small Builds shortcuts from a given node $n$ and collapses ``indistinguishable'' sibling sets introduced by those shortcuts. \vspace{-1.5em}}
   \label{alg:consolidation}
 \end{algorithm}
-\footnotetext{nodes $x$ and $y$ are duplicates iff $\operatorname{rank}(x) = \operatorname{rank}(y)$ and $\operatorname{differentia}(x) = \operatorname{differentia}(y)$}

@@ -12,12 +12,11 @@
         \Function{TreeInsert}{tree $T$, organism $o$}
             \State $n \gets$ root of $T$
             \For{$(r,\; d) \in o$} \text{ } $\triangleright$ \textit{successive rank-differentia pairs}
-                \State $n \gets \textsc{MostLikelyChild}(n, o)$ \text{ } $\triangleright$ \textit{see supplement}
-                \If{$\exists c \in \operatorname{children}(n) \text{ s.t.} \; \operatorname{differentia(c) = d}$}
+                \State $n \gets \textsc{MostLikelyChild}(n,\; o)$ \text{ } $\triangleright$ \textit{see supplement}
+                \If{$\exists c \in \operatorname{children}(n) \text{ s.t.} \; \operatorname{differentia(c) = d \text{ and } \operatorname{rank}(c) = r}$}
                     \State $n \gets c$
                 \Else
-                    \State $c' \gets \textsc{CreateChild}(n)$ \text{ } $\triangleright$ \textit{new child off $n$}
-                    \State $\operatorname{differentia}(c') \gets d$
+                    \State $c' \gets \textsc{CreateChild}(n,\; r,\; d)$ \text{ } $\triangleright$ \textit{new child off $n$}
                     \State $n \gets c'$
                 \EndIf
             \EndFor
