@@ -2,7 +2,7 @@
 
 \subsection{Microbenchmark: Runtime Comparison}
 
-In direct comparison between the naive and the shortcut-enabled trie building implementations, we found substantial improvements in execution time under by the latter.
+Direct comparison of runtimes across a range of problem sizes demonstrated substantial improvements under shortcut-enabled trie building, compared to the naive approach.
 Figure~\ref{fig:comparison} compares execution time for both approaches for problem sizes ranging up to 10,000 genomes.
 Over this window, the naive algorithm's runtime appears to grow at a superlinear pace.
 At the largest surveyed problem size, naive runtime reaches 15 minutes.
@@ -23,13 +23,13 @@ Thus, the notable difference in scaling properties between the shortcut-enabled 
 Having seen a substantial speedup in comparing the shortcut-enabled algorithm to the naive trie-building approach, we next sought to assess the scaling properties of the shortcut-enabled approach in isolation.
 
 Figure~\ref{fig:scaling} depicts the relationship between trie size as 100,000-tip batches are added and the time taken to insert each batch, over 5 replicates of 10 million tip reconstructions.
-Fitting a linear regression model to this data, for both the adaptive and purifying regime data sets we found that, with a significance of $\alpha = 0.05$, that we should reject the null hypothesis of a constant slope.
+Fitting a linear regression model to this data, we found significant evidence to reject the null hypothesis of a constant slope, for both the adaptive and purifying regime datasets ($\alpha = 0.05$).
 Evidence indicates, therefore, that as trie size increases, the time required per tip added increases as well.
 
 Notably, batch processing times exhibit strong outliers for which trie extension was notably slower.
 This effect is due to the presence of expensive consolidation steps within those batches.
 To assess this phenomenon, we performed a more fine-grained analysis (with batches of 5,000 tips) on non-outlier data (filtering out values above the 95th percentile).
-Further regression analysis using this data suggests that past a certain point, non-outlier batch times do not increase significantly with larger tree size.
+Further regression analysis using this data suggests that, past a certain point, non-outlier batch times do not increase significantly with larger tree size.
 (See supplement for more information \citep{supplemental}.)
 In an analytical investigation of scaling complexity, which is left to future work, we therefore expect the degree to which expensive trie consolidation operations are amortized over average-case insertions to play an important role in determining the scaling complexity of the shortcut-enabled approach.
 
@@ -48,7 +48,7 @@ As a point of comparison, the largest reconstructions performed using the previo
 % purifying log: https://osf.io/85yfd
 % adaptive log: https://osf.io/m2f64
 Benchmarked operations included the full reconstruction operation pipeline shown in Figure \ref{fig:hstratschematic}.
-Input data comprised a Parquet format file storing raw agent genomes in a hexadecimal string representation.
+Input data comprised a Parquet format file storing raw agent genomes as hexadecimal strings.
 The population file size was 34 GB for and 35 GB for the sample adaptive- and purifying-selection regimes, respectively.
 The output data comprised the reconstructed phylogeny in an edge-list format closely resembling the ALife data standard.
 Several pieces of metadata (e.g., agent position) were forwarded to the output data.
@@ -58,10 +58,10 @@ For the adaptive-selection regime, the output file size was 54 GB, and for the p
 % purifying log: https://osf.io/85yfd
 % adaptive log: https://osf.io/m2f64
 Given the large problem-size scale tested, macrobenchmark trials were carried out on a compute cluster node, rather than a desktop PC, as was used for microbenchmark experiments.
-Figure \ref{fig:billion-tip-time} profiles net runtime and its breakdown in our case study reconstruction trials.
+Figure \ref{fig:billion-tip-time} profiles net runtime in our case study reconstruction trials.
 Reconstruction time was 2h:53m for the adaptive-regime data set and 2h:35m for the purifying-regime data set.
-These figures correspond to a net throughput of 6.67 and 4.78 million tips per minute, respectively.
-Peak memory use for the adaptive and purifying selection regimes was 693 GB and 614 GB.
+These figures correspond to a net throughput of 5.8 and 6.4 million tips per minute, respectively.
+Peak memory use was 693 GB (adaptive regime) and 614 GB (purifying regimes).
 
 \subsection{Validation: Comparison to Ground Truth}
 
@@ -81,8 +81,8 @@ In contrast, very small 8-bit annotations averaged 37\% reconstruction error.
 
 %Given that previous work using the naive reconstruction approach has been extensively validated and analyzed \citep{moreno2025testing}, we additionally assessed reconstruction quality under the shortcut-enabled approach vis-a-vis comparison to the naive approach.
 
-%When comparing trees reconstructed by the shortcut algorithm with those reconstructed by the naive algorithm, we noticed that, for the sub-sample data, the arbitrary choices present in each algorithm made a very large difference when it came to producing different trees.
-%Since there is no ground truth phylogeny for this dataset, and that the only way these algorithms can differ is by these arbitrary choices, we can assume that both trees are equally likely to be more accurate.
+%When comparing trees reconstructed by the shortcut algorithm with those reconstructed by the naive algorithm, we noticed that, for the sub-sample data, the arbitrary choices present in each algorithm made a substantial difference when it came to producing different trees.
+%Since there is no ground truth phylogeny for this dataset, and the only way these algorithms can differ is by these arbitrary choices, we can assume that both trees are equally likely to be more accurate.
 
 %However, to try to minimize this difference, we generated synthetic data based on the sample data and attached various stream curation algorithms to discern their effects.
 %It was found that algorithms with a higher emphasis on more recent data resulted in less data being present for older generations, leading to more arbitrary choices made in the naive and shortcut algorithms early on, as there is more uncertainty during those generations.
@@ -90,4 +90,4 @@ In contrast, very small 8-bit annotations averaged 37\% reconstruction error.
 %However, theoretically, both outputs should be equally ``valid'' under the constraints of the naive algorithm.
 
 %Therefore, stream curation protocols with a higher retention of old data resulted in reconstructed trees by the naive and shortcut algorithms being more similar.
-%Additionally, we found that trees were more similar by using data where ranks were more similar (from the tail of the billion-tip experiement rather than a sample throughout).
+%Additionally, we found that trees were more similar by using data where ranks were more similar (from the tail of the billion-tip experiment rather than a sample throughout).
