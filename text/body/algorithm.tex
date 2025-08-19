@@ -6,7 +6,7 @@ Note that, based on the number of bits used to represent differentia values, sub
 
 \subsection{Naive Trie-Building Algorithm} \label{sec:algorithm:naive}
 
-The existing algorithm functions by treating the sequence of rank-differentia pairs as strings, where each differentia corresponds to represent a character at the rank-th string position.
+The existing algorithm functions by treating the sequence of rank-differentia pairs as strings, where each differentia corresponds to a character at the rank-th string position.
 In this framing, differentia values missing due to having been overwritten are treated as wildcard characters.
 For two rank-differentia strings, common ancestry corresponds to a shared prefix of string characters, which have been inherited from their MRCA (Most Recent Common Ancestor).
 Thus, phylogenies can be corresponded with a trie data structure \citep{fredkin1960trie}, for which each path along the tree represents a prefix string formed by the characters at traversed nodes.
@@ -23,8 +23,8 @@ The naive  trie algorithm accomplishes this goal by looking forward and finding 
 If there is no matching path, we simply branch off node $n$ rather than continuing to traverse through its children.
 
 However, despite being an accurate way of dealing with missing information, this approach suffers the cost of doing significant extra work each time.
-In the worst case, there could be an exponential number matching paths to check, owing to the possibility of nested multifurcations at successive wildcard sites.
-In large-scale simulations, with limited differentia values (sometimes being represented with only one bit), often deep paths must be evaluated which significantly slows down the reconstruction process.
+In the worst case, there could be an exponential number of matching paths to check, owing to the possibility of nested multifurcations at successive wildcard sites.
+In large-scale simulations with limited differentia values (sometimes being represented with only one bit), deep paths must often be evaluated --- significantly slowing the reconstruction process.
 Additionally, these searches would need to happen for each organism, regardless of whether or not a similar search was already done.
 Therefore, we present an improved algorithm that consolidates this extra work into a single step that never needs to be repeated.
 
@@ -41,7 +41,8 @@ We detect missing information the same way as in the naive trie algorithm: durin
 
 Extending this idea, we know that information for any rank between $r'$ and $r$ is meaningless (as they all have been deleted for organism $o$ and any subsequent organisms). 
 So, we can bypass every one of $n$'s descendants that have a rank less than $r$, as their information is now meaningless.
-More clearly, we do this by creating shortcut edges from $n$ to the set of descendants whose rank is at least $r$, but whose parent's rank isn't. For example, see Figure~\ref{fig:algo-diagram}, where we detect a dropped rank in (b) and create shortcut edges in (c), around each descendant with that dropped rank.
+We do this by creating shortcut edges from $n$ to the set of descendants whose rank is at least $r$, but whose parent's rank is not.
+For example, see Figure~\ref{fig:algo-diagram}, where we detect a dropped rank in (b) and create shortcut edges in (c), around each descendant with that dropped rank.
 
 However, since some descendants of $n$ may have children with equivalent information (like step (d) in Figure~\ref{fig:algo-diagram}), we may end up with shortcuts from $n$ to effectively indistinguishable nodes (with different original parents but the same differentia value).
 This situation can be resolved by essentially `merging' the duplicates by choosing one to keep and creating more shortcut edges from the kept one to the children of the removed one (see step (e) in Figure~\ref{fig:algo-diagram}).
