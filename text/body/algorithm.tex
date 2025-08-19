@@ -36,8 +36,7 @@ We present a modification of Algorithm~\ref{alg:old} where we replace the best p
 The main idea of this algorithm is to realize that, as previously stated, once data from a specific rank is no longer included in one organism, it will not be included in any subsequent organisms, meaning that the nodes in the tree corresponding to that rank are no longer useful.
 So, by building shortcuts around any nodes that have become irrelevant, we can speed up the reconstruction process for all future nodes, too.
 
-We detect missing information the same way as in the naive trie algorithm: during iteration, we notice that when a child $c$ of the current node $n$ has a rank $r'$ that is less than the current rank $r$ being processed.
-In this case, we know we do not have information for any rank between $r'$ and $r$ for this organism and any subsequent organism (due to sorting by generational depth).
+We detect missing information the same way as in the naive trie algorithm: during iteration, we notice that when a child $c$ of the current node $n$ has a rank $r'$ that is less than the current rank $r$ being processed, we know we do not have information for any rank between $r'$ and $r$ for this organism and any subsequent organism (due to sorting by generational depth).
 % The key insight to the way we manage this scenario is that, in the big picture, we only care about this child if some of its descendants at rank $r$ have a differentia value $d$.
 
 Extending this idea, we know that information for any rank between $r'$ and $r$ is meaningless (as they all have been deleted for organism $o$ and any subsequent organisms). 
