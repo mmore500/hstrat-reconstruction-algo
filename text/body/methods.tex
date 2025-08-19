@@ -22,7 +22,7 @@ In tournament competitions to select parents for the subsequent generation, the 
 Genomes were augmented with hstrat annotations comprising 64 single-bit markers, managed at runtime using a \texttt{tilted} curation policy, which favors dense retention of more recent marker data \citep{moreno2024structured}.
 
 To generate data representative of differing evolutionary conditions, two treatments were applied: an
-\textbf{adaptive regime} and a \textbf{purifying regime}.
+\textit{adaptive regime} and a \textit{purifying regime}.
 Under the adaptive regime, mutations increasing fitness were allowed, introducing the possibility of selective sweeps.
 By contrast, the purifying regime treatment allowed only deleterious mutations.
 Previous work with this system demonstrated the purifying regime to exhibit substantially greater phylogenetic richness, in line with expectation for selective sweeps to diminish population-level phylogenetic diversity \citep{moreno2024trackable}.
@@ -56,7 +56,7 @@ All microbenchmarks were replicated using genomes generated under adaptive and p
 
 \subsection{Macrobenchmark Experiments}
 
-To assess the performance of our approach on large-scale workloads under real-world conditions, we supplemented microbenchmarks focusing on core trie extension and consolidation operations with two macrobenchmark trials comprising the full end-to-end reconstruction pipeline described in Section \ref{sec:pipeline}.
+To assess the performance of our approach on large-scale workloads under real-world conditions, we supplemented microbenchmarks focusing on core trie extension and consolidation operations with two macrobenchmark trials comprising our full end-to-end reconstruction implementation (detailed below).
 To reduce peak memory use, we additionally included a step to collapse unnecessary unifurcations (i.e., parent nodes with only a single child) between trie-building batches --- for more details, see the supplemental \citep{supplemental}.
 These end-to-end experiments used the \texttt{hstrat.dataframe.surface\_build\_tree} CLI module incorporated in the \texttt{hstrat} library.
 
