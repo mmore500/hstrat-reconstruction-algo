@@ -39,29 +39,33 @@ Therefore, we present an improved algorithm that consolidates this extra work in
 
 \input{fig/algo-diagram.tex}
 
-We present a modification of Algorithm~\ref{alg:old} where we replace the best path search in line 9 with a more intelligent consolidation step to deal with missing ranks.
-The main idea of this algorithm is to realize that, as previously stated, once data from a specific rank is no longer included in one organism, it will not be included in any subsequent organisms, meaning that the nodes in the tree corresponding to that rank are no longer useful.
-So, by building shortcuts around any nodes that have become irrelevant, we can speed up the reconstruction process for all future nodes, too.
+We propose a modification of Algorithm~\ref{alg:old} that replaces the $\textsc{MostLikelyChild}$ search in line 9 with a shortcut-building and consolidation step to deal with missing ranks.
 
-We detect missing information the same way as in the naive trie algorithm: during iteration, we notice that when a child $c$ of the current node $n$ has a rank $r'$ that is less than the current rank $r$ being processed, we know we do not have information for any rank between $r'$ and $r$ for this organism and any subsequent organism (due to sorting by generational depth).
-% The key insight to the way we manage this scenario is that, in the big picture, we only care about this child if some of its descendants at rank $r$ have a differentia value $d$.
+Recall that once data from a specific rank is absent, it will not appear in any subsequent organisms.
+Hence, trie nodes corresponding to that rank are no longer informative in placing subsequent data.
+By building shortcuts bypassing such irrelevant nodes, we can speed up trie traversal for subsequent inserts.
 
-Extending this idea, we know that information for any rank between $r'$ and $r$ is meaningless (as they all have been deleted for organism $o$ and any subsequent organisms). 
-So, we can bypass every one of $n$'s descendants that have a rank less than $r$, as their information is now meaningless.
-We do this by creating shortcut edges from $n$ to the set of descendants whose rank is at least $r$, but whose parent's rank is not.
-For example, see Figure~\ref{fig:algo-diagram}, where we detect a dropped rank in (b) and create shortcut edges in (c), around each descendant with that dropped rank.
+In the shortcut-enabled approach, we detect missing information the same way as before: encountering some trie node $n'$ with a rank $r'$ that falls between the current organism $o$'s last-inserted rank $r_1$ and its currently-inserting rank $r_2$ (i.e., $r_1 < r' < r_2$).
 
-However, since some descendants of $n$ may have children with equivalent information (like step (d) in Figure~\ref{fig:algo-diagram}), we may end up with shortcuts from $n$ to effectively indistinguishable nodes (with different original parents but the same differentia value).
-This situation can be resolved by essentially `merging' the duplicates by choosing one to keep and creating more shortcut edges from the kept one to the children of the removed one (see step (e) in Figure~\ref{fig:algo-diagram}).
+Suppose we detect missing information while stepping from trie node $n$.
+To proceed with shortcut construction, we will flesh out a full set $S$ of nearby no-longer-informative nodes.
+We build $S$ by collecting all descendants of $n$ with rank $r''$ falling in the gap $r_1 < r'' < r_2$.
+We then create shortcut edges from $n$ that bypass nodes in $S$ --- connecting $n$ directly to the immediate descendants of $S$ with rank $\geq r_2$.
 
-Now, adding any organisms that are missing data from the removed level becomes trivial, as the algorithm can use the newly created shortcuts while skipping the missing information that was hidden by the consolidation step.
-We no longer need to look down branches from $n$ because the ``wildcard'' value has been eliminated --- each child of $n$ now has a rank greater than or equal to $r$.
-% So, there is no longer a concern of missing information when processing $n$ at rank $r$, and these shortcuts are then used to add any subsequent organisms if need be.
-If, at some point in the algorithm, $r$ itself becomes a rank of missing information, additional shortcuts are built according to the same procedure.
+For illustration, see Figure~\ref{fig:algo-diagram}, where we detect a dropped rank (panel \ref{fig:shortcut-algo-diagram-2}) and create shortcut edges around each trie nodes with that dropped rank (panel \ref{fig:shortcut-algo-diagram-3}).
+Edges to bypassed nodes $S$ are ignored in subsequent insert traversals, in favor of added shortcut edges.
+
+One complicating factor may arise in shortcut construction: the introduction of ``indistinguishable nodes,'' where new sibling nodes happen to share the same rank and differentia value (like panel \ref{fig:shortcut-algo-diagram-4}).
+This situation can be resolved by arbitrarily choosing one node to discard and transferring its children to the kept node using shortcut edges --- essentially `merging' the duplicates (panel \ref{fig:shortcut-algo-diagram-5}).
+
+Algorithm~\ref{alg:consolidation} outlines steps for the described shortcut construction and consolidation procedure.
+% Now, adding any organisms that are missing data from the removed level becomes trivial, as the algorithm can use the newly created shortcuts while skipping the missing information that was hidden by the consolidation step.
+% We no longer need to look down branches from $n$ because the ``wildcard'' value has been eliminated --- each child of $n$ now has a rank greater than or equal to $r$.
+% % So, there is no longer a concern of missing information when processing $n$ at rank $r$, and these shortcuts are then used to add any subsequent organisms if need be.
+% If, at some point in the algorithm, $r$ itself becomes a rank of missing information, additional shortcuts are built according to the same procedure.
 
 \input{alg/consolidation.tex}
 
-The key to maintaining accuracy lies in the fact that since we retain original trie structure information (as represented by the gray nodes in Figure~\ref{fig:algo-diagram}), we preserve the full detail and granularity of the naive approach.
+The key to maintaining accuracy lies in the fact that since we retain original trie structure information (represented by light gray nodes and edges in Figure~\ref{fig:algo-diagram}), we preserve the full detail and granularity of the naive approach.
 After the algorithm is run, we can simply use the original trie edges as the inferred phylogenetic tree.
-See Algorithm~\ref{alg:consolidation} to see pseudocode for this algorithm.
-Details about algorithm implementation are provided in supplemental material \citep{supplemental}.
+Details about algorithm implementation and more detailed discussion of naive equivalency are provided in supplemental material \citep{supplemental}.
