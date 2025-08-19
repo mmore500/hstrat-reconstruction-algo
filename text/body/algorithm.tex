@@ -1,31 +1,38 @@
 \section{Proposed Algorithm} \label{sec:algorithm}
 
-In this section, we overview the existing naive approach used for constructing prefix tries of hereditary stratigraphy markers for phylogenetic reconstruction, and describe the proposed shortcut-based approach developed in this work.
-Our presentation describes hereditary stratigraphy markers in terms of two properties: \textit{rank}, referring to the generation at which a marker was generated, and \textit{differentia}, referring to the randomly-generated value distinguishing a given marker from others generated at that generation.
-Note that, based on the number of bits used to represent differentia values, substantial probability may exist for value collisions between markers from the same generation on different lineages.
+In this section, we overview the existing naive approach used for constructing prefix tries of hereditary stratigraphy markers, and describe the proposed shortcut-based approach developed in this work.
+Notation describes hereditary stratigraphy markers as a pair of two properties: \textit{rank} $r$, referring to the generation at which a marker was generated, and \textit{differentia} $d$, referring to the randomly-generated value distinguishing a given marker from others generated at that generation.
 
 \subsection{Naive Trie-Building Algorithm} \label{sec:algorithm:naive}
 
-The existing algorithm functions by treating the sequence of rank-differentia pairs as strings, where each differentia corresponds to a character at the rank-th string position.
-In this framing, differentia values missing due to having been overwritten are treated as wildcard characters.
-For two rank-differentia strings, common ancestry corresponds to a shared prefix of string characters, which have been inherited from their MRCA (Most Recent Common Ancestor).
-Thus, phylogenies can be corresponded with a trie data structure \citep{fredkin1960trie}, for which each path along the tree represents a prefix string formed by the characters at traversed nodes.
+The naive algorithm treats each organism's sequence of stored rank-differentia pairs as a string: each differentia $d$ constitutes a character at the rank $r$-th string position.
+Differentia values missing due to having been overwritten are considered as wildcard characters.
 
-To begin, all organisms are sorted in ascending order by the number of generations elapsed; due to each organism using the same algorithm to determine which markers to overwrite, if data at a given rank is missing in one organism, it will be missing in all subsequent ones.
-This list of organisms is then processed one at a time, going through each rank-differentia pair in ascending order and determining whether to branch off the trie, continue along, or address missing information (see Algorithm~\ref{alg:old}).
+For two rank-differentia strings, common ancestry corresponds to a shared prefix of string characters, which have been inherited from their most recent common ancestor (MRCA).
+Under this framing, phylogenies correspond to a trie --- a tree-like data structure where each node corresponds to a character in a string, and each path from the root to a leaf node reads out a stored string \citep{fredkin1960trie}.
+
+The first step in naive reconstruction is to sort all organisms in ascending order by number of generations elapsed.
+Due to each organism using the same algorithm to determine which markers to overwrite, this order guarantees that any data missing from an organism will also have been discarded by all subsequent organisms.
+
+We initialize an empty trie, consisting of a single root node.
+Trie building proceeds by processing organisms one at a time in their sorted order.
+For each organism, we iterate through rank-differentia pairs in chronological order.
+At each rank-differentia pair, we either continue along the existing trie, branch off to create a new path, or --- in a special case --- address missing information (Algorithm~\ref{alg:old}).
 
 \input{alg/old-reconst}
 
-If we encounter rank $r$ in data being added larger than the rank $r'$ of a child $c$ of current node $n$, we know that the information at rank $r'$ must have been deleted in the current organism.
-To maximize reconstruction accuracy, we must determine if the missing datum corresponds to the differentia of child $c$, that of another child also with rank $r'$, or to none of the children of node $n$ (in which case we should branch off).
+Missing information is recognized as follows.
+Suppose we have reached trie node $n$ with rank $r_1$ and must next process rank-differentia pair $(r_2,\; d)$ from current organism $o$.
+If any node with rank $r' < r_2$ exists among children of current node $n$, we know that $r'$ must have been deleted from organism $o$ as its record skips directly from $r_1$ to $r_2$.
+
+To maximize reconstruction accuracy in the case of missing data, we must assess which --- if any --- of $n$'s children our missing datum at $r'$ would have likely corresponded to.
 Essentially, when reaching missing information, we must infer that information, which we do by looking ahead in the tree.
-The naive  trie algorithm accomplishes this goal by looking forward and finding the path with the longest successive streak of matching differentia with the current organism \citep{moreno2024analysis}.
+Specifically, we search forward for the path with the longest successive streak of differentia matching to current organism $o$ \citep{moreno2024analysis}.
 If there is no matching path, we simply branch off node $n$ rather than continuing to traverse through its children.
 
-However, despite being an accurate way of dealing with missing information, this approach suffers the cost of doing significant extra work each time.
-In the worst case, there could be an exponential number of matching paths to check, owing to the possibility of nested multifurcations at successive wildcard sites.
-In large-scale simulations with limited differentia values (sometimes being represented with only one bit), deep paths must often be evaluated --- significantly slowing the reconstruction process.
-Additionally, these searches would need to happen for each organism, regardless of whether or not a similar search was already done.
+Note that this approach suffers the cost of doing significant extra work to handle missing information.
+In the worst case, there could be an exponential number of matching paths to check, owing to the possibility of nested branch-outs at successive wildcard sites.
+These searches are repeated for each organism, regardless of whether or not a similar search was already done.
 Therefore, we present an improved algorithm that consolidates this extra work into a single step that never needs to be repeated.
 
 \subsection{Proposed Shortcut Algorithm} \label{sec:algorithm:shortcut}
