@@ -29,10 +29,10 @@ Notably, batch processing times exhibit strong outliers for which trie extension
 This effect is due to the presence of expensive consolidation steps within those batches.
 To assess this phenomenon, we performed a more fine-grained analysis (with batches of 5,000 tips) on non-outlier data (filtering out values above the 95th percentile).
 Further regression analysis using this data suggests that past a certain point, non-outlier batch times do not increase significantly with larger tree size.
-(See supplemental materials \citep{supplemental} for more information.)
+(See supplement for more information \citep{supplemental}.)
 In an analytical investigation of scaling complexity, which is left to future work, we therefore expect the degree to which expensive trie consolidation operations are amortized over average-case insertions to play an important role in determining the scaling complexity of the shortcut-enabled approach.
 
-Microbenchmarks measuring net reconstruction time across problem sizes, rather than marginal batch-wise throughput, reach a similar conclusion and are provided in supplemental Figure~\ref{fig:asymptotic} \citep{supplemental}.
+Microbenchmarks measuring net reconstruction time across problem sizes, rather than marginal batch-wise throughput, reach a similar conclusion and are provided in Supplemental Figure~\ref{fig:asymptotic} \citep{supplemental}.
 
 \subsection{Macrobenchmark: Billion-Tip Reconstruction}
 
