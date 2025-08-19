@@ -1,11 +1,12 @@
 \section{Results and Discussion} \label{sec:results}
 
-\subsection{Runtime Comparison}
+\subsection{Microbenchmark: Runtime Comparison}
 
 In direct comparison between the naive and the shortcut-enabled trie building implementations, we found substantial improvements in execution time under by the latter.
 Figure~\ref{fig:comparison} compares execution time for both approaches for problem sizes ranging up to 10,000 genomes.
-Over this window, the naive algorithm's runtime appears to grow at a superlinear pace, increase up to 15 minutes for the largest surveyed problem size.
-In contrast, the runtime for the shortcut-enabled approach at this scale is approximately 3 seconds --- a 300-fold difference in performance.
+Over this window, the naive algorithm's runtime appears to grow at a superlinear pace.
+At the largest surveyed problem size, naive runtime reaches 15 minutes.
+In contrast, runtime for the shortcut-enabled approach at this scale is approximately 3 seconds --- a 300-fold difference in performance.
 
 \input{fig/ntips-comparison.tex}
 
@@ -29,12 +30,12 @@ Notably, batch processing times exhibit strong outliers for which trie extension
 This effect is due to the presence of expensive consolidation steps within those batches.
 To assess this phenomenon, we performed a more fine-grained analysis (with batches of 5,000 tips) on non-outlier data (filtering out values above the 95th percentile).
 Further regression analysis using this data suggests that past a certain point, non-outlier batch times do not increase significantly with larger tree size.
-(See supplemental materials \citep{supplemental} for more information.)
+(See supplement for more information \citep{supplemental}.)
 In an analytical investigation of scaling complexity, which is left to future work, we therefore expect the degree to which expensive trie consolidation operations are amortized over average-case insertions to play an important role in determining the scaling complexity of the shortcut-enabled approach.
 
-Microbenchmarks measuring net reconstruction time across problem sizes, rather than marginal batch-wise throughput, reach a similar conclusion and are provided in supplemental Figure~\ref{fig:asymptotic} \citep{supplemental}.
+Microbenchmarks measuring net reconstruction time across problem sizes, rather than marginal batch-wise throughput, reach a similar conclusion and are provided in Supplemental Figure~\ref{fig:asymptotic} \citep{supplemental}.
 
-\subsection{Macrobenchmark: One Billion-Tips}
+\subsection{Macrobenchmark: Billion-Tip Reconstruction}
 
 \input{fig/billion-tip-time.tex}
 
@@ -44,22 +45,23 @@ For this purpose, we conducted trial reconstruction benchmarks comprising the fu
 As a point of comparison, the largest reconstructions performed using the previous approach comprised only 10,000 tips \citep{moreno2024trackable}.
 
 % log files:
-% https://osf.io/s3rzj and https://osf.io/gj52m
+% purifying log: https://osf.io/85yfd
+% adaptive log: https://osf.io/m2f64
 Benchmarked operations included the full reconstruction operation pipeline shown in Figure \ref{fig:hstratschematic}.
 Input data comprised a Parquet format file storing raw agent genomes in a hexadecimal string representation.
 The population file size was 34 GB for and 35 GB for the sample adaptive- and purifying-selection regimes, respectively.
 The output data comprised the reconstructed phylogeny in an edge-list format closely resembling the ALife data standard.
-Several pieces of metadata (e.g., agent position and extraction batch) were forwarded to the output data.
+Several pieces of metadata (e.g., agent position) were forwarded to the output data.
 For the adaptive-selection regime, the output file size was 54 GB, and for the purifying-selection regime, the output file size was 55 GB.
 
 % log files:
-% https://osf.io/s3rzj and https://osf.io/gj52m
+% purifying log: https://osf.io/85yfd
+% adaptive log: https://osf.io/m2f64
 Given the large problem-size scale tested, macrobenchmark trials were carried out on a compute cluster node, rather than a desktop PC, as was used for microbenchmark experiments.
 Figure \ref{fig:billion-tip-time} profiles net runtime and its breakdown in our case study reconstruction trials.
-Reconstruction time was 2h:30m for the adaptive-regime data set.
-As expected, given the associated richer phylogenetic history, reconstruction was more intensive for the purifying-regime data set, clocking in at 3h:29m.
+Reconstruction time was 2h:53m for the adaptive-regime data set and 2h:35m for the purifying-regime data set.
 These figures correspond to a net throughput of 6.67 and 4.78 million tips per minute, respectively.
-Peak memory use for the adaptive and purifying selection regimes was 1.2 TB and 1.1 TB.
+Peak memory use for the adaptive and purifying selection regimes was 693 GB and 614 GB.
 
 \subsection{Validation: Comparison to Ground Truth}
 

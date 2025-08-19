@@ -22,7 +22,7 @@ In tournament competitions to select parents for the subsequent generation, the 
 Genomes were augmented with hstrat annotations comprising 64 single-bit markers, managed at runtime using a \texttt{tilted} curation policy, which favors dense retention of more recent marker data \citep{moreno2024structured}.
 
 To generate data representative of differing evolutionary conditions, two treatments were applied: an
-\textbf{adaptive regime} and a \textbf{purifying regime}.
+\textit{adaptive regime} and a \textit{purifying regime}.
 Under the adaptive regime, mutations increasing fitness were allowed, introducing the possibility of selective sweeps.
 By contrast, the purifying regime treatment allowed only deleterious mutations.
 Previous work with this system demonstrated the purifying regime to exhibit substantially greater phylogenetic richness, in line with expectation for selective sweeps to diminish population-level phylogenetic diversity \citep{moreno2024trackable}.
@@ -40,7 +40,7 @@ For implementation-level details on the Wafer-Scale Engine simulation, see \cite
 
 \subsection{Microbenchmark Experiments}
 
-In a first set of microbenchmark trials, we performed a head-to-head comparison of the proposed shortcut-enabled algorithm with the previous naive trie-building approach.
+In a first set of microbenchmark trials, we performed a head-to-head comparison of runtime under the proposed shortcut-enabled algorithm versus the previous naive approach.
 Given performance limitations of the naive approach, the maximum reconstruction workload tested was limited to 10,000 genomes.
 Experiments used random subsamples of genomes from WSE fossil data described above.
 To facilitate informative comparison, timings measured just the trie-building component of reconstructions, excluding pre- and post-processing steps.
@@ -56,7 +56,7 @@ All microbenchmarks were replicated using genomes generated under adaptive and p
 
 \subsection{Macrobenchmark Experiments}
 
-To assess the performance of our approach on large-scale workloads under real-world conditions, we supplemented microbenchmarks focusing on core trie extension and consolidation operations with two macrobenchmark trials comprising the full end-to-end reconstruction pipeline described in Section \ref{sec:pipeline}.
+To assess the performance of our approach on large-scale workloads under real-world conditions, we supplemented microbenchmarks focusing on core trie extension and consolidation operations with two macrobenchmark trials comprising our full end-to-end reconstruction implementation (detailed below).
 To reduce peak memory use, we additionally included a step to collapse unnecessary unifurcations (i.e., parent nodes with only a single child) between trie-building batches --- for more details, see the supplemental \citep{supplemental}.
 These end-to-end experiments used the \texttt{hstrat.dataframe.surface\_build\_tree} CLI module incorporated in the \texttt{hstrat} library.
 
@@ -95,9 +95,9 @@ The Polars library is used for load/save and other pre-/post-processing operatio
 
 \subsection{Software, Data, and Materials} \label{sec:materials}
 
-Software used in this work is available via GitHub.%
-\footnote{The benchmarking and validation code is available at \href{https://github.com/mmore500/hstrat-reconstruction-algo}{\texttt{mmore500/hstrat-reconstruction-algo}}, WSE kernel code at \href{https://github.com/mmore500/wse-async-ga}{\texttt{mmore500/wse-async-ga}}, and hstrat library code at \href{https://github.com/mmore500/hstrat}{\texttt{mmore500/hstrat}}.}
-Data and supplementary material is hosted via the Open Science Framework at \href{https://osf.io/63ucz/?view_only=2e3ec335c016436494ad125b14ffc8cb}{\texttt{osf.io/63ucz}} \citep{supplemental,foster2017open}.
+Software used in this work is available via GitHub, and archived via Zenodo.%
+\footnote{\scriptsize Benchmarking and validation code (v1.0.1) is available on GitHub at \href{https://github.com/mmore500/hstrat-reconstruction-algo/tree/v1.0.1}{\texttt{mmore500/hstrat-reconstruction-algo}} \citep{matthew_andres_moreno_2025_16898918}, WSE kernel code (v2025.12.26) for Cerebras SDK v1.0.0 at \href{https://github.com/mmore500/wse-async-ga/tree/v2025.12.26}{\texttt{mmore500/wse-async-ga}} \citep{moreno_2025_16898904}, and hstrat library code (v1.20.10) at \href{https://github.com/mmore500/hstrat/tree/v1.20.10}{\texttt{mmore500/hstrat}} \citep{moreno_2025_16898849}.}
+Data and supplementary material is hosted via the Open Science Framework at \href{https://osf.io/63ucz}{\texttt{osf.io/63ucz}} \citep{supplemental,foster2017open}.
 All accompanying materials are provided open-source under the MIT License.
 
 Microbenchmark experiments were conducted on a 2019 MacBook Pro (2.3GHz 8-Core Intel i9, 16GB RAM) using a benchmark script provided with supplemental material \citep{supplemental}.
@@ -105,10 +105,9 @@ Head-to-head trie-building comparisons were performed using Python implementatio
 Empirical scaling analysis experiments used a C++ implementation of the shortcut-enabled trie-building algorithm.
 
 Macrobenchmarks were performed on AMD EPYC compute cluster nodes with 128 cores and 2005 GB of memory.
-Purifying- and adaptive-regime reconstructions were performed on separate nodes with EPYC 7763 (2.445 GHz) and EPYC 7H12 (2.595 GHz) processors, respectively.
-% purifying log: https://osf.io/gj52m
-% adaptive log: https://osf.io/s3rzj
-% Adaptive-regime reconstruction was performed on an AMD EPYC 7H12 Processor (2.595 GHz) with 128 cores and 2005 GB of memory.
+Purifying- and adaptive-regime reconstructions were performed on separate nodes with EPYC 7H12 (2.595 GHz) and EPYC 7763 (2.445 GHz) processors, respectively.
+% purifying log: https://osf.io/85yfd
+% adaptive log: https://osf.io/m2f64
 End-to-end experiments also used a C++ implementation of the shortcut-enabled trie-building algorithm.
 
-This project benefited significantly from open-source scientific software \citep{2020SciPy-NMeth,harris2020array,reback2020pandas,mckinney2010data,waskom2021seaborn,hunter2007matplotlib,moreno2023teeplot,moreno2024downstream}.
+This project benefited significantly from open-source scientific software \citep{2020SciPy-NMeth,harris2020array,reback2020pandas,mckinney2010data,waskom2021seaborn,hunter2007matplotlib,moreno2022hstrat,yang2025downstream}.
