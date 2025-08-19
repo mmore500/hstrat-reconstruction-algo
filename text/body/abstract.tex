@@ -3,10 +3,10 @@ Agent-based simulation platforms play a key role in enabling fast-to-run evoluti
 Availability of high-resolution snapshots of lineage ancestries from digital experiments, in particular, is key to investigations of evolvability and open-ended evolution, as well as in providing a validation testbed for bioinformatics method development.
 Ongoing advances in AI/ML hardware accelerator devices, such as the 850,000-processor Cerebras Wafer-Scale Engine (WSE), are poised to broaden the scope of evolutionary questions that can be investigated \textit{in silico}.
 However, constraints in memory capacity and locality characteristic of these systems introduce difficulties in exhaustively tracking phylogenies at runtime.
-To overcome these challenges, recent work on hereditary stratigraphy algorithms has developed space-efficient genetic markers to facilitate fully-decentralized estimation of relatedness among digital organisms.
+To overcome these challenges, recent work on hereditary stratigraphy algorithms has developed space-efficient genetic markers to facilitate fully decentralized estimation of relatedness among digital organisms.
 However, in existing work, compute time to reconstruct phylogenies from these genetic markers has proven a limiting factor in achieving large-scale phyloanalyses.
 Here, we detail an improved trie-building algorithm designed to produce reconstructions equivalent to existing approaches.
-For modestly-sized 10,000-tip trees, the proposed approach achieves 300-fold speedup versus existing state-of-the-art.
+For modestly-sized 10,000-tip trees, the proposed approach achieves a 300-fold speedup versus existing state-of-the-art.
 Finally, using 1 billion genome datasets drawn from WSE simulations encompassing 954 trillion replication events, we report a pair of large-scale phylogeny reconstruction trials, achieving end-to-end reconstruction times of 2.6 and 2.9 hours.
 In substantially improving reconstruction scaling and throughput, presented work establishes a key foundation to enable powerful high-throughput phyloanalysis techniques in large-scale digital evolution experiments.
 \end{abstract}
