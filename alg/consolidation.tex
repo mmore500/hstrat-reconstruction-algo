@@ -13,8 +13,8 @@
           \State \textbf{continue}
         \EndIf
         \State $c^* \gets$ an arbitrary element in $S'$
-        \For{$c' \in S \setminus \{c^*\}$}
-          \For{$c''$ in $\operatorname{children}(c)$}
+        \For{$c' \in S' \setminus \{c^*\}$}
+          \For{$c''$ in $\operatorname{children}(c')$}
             \State \textsc{BuildShortcut}($T$, $c^*$, $c''$)
           \EndFor
           \State \textsc{RemoveShortcut}($T$, $n$, $c'$)
@@ -22,7 +22,7 @@
       \EndFor
     \EndFunction
     \Function{BuildShortcut}{tree $T$, node $n$, node $c$}
-      \State $\operatorname{edges}(T) \gets \operatorname{edges}(T) \cup \{(n, c)\}$
+      \State $\operatorname{edges}(T) \gets \operatorname{edges}(T) \cup \{(n,\; c)\}$
       \State $\operatorname{edges}(T)[(n,\; c)]\text{.is\_shortcut} \gets \textsc{True}$
     \EndFunction
     \Function{RemoveShortcut}{tree $T$, node $n$, node $c$}
