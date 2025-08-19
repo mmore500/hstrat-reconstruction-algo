@@ -52,7 +52,7 @@ To proceed with shortcut construction, we will flesh out a full set $B$ of nearb
 We build $B$ by collecting all descendants of $n$ with rank $r''$ falling in the gap $r_1 < r'' < r_2$.
 We then create shortcut edges that bypass nodes in $B$ --- connecting $n$ directly to the immediate descendants of $B$ with rank $\geq r_2$.
 
-For illustration, see Figure~\ref{fig:algo-diagram}, where we detect a dropped rank (panel \ref{fig:shortcut-algo-diagram-2}) and create shortcut edges around each trie nodes with that dropped rank (panel \ref{fig:shortcut-algo-diagram-3}).
+For illustration, see Figure~\ref{fig:algo-diagram}, where we detect a dropped rank (panel \ref{fig:shortcut-algo-diagram-2}) and create shortcut edges trie nodes with that dropped rank (panel \ref{fig:shortcut-algo-diagram-3}).
 Edges to bypassed nodes $B$ are ignored in subsequent insert traversals, in favor of added shortcut edges.
 
 One complicating factor may arise in shortcut construction: the introduction of ``indistinguishable nodes,'' where new sibling nodes happen to share the same rank and differentia value (like panel \ref{fig:shortcut-algo-diagram-4}).
@@ -70,5 +70,5 @@ After insertion of the final organism into our trie, all that remains is to expo
 At this stage, we ignore shortcut edges.
 Crucially, while shortcut edges are useful for efficient traversal during insertions, they do not represent meaningful lineage relationships.
 Instead, we use original trie edges as the basis for phylogeny output --- thereby preserving the full detail and granularity of the naive approach.
-It is therefore necessary to retain records of original trie structure, represented by light gray nodes and edges in Figure~\ref{fig:algo-diagram}.
+It is therefore necessary to retain records of the original trie structure, represented by light gray nodes and edges in Figure~\ref{fig:algo-diagram}.
 Details about algorithm implementation and more detailed discussion of naive equivalency are provided in supplemental material \citep{supplemental}.
