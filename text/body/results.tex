@@ -44,7 +44,8 @@ For this purpose, we conducted trial reconstruction benchmarks comprising the fu
 As a point of comparison, the largest reconstructions performed using the previous approach comprised only 10,000 tips \citep{moreno2024trackable}.
 
 % log files:
-% https://osf.io/s3rzj and https://osf.io/gj52m
+% purifying log: https://osf.io/85yfd
+% adaptive log: https://osf.io/m2f64
 Benchmarked operations included the full reconstruction operation pipeline shown in Figure \ref{fig:hstratschematic}.
 Input data comprised a Parquet format file storing raw agent genomes in a hexadecimal string representation.
 The population file size was 34 GB for and 35 GB for the sample adaptive- and purifying-selection regimes, respectively.
@@ -53,13 +54,13 @@ Several pieces of metadata (e.g., agent position and extraction batch) were forw
 For the adaptive-selection regime, the output file size was 54 GB, and for the purifying-selection regime, the output file size was 55 GB.
 
 % log files:
-% https://osf.io/s3rzj and https://osf.io/gj52m
+% purifying log: https://osf.io/85yfd
+% adaptive log: https://osf.io/m2f64
 Given the large problem-size scale tested, macrobenchmark trials were carried out on a compute cluster node, rather than a desktop PC, as was used for microbenchmark experiments.
 Figure \ref{fig:billion-tip-time} profiles net runtime and its breakdown in our case study reconstruction trials.
-Reconstruction time was 2h:30m for the adaptive-regime data set.
-As expected, given the associated richer phylogenetic history, reconstruction was more intensive for the purifying-regime data set, clocking in at 3h:29m.
+Reconstruction time was 2h:53m for the adaptive-regime data set and 2h:35m for the purifying-regime data set.
 These figures correspond to a net throughput of 6.67 and 4.78 million tips per minute, respectively.
-Peak memory use for the adaptive and purifying selection regimes was 1.2 TB and 1.1 TB.
+Peak memory use for the adaptive and purifying selection regimes was 693 GB and 614 GB.
 
 \subsection{Validation: Comparison to Ground Truth}
 
