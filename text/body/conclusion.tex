@@ -2,9 +2,9 @@
 
 We have presented and benchmarked a new algorithm for phylogenetic reconstruction from synthetic hstrat \citep{moreno2024hstrat} data with significantly better performance, both empirically and asymptotically, rectifying the existing bottleneck of slow phylogenetic reconstruction in wafer-scale distributed simulations.
 
-Our work aims to ``catch up'' with upward trends in technological capacity for massively parallel and distributed digital evolution.
-The scope of scientific questions that can be investigated using \textit{in silico} methods is being continuously broadened, but as systems scale in volume and velocity, challenges arise in managing large amounts of data.
-Along with existing sampling-based phylogenetic tracking methods like hstrat, our new reconstruction algorithm enables fast phyloanalysis on simulations of unforeseen size.
+The scope of scientific questions tractable to investigation \textit{in silico} continues to be broadened by rapid advances in computing technology.
+However, such advances also pose new challenges in managing vast quantities of data.
+By providing scalable means for fast phyloanalysis of large simulations, our work seeks to help the scientific utility of parallel and distributed digital evolution experiments keep pace with opportunities afforded by emerging hardware architectures.
 
 In a parallel vein, the volume of data processed in bioinformatics workflows is also increasing with continuing advances in high-throughput sequencing technologies, enabling the construction of phylogenies containing millions of taxa.
 As an illustrative example at the cutting edge of extreme scale, \citet{konno2022deep} reports phylogeny synthesis from 235 million sequence reads generated from an \textit{in silico} CRISPR barcoding model --- requiring 31 hours of compute time across 300 HPC nodes.
@@ -16,11 +16,13 @@ Indeed, projects are being developed to try to address this issue.
 For example, taxonium \citep{sanderson2022taxonium} is a web-based software for visualizing large phylogenies in a flexible, interactive manner, and is able to handle browsing millions of tips at a high frame rate.
 Other projects aim to create methods for compact, scalable phylogeny representations \citep{moshiri2025compacttree, moshiri2020treeswift}, enabling faster and more memory-efficient tree operations.
 
+\subsection{Future Work}
+
 In pushing the boundaries of phylogenetic scale to billion-tip datasets, ALife research has the opportunity to contribute to an interdisciplinary ecosystem of software tools developing around working with very large-scale phylogenies.
-In particular, the ALife data standard, which specifies a tabular representation for phylogeny data \citep{Lalejini2019data}, has strong potential to develop a backbone of a larger high-performance phylogeny processing infrastructure.
-Although originally envisioned as a data storage format, the tabular nature of the standard allows integrations with high-performance software tools built around the ``Data Frame'' concept, including Pandas, Polars, Dask, and data.table.
+In particular, the ALife data standard, which specifies a tabular representation for phylogeny data \citep{Lalejini2019data}, has strong potential to contribute to a larger high-performance phylogeny processing infrastructure.
+Although originally envisioned as a data storage format, the tabular nature of the standard allows integrations with high-performance software tools built around the ``dataframe'' concept, including Pandas, Polars, Dask, and data.table.
 These libraries provide a structured, user-friendly interface to advanced performance features such as multithreading, data streaming, query optimization, file partitioning, and column-oriented binary file formats \citep{mckinney2010data,datatable,vink2024polars,rocklin2015dask}.
-Additionally, for Python users, the columnar array format typical in data frame libraries is compatible with NumPy and Numba, readily enabling on-the-fly SIMD vectorization and Just-In-Time compilation \citep{harris2020array,lam2015numba}.
+Additionally, for Python users, the columnar array format typical in dataframe libraries is compatible with NumPy and Numba, readily enabling on-the-fly SIMD vectorization and just-in-time compilation \citep{harris2020array,lam2015numba}.
 Indeed, this approach underlies much of the pre- and post-processing steps for end-to-end reconstruction demonstrated in this work.
 
 Of more direct bearing to phylogeny reconstruction from heredity stratigraphy data, future work should also assess trade-offs in configuring hstrat annotations for phylogeny reconstructions incorporating fossil data (including extinct lineages) drawn from earlier time points, as was the case in this work.

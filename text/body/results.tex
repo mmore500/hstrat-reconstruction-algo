@@ -1,10 +1,10 @@
 \section{Results and Discussion} \label{sec:results}
 
-\subsection{Runtime Comparison}
+\subsection{Microbenchmark: Runtime Comparison}
 
 In direct comparison between the naive and the shortcut-enabled trie building implementations, we found substantial improvements in execution time under by the latter.
 Figure~\ref{fig:comparison} compares execution time for both approaches for problem sizes ranging up to 10,000 genomes.
-Over this window, the naive algorithm's runtime appears to grow at a superlinear pace, increase up to 15 minutes for the largest surveyed problem size.
+Over this window, the naive algorithm's runtime appears to grow at a superlinear pace, increasing up to 15 minutes for the largest surveyed problem size.
 In contrast, runtime for the shortcut-enabled approach at this scale is approximately 3 seconds --- a 300-fold difference in performance.
 
 \input{fig/ntips-comparison.tex}
@@ -34,7 +34,7 @@ In an analytical investigation of scaling complexity, which is left to future wo
 
 Microbenchmarks measuring net reconstruction time across problem sizes, rather than marginal batch-wise throughput, reach a similar conclusion and are provided in supplemental Figure~\ref{fig:asymptotic} \citep{supplemental}.
 
-\subsection{Macrobenchmark: One Billion-Tips}
+\subsection{Macrobenchmark: Billion-Tip Reconstruction}
 
 \input{fig/billion-tip-time.tex}
 
@@ -50,7 +50,7 @@ Benchmarked operations included the full reconstruction operation pipeline shown
 Input data comprised a Parquet format file storing raw agent genomes in a hexadecimal string representation.
 The population file size was 34 GB for and 35 GB for the sample adaptive- and purifying-selection regimes, respectively.
 The output data comprised the reconstructed phylogeny in an edge-list format closely resembling the ALife data standard.
-Several pieces of metadata (e.g., agent position and extraction batch) were forwarded to the output data.
+Several pieces of metadata (e.g., agent position) were forwarded to the output data.
 For the adaptive-selection regime, the output file size was 54 GB, and for the purifying-selection regime, the output file size was 55 GB.
 
 % log files:
