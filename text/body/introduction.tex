@@ -57,26 +57,26 @@ In such contexts, reconstruction-based approaches can provide an attractive bala
 
 \input{fig/hstratschematic}
 
-Under controlled conditions, such as laboratory experiments or evolution simulations, genetic material may be engineered to facilitate the accuracy and efficiency of estimating phylogenetic relatedness \citep{li2024reconstructing}.%
-\footnote{Notably, \citet{ackley2023robust} applied analogous barcoding approaches in tracking ancestry among replicators in a distributed fabric-computing context.}
+Under controlled conditions, such as laboratory experiments or evolution simulations, genetic material may be engineered to facilitate the accuracy and efficiency of estimating phylogenetic relatedness \citep{li2024reconstructing,ackley2023robust}.%
+\footnote{Notably, Ackley has applied barcoding approaches to track recent ancestry among emergent replicators in a distributed fabric-computing context.}
 Work developing hereditary stratigraphy (``hstrat'') methods seeks to operate analogously, providing techniques to organize genetic material in digital organisms that maximize reconstruction quality while minimizing memory footprint \citep{moreno2022hereditary}.
-Hereditary stratigraphy components can be bundled with agent genomes in a manner akin to non-coding DNA (i.e., neutral with respect to agent traits and fitness), enabling trivial incorporation into distributed simulation systems through its agent-centric approach.
+Hereditary stratigraphy components can be bundled with agent genomes in a manner akin to non-coding DNA (i.e., neutral with respect to agent traits and fitness), enabling generalizability across a wide variety of agent models.
 
 Hereditary stratigraphy associates each generation along each lineage with an identifying ``fingerprint'' marker, referred to as a differentia.
-On birth, offspring receive a new differentia value and append it to an inherited chronological record of past values, each corresponding to a generation along that lineage.
-Under this scheme, mismatching differentia can be used to delimit the extent of common ancestry.
-Figure \ref{fig:hstratschematic} gives a schematic overview of the hereditary stratigraphy approach.
+On birth, each offspring receives a new differentia value and appends it to an inherited chronological record of past values --- corresponding to earlier generations along its lineage.
+Under this scheme, mismatching differentia can be used to delimit the end of common ancestry between two organisms.
+Figure \ref{fig:hstratschematic} summarizes this approach.
 
 To save space, differentiae may be pruned away --- although, at the cost of reducing precision in inferring relatedness.
-Reducing the number of bits per differentia can also provide many-fold memory space savings.
-Using single bits or single bytes is appropriate for most use cases.
+Using fewer bits per differentia can also provide many-fold memory savings; single bits or single bytes are appropriate for most use cases.
 
 While inferring relatedness from biological sequence data can be a highly challenging and computationally-intensive problem \citep{miller2010creating},
 the structured marker data used in hereditary stratigraphy somewhat ameliorates this challenge by allowing phylogeny reconstruction to be approached as a trie-building problem of identifying common string prefixes \citep{delabriandais1959file,moreno2024analysis}.
 However, the presence of missing data due to some differentia being dropped to save memory complicates matters.
-In the context of trie-building, markers possessed by only a subset of organisms effectively act as ``wildcard'' characters in the string prefixes organisms that do not possess them, possibly taking on any value.
-Therefore, placing an organism on a trie requires evaluating possible string paths beyond the wildcard to identify further matches.
-Given the possibility of differentia value collisions for small differentia sizes (e.g., 1 bit), identifying the best-matching path after a wildcard value can require looking ahead several consecutive markers.
+
+In the context of trie-building, missing marker time points (possessed by only a subset of organisms) effectively act as ``wildcard'' characters in prefix matching operations.
+Therefore, placing an organism on a trie requires evaluating diverging string paths beyond the wildcard to identify further matches.
+Given the likelihood of differentia value collisions for small differentia sizes (e.g., 1 bit), identifying the best-matching path after a wildcard value can require looking ahead several consecutive markers.
 Furthermore, where consecutive wildcard values are encountered, the number of possible paths that must be explored can grow exponentially.
 
 Although previous work has investigated the quality of phylogenies constructed from hereditary stratigraphy data using trie-based approaches \citep{moreno2025testing}, the computational intensity of the naive wildcard-matching approach has limited the scale of phylogenetic reconstructions investigated and restricted experimental throughput for smaller reconstructions.
