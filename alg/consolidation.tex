@@ -3,18 +3,18 @@
   \small{
     \Function{ConsolidateTree}{tree $T$, node $n$, rank $r$}
       \State $S \gets \{c \in \operatorname{descendants}(n) \\~~~~~~~~~~~: \operatorname{rank}(c) \ge r \land  \operatorname{rank}(\operatorname{parent}(c)) < r\}$
-      \For{$c$ in $S$} 
+      \For{$c$ in $S$}
         \textsc{BuildShortcut}($T$, $n$, $c$)
       \EndFor
       \For{each subset of duplicate\footnotemark nodes $S' \subseteq S$}
-        \State $c^* \gets$ an arbitrary element in $S'$ 
+        \State $c^* \gets$ an arbitrary element in $S'$
         \For{$c' \in S \setminus \{c^*\}$}
-          \For{$c$ in $\operatorname{children}(c)$} 
+          \For{$c$ in $\operatorname{children}(c)$}
             \State \textsc{BuildShortcut}($T$, $c^*$, $c$)
           \EndFor
           \State \textsc{RemoveShortcut}($T$, $n$, $c'$)
         \EndFor
-      \EndFor 
+      \EndFor
     \EndFunction
     \Function{BuildShortcut}{tree $T$, node $n$, node $c$}
       \State $\operatorname{edges}(T) \gets \operatorname{edges}(T) \cup \{(n, c)\}$
