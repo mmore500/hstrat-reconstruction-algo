@@ -4,7 +4,8 @@
 
 In direct comparison between the naive and the shortcut-enabled trie building implementations, we found substantial improvements in execution time under by the latter.
 Figure~\ref{fig:comparison} compares execution time for both approaches for problem sizes ranging up to 10,000 genomes.
-Over this window, the naive algorithm's runtime appears to grow at a superlinear pace, increasing up to 15 minutes for the largest surveyed problem size.
+Over this window, the naive algorithm's runtime appears to grow at a superlinear pace.
+At the largest surveyed problem size, naive runtime reaches 15 minutes.
 In contrast, runtime for the shortcut-enabled approach at this scale is approximately 3 seconds --- a 300-fold difference in performance.
 
 \input{fig/ntips-comparison.tex}
