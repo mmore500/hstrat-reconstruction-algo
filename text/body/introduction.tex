@@ -1,11 +1,14 @@
 \section{Introduction} \label{sec:introduction}
 
 Key aspects of the study of evolution, whether biological or digital, revolve around understanding the flow of genetic material among large populations of organisms.
-As such, phylogenetic analyses assessing ancestry trees representing organsisms' evolutionary histories are a core tool in evolutionary biology.
-In work with biological organisms, phylogenies are typically estimated through analysis of genetic similarities among organisms.
-Although direct tracking is often preferable in \textit{in silico} experiments, in memory-constrained parallel and distributed computing contexts, applying reconstruction-based methods to track generate phylogeny trees can become advantageous.
-As is also the case in biological studies, the efficacy of phylogenetic analysis in such \textit{in silico} work depends on efficient methods to generate accurate ancestry trees.
-It is this topic we focus on in this work, presenting a novel trie-building algorithm that, in the scope of digital evolution, greatly improves the performance of phylogenetic reconstruction wile producing equivalent results compared to a naive approach.
+As such, phylogenetic analyses assessing ancestry trees representing organisms' evolutionary histories are a core tool in evolutionary biology.
+
+In biology, phylogeny estimations are typically reconstructed through \textit{post hoc} analysis of genetic similarities among organisms.
+In contrast, direct, exact tracking at runtime is typical in \textit{in silico} experiments.
+However, in memory-constrained parallel and distributed computing contexts, \textit{post hoc} reconstruction approaches can become advantageous owing to runtime synchronization and storage costs of direct tracking.
+
+Akin to biological studies, efficacy of phylogenetic analysis in such digital experiments hinges on fast, accurate methods to estimate ancestry trees from genome data.
+In this work, we present a novel trie-building algorithm that greatly reduces compute time to reconstruct phylogenies from special-purpose markers on digital genomes, while producing equivalent results compared to a naive approach.
 
 \subsection{Applications of Phylogenetic Analysis}
 
