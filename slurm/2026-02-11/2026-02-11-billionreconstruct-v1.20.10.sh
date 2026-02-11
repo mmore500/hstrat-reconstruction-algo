@@ -354,7 +354,7 @@ cat > "${SBATCH_FILE}" << EOF
 #SBATCH --output="/mnt/home/%u/joblog/%j"
 #SBATCH --mail-user=mawni4ah2o@pomail.net
 #SBATCH --mail-type=ALL
-#SBATCH --account=beacon
+#SBATCH --account=ecode
 #SBATCH --requeue
 
 ${JOB_PREAMBLE}
