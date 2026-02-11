@@ -292,9 +292,8 @@ warmup_outpath="/tmp/\$(uuidgen).pqt"
 echo "/local/\$(basename "\${genomes_inpath}")" \
     | singularity exec \${container} \
         python3 -O -m hstrat.dataframe.surface_build_tree \
-        --no-delete-trunk \
         "\${warmup_outpath}" \
-        --head 100
+        --tail 100
 
 echo "do reconstruction and postprocessing"
 stdbuf -e0 -i0 -o0 echo "/local/\$(basename "\${genomes_inpath}")" \
@@ -306,7 +305,7 @@ stdbuf -e0 -i0 -o0 echo "/local/\$(basename "\${genomes_inpath}")" \
         --trie-postprocessor "hstrat.AssignOriginTimeNodeRankTriePostprocessor(t0='dstream_S')" \
         --shrink-dtypes --eager-write \
         --write-kwarg 'compression="lz4"' \
-        --head "\${num_tips}" \
+        --tail "\${num_tips}" \
         --drop "genomeFlavor" \
         --drop "is_extant" \
         2>&1 \
