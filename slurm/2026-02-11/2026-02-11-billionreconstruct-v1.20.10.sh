@@ -282,6 +282,10 @@ export POLARS_MAX_THREADS=98
 export NUMBA_NUM_THREADS=98
 export TQDM_MININTERVAL=5
 
+echo "test container ---------------------------------------------- \${SECONDS}"
+singularity exec \${container} \
+    python3 -O -m hstrat.dataframe.surface_build_tree --help
+
 echo "do work ----------------------------------------------------- \${SECONDS}"
 echo "warmup jit cache"
 warmup_outpath="/tmp/\$(uuidgen).pqt"
