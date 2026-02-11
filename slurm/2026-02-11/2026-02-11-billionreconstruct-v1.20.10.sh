@@ -292,6 +292,7 @@ warmup_outpath="/tmp/\$(uuidgen).pqt"
 echo "/local/\$(basename "\${genomes_inpath}")" \
     | singularity exec \${container} \
         python3 -O -m hstrat.dataframe.surface_build_tree \
+        --no-delete-trunk \
         "\${warmup_outpath}" \
         --head 100
 
