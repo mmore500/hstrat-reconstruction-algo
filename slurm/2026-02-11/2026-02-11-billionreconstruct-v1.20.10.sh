@@ -273,6 +273,15 @@ fi
 
 du -h "\${genomes_inpath}"
 
+echo "extracting \${genomes_inpath} tail \${num_tips} rows..."
+ls -1 "\${genomes_inpath}" | \
+    singularity run docker://ghcr.io/mmore500/joinem:v0.11.1 \
+    "\${MYLOCAL}/tailgenomes.pqt" \
+    --tail "\${num_tips}"
+echo "... done!"
+
+mv "\${MYLOCAL}/tailgenomes.pqt" "\${genomes_inpath}"
+
 container="docker://ghcr.io/mmore500/hstrat:v1.20.10"
 echo "container \${container}"
 
@@ -305,7 +314,6 @@ stdbuf -e0 -i0 -o0 echo "/local/\$(basename "\${genomes_inpath}")" \
         --trie-postprocessor "hstrat.AssignOriginTimeNodeRankTriePostprocessor(t0='dstream_S')" \
         --shrink-dtypes --eager-write \
         --write-kwarg 'compression="lz4"' \
-        --tail "\${num_tips}" \
         --drop "genomeFlavor" \
         --drop "is_extant" \
         2>&1 \
