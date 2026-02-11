@@ -282,7 +282,7 @@ echo "... done!"
 
 mv "\${MYLOCAL}/tailgenomes.pqt" "\${genomes_inpath}"
 
-container="docker://ghcr.io/mmore500/hstrat:v1.20.10"
+container="docker://ghcr.io/mmore500/hstrat:v1.20.24"
 echo "container \${container}"
 
 export PYTHONUNBUFFERED=1
