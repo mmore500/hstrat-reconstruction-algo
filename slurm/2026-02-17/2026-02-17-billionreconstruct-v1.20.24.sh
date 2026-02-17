@@ -407,7 +407,7 @@ popd
 
 ls -l "${BATCHDIR}"
 
-echo "cleanup ----------------------------------------------------- \${SECONDS}"
+echo "downsample -------------------------------------------------- \${SECONDS}"
 echo "   - downsample phylogenies to 50k tips"
 for phylo_path in "${BATCHDIR}"/__*/**/a=phylo+ext=.pqt; do
     echo "downsampling \${phylo_path}"
@@ -422,6 +422,9 @@ for phylo_path in "${BATCHDIR}"/__*/**/a=phylo+ext=.pqt; do
     ls -l "\${downsample_outpath}"
     du -h "\${downsample_outpath}"
 done
+
+echo "cleanup ----------------------------------------------------- \${SECONDS}"
+echo "skipping cleanup"
 # cd "${BATCHDIR}"
 # for f in _*; do
 #     echo "tar and rm \$f"
