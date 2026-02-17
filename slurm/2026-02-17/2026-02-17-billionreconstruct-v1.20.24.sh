@@ -411,7 +411,7 @@ echo "downsample -------------------------------------------------- \${SECONDS}"
 echo "   - downsample phylogenies to 50k tips"
 for phylo_path in "${BATCHDIR}"/__*/**/a=phylo+ext=.pqt; do
     echo "downsampling \${phylo_path}"
-    downsample_outpath="\$(dirname "\${phylo_path}")/a=phylo-sampled-50000+ext=.pqt"
+    downsample_outpath="\$(dirname "\${phylo_path}")/a=phylo+dsamp=50k+ext=.pqt"
     echo "\${phylo_path}" \
         | singularity run docker://ghcr.io/mmore500/hstrat:v1.20.24 \
             python3 -m hstrat._auxiliary_lib._alifestd_downsample_tips_polars \
