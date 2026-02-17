@@ -411,10 +411,9 @@ echo "cleanup ----------------------------------------------------- \${SECONDS}"
 echo "   - downsample phylogenies to 50k tips"
 for phylo_path in "${BATCHDIR}"/__*/**/a=phylo+ext=.pqt; do
     echo "downsampling \${phylo_path}"
-    phylo_dir="\$(dirname "\$(realpath "\${phylo_path}")")"
-    downsample_outpath="\${phylo_dir}/a=phylo-sampled-50000+ext=.pqt"
-    echo "\$(realpath "\${phylo_path}")" \
-        | singularity exec --bind "\${phylo_dir}" docker://ghcr.io/mmore500/hstrat:v1.20.24 \
+    downsample_outpath="\$(dirname "\${phylo_path}")/a=phylo-sampled-50000+ext=.pqt"
+    echo "\${phylo_path}" \
+        | singularity run docker://ghcr.io/mmore500/hstrat:v1.20.24 \
             python3 -m hstrat._auxiliary_lib._alifestd_downsample_tips_polars \
             "\${downsample_outpath}" \
             -n 50000 \
