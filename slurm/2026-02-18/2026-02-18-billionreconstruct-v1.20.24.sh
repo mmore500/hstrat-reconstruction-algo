@@ -407,16 +407,18 @@ popd
 
 ls -l "${BATCHDIR}"
 
-echo "downsample -------------------------------------------------- \${SECONDS}"
-echo "   - downsample phylogenies to 50k tips"
+echo "downsample and convert -------------------------------------- \${SECONDS}"
+echo "   - downsample and convert phylogenies to 50k tips"
 for phylo_path in "${BATCHDIR}"/__*/**/a=phylo+ext=.pqt; do
     echo "copying \${phylo_path} to /tmp"
-    tmp_inpath="/tmp/\${SLURM_JOB_ID:-nojid}.pqt"
-    cp "\${phylo_path}" "\${tmp_inpath}"
-    echo "downsampling \${phylo_path}"
+    cp "\${phylo_path}" "/tmp/\${SLURM_JOB_ID:-nojid}.pqt"
     downsample_outpath="\$(dirname "\${phylo_path}")/a=phylo+dsamp=50k+ext=.pqt"
     tmp_dsamp_outpath="/tmp/\${SLURM_JOB_ID:-nojid}_dsamp50k.pqt"
-    echo "\${tmp_inpath}" \
+    nwk_outpath="\$(dirname "\${phylo_path}")/a=phylo+dsamp=50k+ext=.nwk"
+    tmp_nwk_outpath="/tmp/\${SLURM_JOB_ID:-nojid}_dsamp50k.nwk"
+
+    echo "downsampling \${phylo_path}"
+    echo "/tmp/\${SLURM_JOB_ID:-nojid}.pqt" \
         | singularity run docker://ghcr.io/mmore500/hstrat:v1.20.25 \
             python3 -m hstrat._auxiliary_lib._alifestd_downsample_tips_polars \
             "\${tmp_dsamp_outpath}" \
@@ -424,6 +426,7 @@ for phylo_path in "${BATCHDIR}"/__*/**/a=phylo+ext=.pqt; do
             --seed 1 --eager-write
     ls -l "\${tmp_dsamp_outpath}"
     du -h "\${tmp_dsamp_outpath}"
+
     echo "collapsing unifurcations"
     echo "\${tmp_dsamp_outpath}" \
         | singularity run docker://ghcr.io/mmore500/hstrat:v1.20.25 \
@@ -432,15 +435,15 @@ for phylo_path in "${BATCHDIR}"/__*/**/a=phylo+ext=.pqt; do
             --eager-write
     ls -l "\${tmp_dsamp_outpath}"
     du -h "\${tmp_dsamp_outpath}"
+
     echo "converting to newick"
-    nwk_outpath="\$(dirname "\${phylo_path}")/a=phylo+dsamp=50k+ext=.nwk"
-    tmp_nwk_outpath="/tmp/\${SLURM_JOB_ID:-nojid}_dsamp50k.nwk"
     singularity exec docker://ghcr.io/mmore500/hstrat:v1.20.25 \
         python3 -m hstrat._auxiliary_lib._alifestd_as_newick_asexual \
         -i "\${tmp_dsamp_outpath}" \
         -o "\${tmp_nwk_outpath}"
     ls -l "\${tmp_nwk_outpath}"
     du -h "\${tmp_nwk_outpath}"
+
     echo "copying results back"
     cp "\${tmp_dsamp_outpath}" "\${downsample_outpath}"
     ls -l "\${downsample_outpath}"
