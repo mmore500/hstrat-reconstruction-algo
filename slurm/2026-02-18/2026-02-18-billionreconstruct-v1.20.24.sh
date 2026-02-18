@@ -360,8 +360,8 @@ echo "SBATCH_FILE ${SBATCH_FILE}"
 cat > "${SBATCH_FILE}" << EOF
 #!/bin/bash -login
 #SBATCH --ntasks=1
-#SBATCH --cpus-per-task=16
-#SBATCH --mem=250G
+#SBATCH --cpus-per-task=32
+#SBATCH --mem=800G
 #SBATCH --time=4:00:00
 #SBATCH --output="/mnt/home/%u/joblog/%j"
 #SBATCH --mail-user=mawni4ah2o@pomail.net
@@ -407,19 +407,50 @@ popd
 
 ls -l "${BATCHDIR}"
 
-echo "downsample -------------------------------------------------- \${SECONDS}"
-echo "   - downsample phylogenies to 50k tips"
+echo "downsample and convert -------------------------------------- \${SECONDS}"
+echo "   - downsample and convert phylogenies to 50k tips"
 for phylo_path in "${BATCHDIR}"/__*/**/a=phylo+ext=.pqt; do
+    echo "copying \${phylo_path} to /tmp"
+    cp "\${phylo_path}" "/tmp/\${SLURM_JOB_ID:-nojid}.pqt"
+    tmp_pqt="/tmp/\${SLURM_JOB_ID:-nojid}_dsamp50k.pqt"
+    tmp_nwk="/tmp/\${SLURM_JOB_ID:-nojid}_dsamp50k.nwk"
+    echo "tmp_pqt \${tmp_pqt}"
+    echo "tmp_nwk \${tmp_nwk}"
+
     echo "downsampling \${phylo_path}"
-    downsample_outpath="\$(dirname "\${phylo_path}")/a=phylo+dsamp=50k+ext=.pqt"
-    echo "\${phylo_path}" \
+    echo "/tmp/\${SLURM_JOB_ID:-nojid}.pqt" \
         | singularity run docker://ghcr.io/mmore500/hstrat:v1.20.25 \
             python3 -m hstrat._auxiliary_lib._alifestd_downsample_tips_polars \
-            "\${downsample_outpath}" \
+            "\${tmp_pqt}" \
             -n 50000 \
-            --seed 1
-    ls -l "\${downsample_outpath}"
-    du -h "\${downsample_outpath}"
+            --seed 1 --eager-write
+    ls -l "\${tmp_pqt}"
+    du -h "\${tmp_pqt}"
+
+    echo "collapsing unifurcations"
+    echo "\${tmp_pqt}" \
+        | singularity run docker://ghcr.io/mmore500/hstrat:v1.20.25 \
+            python3 -m hstrat._auxiliary_lib._alifestd_collapse_unifurcations_polars \
+            "\${tmp_pqt}" \
+            --eager-write
+    ls -l "\${tmp_pqt}"
+    du -h "\${tmp_pqt}"
+
+    echo "converting to newick"
+    singularity exec docker://ghcr.io/mmore500/hstrat:v1.20.25 \
+        python3 -m hstrat._auxiliary_lib._alifestd_as_newick_asexual \
+        -i "\${tmp_pqt}" \
+        -o "\${tmp_nwk}"
+    ls -l "\${tmp_nwk}"
+    du -h "\${tmp_nwk}"
+
+    echo "moving results back"
+    mv "\${tmp_pqt}" "\$(dirname "\${phylo_path}")/a=phylo+dsamp=50k+ext=.pqt"
+    ls -l "\$(dirname "\${phylo_path}")/a=phylo+dsamp=50k+ext=.pqt"
+    du -h "\$(dirname "\${phylo_path}")/a=phylo+dsamp=50k+ext=.pqt"
+    mv "\${tmp_nwk}" "\$(dirname "\${phylo_path}")/a=phylo+dsamp=50k+ext=.nwk"
+    ls -l "\$(dirname "\${phylo_path}")/a=phylo+dsamp=50k+ext=.nwk"
+    du -h "\$(dirname "\${phylo_path}")/a=phylo+dsamp=50k+ext=.nwk"
 done
 
 echo "cleanup ----------------------------------------------------- \${SECONDS}"
