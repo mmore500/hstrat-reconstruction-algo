@@ -414,6 +414,8 @@ for phylo_path in "${BATCHDIR}"/__*/**/a=phylo+ext=.pqt; do
     cp "\${phylo_path}" "/tmp/\${SLURM_JOB_ID:-nojid}.pqt"
     tmp_pqt="/tmp/\${SLURM_JOB_ID:-nojid}_dsamp50k.pqt"
     tmp_nwk="/tmp/\${SLURM_JOB_ID:-nojid}_dsamp50k.nwk"
+echo "tmp_pqt \${tmp_pqt}"
+echo "tmp_nwk \${tmp_nwk}"
 
     echo "downsampling \${phylo_path}"
     echo "/tmp/\${SLURM_JOB_ID:-nojid}.pqt" \
