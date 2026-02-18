@@ -419,7 +419,7 @@ for phylo_path in "${BATCHDIR}"/__*/**/a=phylo+ext=.pqt; do
 
     echo "downsampling \${phylo_path}"
     echo "/tmp/\${SLURM_JOB_ID:-nojid}.pqt" \
-        | singularity run docker://ghcr.io/mmore500/hstrat:v1.20.25 \
+        | singularity run docker://ghcr.io/mmore500/hstrat:v1.20.26 \
             python3 -m hstrat._auxiliary_lib._alifestd_downsample_tips_polars \
             "\${tmp_pqt}" \
             -n 50000 \
@@ -429,7 +429,7 @@ for phylo_path in "${BATCHDIR}"/__*/**/a=phylo+ext=.pqt; do
 
     echo "collapsing unifurcations"
     echo "\${tmp_pqt}" \
-        | singularity run docker://ghcr.io/mmore500/hstrat:v1.20.25 \
+        | singularity run docker://ghcr.io/mmore500/hstrat:v1.20.26 \
             python3 -m hstrat._auxiliary_lib._alifestd_collapse_unifurcations_polars \
             "\${tmp_pqt}" \
             --eager-write
@@ -437,8 +437,9 @@ for phylo_path in "${BATCHDIR}"/__*/**/a=phylo+ext=.pqt; do
     du -h "\${tmp_pqt}"
 
     echo "converting to newick"
-    singularity exec docker://ghcr.io/mmore500/hstrat:v1.20.25 \
+    singularity exec docker://ghcr.io/mmore500/hstrat:v1.20.26 \
         python3 -m hstrat._auxiliary_lib._alifestd_as_newick_asexual \
+        --input-engine "polars" \
         -i "\${tmp_pqt}" \
         -o "\${tmp_nwk}"
     ls -l "\${tmp_nwk}"
