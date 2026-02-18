@@ -360,8 +360,8 @@ echo "SBATCH_FILE ${SBATCH_FILE}"
 cat > "${SBATCH_FILE}" << EOF
 #!/bin/bash -login
 #SBATCH --ntasks=1
-#SBATCH --cpus-per-task=16
-#SBATCH --mem=250G
+#SBATCH --cpus-per-task=32
+#SBATCH --mem=800G
 #SBATCH --time=4:00:00
 #SBATCH --output="/mnt/home/%u/joblog/%j"
 #SBATCH --mail-user=mawni4ah2o@pomail.net
@@ -410,16 +410,44 @@ ls -l "${BATCHDIR}"
 echo "downsample -------------------------------------------------- \${SECONDS}"
 echo "   - downsample phylogenies to 50k tips"
 for phylo_path in "${BATCHDIR}"/__*/**/a=phylo+ext=.pqt; do
+    echo "copying \${phylo_path} to /tmp"
+    tmp_inpath="/tmp/\${SLURM_JOB_ID:-nojid}.pqt"
+    cp "\${phylo_path}" "\${tmp_inpath}"
     echo "downsampling \${phylo_path}"
     downsample_outpath="\$(dirname "\${phylo_path}")/a=phylo+dsamp=50k+ext=.pqt"
-    echo "\${phylo_path}" \
+    tmp_dsamp_outpath="/tmp/\${SLURM_JOB_ID:-nojid}_dsamp50k.pqt"
+    echo "\${tmp_inpath}" \
         | singularity run docker://ghcr.io/mmore500/hstrat:v1.20.25 \
             python3 -m hstrat._auxiliary_lib._alifestd_downsample_tips_polars \
-            "\${downsample_outpath}" \
+            "\${tmp_dsamp_outpath}" \
             -n 50000 \
-            --seed 1
+            --seed 1 --eager-write
+    ls -l "\${tmp_dsamp_outpath}"
+    du -h "\${tmp_dsamp_outpath}"
+    echo "collapsing unifurcations"
+    echo "\${tmp_dsamp_outpath}" \
+        | singularity run docker://ghcr.io/mmore500/hstrat:v1.20.25 \
+            python3 -m hstrat._auxiliary_lib._alifestd_collapse_unifurcations_polars \
+            "\${tmp_dsamp_outpath}" \
+            --eager-write
+    ls -l "\${tmp_dsamp_outpath}"
+    du -h "\${tmp_dsamp_outpath}"
+    echo "converting to newick"
+    nwk_outpath="\$(dirname "\${phylo_path}")/a=phylo+dsamp=50k+ext=.nwk"
+    tmp_nwk_outpath="/tmp/\${SLURM_JOB_ID:-nojid}_dsamp50k.nwk"
+    singularity exec docker://ghcr.io/mmore500/hstrat:v1.20.25 \
+        python3 -m hstrat._auxiliary_lib._alifestd_as_newick_asexual \
+        -i "\${tmp_dsamp_outpath}" \
+        -o "\${tmp_nwk_outpath}"
+    ls -l "\${tmp_nwk_outpath}"
+    du -h "\${tmp_nwk_outpath}"
+    echo "copying results back"
+    cp "\${tmp_dsamp_outpath}" "\${downsample_outpath}"
     ls -l "\${downsample_outpath}"
     du -h "\${downsample_outpath}"
+    cp "\${tmp_nwk_outpath}" "\${nwk_outpath}"
+    ls -l "\${nwk_outpath}"
+    du -h "\${nwk_outpath}"
 done
 
 echo "cleanup ----------------------------------------------------- \${SECONDS}"
