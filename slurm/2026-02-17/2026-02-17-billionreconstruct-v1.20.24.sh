@@ -417,8 +417,7 @@ for phylo_path in "${BATCHDIR}"/__*/**/a=phylo+ext=.pqt; do
             python3 -m hstrat._auxiliary_lib._alifestd_downsample_tips_polars \
             "\${downsample_outpath}" \
             -n 50000 \
-            --seed 1 \
-            --progress
+            --seed 1
     ls -l "\${downsample_outpath}"
     du -h "\${downsample_outpath}"
 done
