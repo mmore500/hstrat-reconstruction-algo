@@ -412,45 +412,43 @@ echo "   - downsample and convert phylogenies to 50k tips"
 for phylo_path in "${BATCHDIR}"/__*/**/a=phylo+ext=.pqt; do
     echo "copying \${phylo_path} to /tmp"
     cp "\${phylo_path}" "/tmp/\${SLURM_JOB_ID:-nojid}.pqt"
-    downsample_outpath="\$(dirname "\${phylo_path}")/a=phylo+dsamp=50k+ext=.pqt"
-    tmp_dsamp_outpath="/tmp/\${SLURM_JOB_ID:-nojid}_dsamp50k.pqt"
-    nwk_outpath="\$(dirname "\${phylo_path}")/a=phylo+dsamp=50k+ext=.nwk"
-    tmp_nwk_outpath="/tmp/\${SLURM_JOB_ID:-nojid}_dsamp50k.nwk"
+    tmp_pqt="/tmp/\${SLURM_JOB_ID:-nojid}_dsamp50k.pqt"
+    tmp_nwk="/tmp/\${SLURM_JOB_ID:-nojid}_dsamp50k.nwk"
 
     echo "downsampling \${phylo_path}"
     echo "/tmp/\${SLURM_JOB_ID:-nojid}.pqt" \
         | singularity run docker://ghcr.io/mmore500/hstrat:v1.20.25 \
             python3 -m hstrat._auxiliary_lib._alifestd_downsample_tips_polars \
-            "\${tmp_dsamp_outpath}" \
+            "\${tmp_pqt}" \
             -n 50000 \
             --seed 1 --eager-write
-    ls -l "\${tmp_dsamp_outpath}"
-    du -h "\${tmp_dsamp_outpath}"
+    ls -l "\${tmp_pqt}"
+    du -h "\${tmp_pqt}"
 
     echo "collapsing unifurcations"
-    echo "\${tmp_dsamp_outpath}" \
+    echo "\${tmp_pqt}" \
         | singularity run docker://ghcr.io/mmore500/hstrat:v1.20.25 \
             python3 -m hstrat._auxiliary_lib._alifestd_collapse_unifurcations_polars \
-            "\${tmp_dsamp_outpath}" \
+            "\${tmp_pqt}" \
             --eager-write
-    ls -l "\${tmp_dsamp_outpath}"
-    du -h "\${tmp_dsamp_outpath}"
+    ls -l "\${tmp_pqt}"
+    du -h "\${tmp_pqt}"
 
     echo "converting to newick"
     singularity exec docker://ghcr.io/mmore500/hstrat:v1.20.25 \
         python3 -m hstrat._auxiliary_lib._alifestd_as_newick_asexual \
-        -i "\${tmp_dsamp_outpath}" \
-        -o "\${tmp_nwk_outpath}"
-    ls -l "\${tmp_nwk_outpath}"
-    du -h "\${tmp_nwk_outpath}"
+        -i "\${tmp_pqt}" \
+        -o "\${tmp_nwk}"
+    ls -l "\${tmp_nwk}"
+    du -h "\${tmp_nwk}"
 
-    echo "copying results back"
-    cp "\${tmp_dsamp_outpath}" "\${downsample_outpath}"
-    ls -l "\${downsample_outpath}"
-    du -h "\${downsample_outpath}"
-    cp "\${tmp_nwk_outpath}" "\${nwk_outpath}"
-    ls -l "\${nwk_outpath}"
-    du -h "\${nwk_outpath}"
+    echo "moving results back"
+    mv "\${tmp_pqt}" "\$(dirname "\${phylo_path}")/a=phylo+dsamp=50k+ext=.pqt"
+    ls -l "\$(dirname "\${phylo_path}")/a=phylo+dsamp=50k+ext=.pqt"
+    du -h "\$(dirname "\${phylo_path}")/a=phylo+dsamp=50k+ext=.pqt"
+    mv "\${tmp_nwk}" "\$(dirname "\${phylo_path}")/a=phylo+dsamp=50k+ext=.nwk"
+    ls -l "\$(dirname "\${phylo_path}")/a=phylo+dsamp=50k+ext=.nwk"
+    du -h "\$(dirname "\${phylo_path}")/a=phylo+dsamp=50k+ext=.nwk"
 done
 
 echo "cleanup ----------------------------------------------------- \${SECONDS}"
