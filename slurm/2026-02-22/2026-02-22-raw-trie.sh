@@ -314,8 +314,6 @@ stdbuf -e0 -i0 -o0 echo "/local/\$(basename "\${genomes_inpath}")" \
         --exploded-slice-size 50_000_000 \
         --shrink-dtypes --eager-write \
         --write-kwarg 'compression="lz4"' \
-        --drop "genomeFlavor" \
-        --drop "is_extant" \
         2>&1 \
     | stdbuf -e0 -i0 -o0 tr '\r' '\n' \
     | stdbuf -e0 -i0 -o0 python3.8 -m pylib.script.tee_eval_context_durations \
