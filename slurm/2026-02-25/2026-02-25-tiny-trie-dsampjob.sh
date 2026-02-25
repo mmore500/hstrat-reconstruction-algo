@@ -14,13 +14,17 @@ HSTRAT_CONTAINER="docker://ghcr.io/mmore500/hstrat:v1.21.3"
 ################################################################################
 show_help() {
     cat << 'HELPEOF'
-Usage: 2026-02-24-tiny-trie.sh [OPTIONS]
+Usage: 2026-02-25-tiny-trie-dsampjob.sh [OPTIONS]
 
 Workflow to build a tiny trie from downsampled fossils.
 
 Options:
-  --submit               Submit the SLURM workflow (or run locally if no
-                         sbatch is available).
+  --submit               Submit the full SLURM workflow (reconstruct +
+                         downsample + cleanup).
+  --submit-downsample    Submit only the downsampling and cleanup jobs
+                         (reuses existing reconstruction results).
+  --submit-cleanup       Submit only the cleanup/collate job (reuses
+                         existing reconstruction and downsampled results).
   --archive-latest       Archive the latest workflow output to
                          ${HOME}/archive/ via rclone.
   --archive-latest-check Print recursive du -h of the archive directory.
@@ -51,6 +55,12 @@ for arg in "$@"; do
             ;;
         --submit)
             ACTION="submit"
+            ;;
+        --submit-downsample)
+            ACTION="submit-downsample"
+            ;;
+        --submit-cleanup)
+            ACTION="submit-cleanup"
             ;;
         --archive-latest)
             ACTION="archive-latest"
@@ -176,7 +186,7 @@ if [[ "${ACTION}" == archive-latest* ]]; then
 fi
 
 ################################################################################
-# --submit
+# --submit / --submit-downsample / --submit-cleanup
 ################################################################################
 
 SOURCE_REVISION="f9c054a01fd961b22731cde6fb22de84e23871d9"
@@ -216,71 +226,92 @@ singularity exec "${HSTRAT_CONTAINER}" \
 echo "Container verified."
 
 echo "setup BATCHDIR =============================================== ${SECONDS}"
-BATCHDIR="${HOME}/scratch/${JOBPROJECT}/${JOBNAME}/${JOBDATE}"
-if [ -e "${BATCHDIR}" ]; then
-    echo "BATCHDIR ${BATCHDIR} exists, clearing it"
-fi
-rm -rf "${BATCHDIR}"
-mkdir -p "${BATCHDIR}"
-echo "BATCHDIR ${BATCHDIR}"
+if [ "${ACTION}" = "submit" ]; then
+    BATCHDIR="${HOME}/scratch/${JOBPROJECT}/${JOBNAME}/${JOBDATE}"
+    if [ -e "${BATCHDIR}" ]; then
+        echo "BATCHDIR ${BATCHDIR} exists, clearing it"
+    fi
+    rm -rf "${BATCHDIR}"
+    mkdir -p "${BATCHDIR}"
+    echo "BATCHDIR ${BATCHDIR}"
 
-ln -sfn "${BATCHDIR}" "${HOME}/scratch/${JOBPROJECT}/${JOBNAME}/latest"
+    ln -sfn "${BATCHDIR}" "${HOME}/scratch/${JOBPROJECT}/${JOBNAME}/latest"
 
-BATCHDIR_JOBLOG="${BATCHDIR}/joblog"
-echo "BATCHDIR_JOBLOG ${BATCHDIR_JOBLOG}"
-mkdir -p "${BATCHDIR_JOBLOG}"
+    BATCHDIR_JOBLOG="${BATCHDIR}/joblog"
+    echo "BATCHDIR_JOBLOG ${BATCHDIR_JOBLOG}"
+    mkdir -p "${BATCHDIR_JOBLOG}"
 
-BATCHDIR_JOBRESULT="${BATCHDIR}/jobresult"
-echo "BATCHDIR_JOBRESULT ${BATCHDIR_JOBRESULT}"
-mkdir -p "${BATCHDIR_JOBRESULT}"
+    BATCHDIR_JOBRESULT="${BATCHDIR}/jobresult"
+    echo "BATCHDIR_JOBRESULT ${BATCHDIR_JOBRESULT}"
+    mkdir -p "${BATCHDIR_JOBRESULT}"
 
-BATCHDIR_JOBSCRIPT="${BATCHDIR}/jobscript"
-echo "BATCHDIR_JOBSCRIPT ${BATCHDIR_JOBSCRIPT}"
-mkdir -p "${BATCHDIR_JOBSCRIPT}"
+    BATCHDIR_JOBSCRIPT="${BATCHDIR}/jobscript"
+    echo "BATCHDIR_JOBSCRIPT ${BATCHDIR_JOBSCRIPT}"
+    mkdir -p "${BATCHDIR_JOBSCRIPT}"
 
-BATCHDIR_JOBSOURCE="${BATCHDIR}/_jobsource"
-echo "BATCHDIR_JOBSOURCE ${BATCHDIR_JOBSOURCE}"
-if [[ " ${PASSTHRU_ARGS[*]:-} " == *" --dirty "* ]]; then
-    cp -r "$(git rev-parse --show-toplevel)" "${BATCHDIR_JOBSOURCE}"
-else
-    mkdir -p "${BATCHDIR_JOBSOURCE}"
+    BATCHDIR_JOBSOURCE="${BATCHDIR}/_jobsource"
+    echo "BATCHDIR_JOBSOURCE ${BATCHDIR_JOBSOURCE}"
+    if [[ " ${PASSTHRU_ARGS[*]:-} " == *" --dirty "* ]]; then
+        cp -r "$(git rev-parse --show-toplevel)" "${BATCHDIR_JOBSOURCE}"
+    else
+        mkdir -p "${BATCHDIR_JOBSOURCE}"
+        for attempt in {1..5}; do
+            rm -rf "${BATCHDIR_JOBSOURCE}/.git"
+            git -C "${BATCHDIR_JOBSOURCE}" init \
+            && git -C "${BATCHDIR_JOBSOURCE}" remote add origin "${SOURCE_REMOTE_URL}" \
+            && git -C "${BATCHDIR_JOBSOURCE}" fetch origin "${SOURCE_REVISION}" --depth=1 \
+            && git -C "${BATCHDIR_JOBSOURCE}" reset --hard FETCH_HEAD \
+            && break || echo "failed to clone, retrying..."
+            if [ $attempt -eq 5 ]; then
+                echo "failed to clone, failing"
+                exit 1
+            fi
+            sleep 5
+        done
+    fi
+
+    BATCHDIR_ENV="${BATCHDIR}/.env"
+    python3.8 -m venv --system-site-packages "${BATCHDIR_ENV}"
+    source "${BATCHDIR_ENV}/bin/activate"
+    echo "python3.8 $(which python3.8)"
+    echo "python3.8 --version $(python3.8 --version)"
     for attempt in {1..5}; do
-        rm -rf "${BATCHDIR_JOBSOURCE}/.git"
-        git -C "${BATCHDIR_JOBSOURCE}" init \
-        && git -C "${BATCHDIR_JOBSOURCE}" remote add origin "${SOURCE_REMOTE_URL}" \
-        && git -C "${BATCHDIR_JOBSOURCE}" fetch origin "${SOURCE_REVISION}" --depth=1 \
-        && git -C "${BATCHDIR_JOBSOURCE}" reset --hard FETCH_HEAD \
-        && break || echo "failed to clone, retrying..."
-        if [ $attempt -eq 5 ]; then
-            echo "failed to clone, failing"
+        python3.8 -m pip install --upgrade pip setuptools wheel || :
+        python3.8 -m pip install --upgrade \
+            "${BATCHDIR_JOBSOURCE}" \
+            "joinem==0.9.1" \
+            "polars[pyarrow]==1.8.2" \
+            "polars-u64-idx==1.8.2" \
+        && break || echo "pip install attempt ${attempt} failed"
+        if [ ${attempt} -eq 3 ]; then
+            echo "pip install failed"
             exit 1
         fi
-        sleep 5
     done
-fi
 
-BATCHDIR_ENV="${BATCHDIR}/.env"
-python3.8 -m venv --system-site-packages "${BATCHDIR_ENV}"
-source "${BATCHDIR_ENV}/bin/activate"
-echo "python3.8 $(which python3.8)"
-echo "python3.8 --version $(python3.8 --version)"
-for attempt in {1..5}; do
-    python3.8 -m pip install --upgrade pip setuptools wheel || :
-    python3.8 -m pip install --upgrade \
-        "${BATCHDIR_JOBSOURCE}" \
-        "joinem==0.9.1" \
-        "polars[pyarrow]==1.8.2" \
-        "polars-u64-idx==1.8.2" \
-    && break || echo "pip install attempt ${attempt} failed"
-    if [ ${attempt} -eq 3 ]; then
-        echo "pip install failed"
+    echo "setup dependencies =========================================== ${SECONDS}"
+    source "${BATCHDIR_ENV}/bin/activate"
+    python3.8 -m pip freeze
+else
+    # --submit-downsample or --submit-cleanup: reuse existing BATCHDIR
+    LATEST_LINK="${HOME}/scratch/${JOBPROJECT}/${JOBNAME}/latest"
+    if ! [ -e "${LATEST_LINK}" ]; then
+        echo "No latest BATCHDIR found at ${LATEST_LINK}"
+        echo "Run --submit first to create the reconstruction batch."
         exit 1
     fi
-done
+    BATCHDIR="$(realpath "${LATEST_LINK}")"
+    echo "BATCHDIR ${BATCHDIR} (reusing existing)"
 
-echo "setup dependencies =========================================== ${SECONDS}"
-source "${BATCHDIR_ENV}/bin/activate"
-python3.8 -m pip freeze
+    BATCHDIR_JOBLOG="${BATCHDIR}/joblog"
+    BATCHDIR_JOBRESULT="${BATCHDIR}/jobresult"
+    BATCHDIR_JOBSCRIPT="${BATCHDIR}/jobscript"
+    BATCHDIR_ENV="${BATCHDIR}/.env"
+
+    echo "setup dependencies =========================================== ${SECONDS}"
+    source "${BATCHDIR_ENV}/bin/activate"
+    python3.8 -m pip freeze
+fi
 
 echo "sbatch preamble ============================================== ${SECONDS}"
 JOB_PREAMBLE=$(cat << EOF
@@ -319,10 +350,12 @@ ln -sfn "\${JOBLOG}" "\${HOME}/joblatest/joblog.launched"
 echo "setup JOBDIR ------------------------------------------------ \${SECONDS}"
 JOBDIR="${BATCHDIR}/__\${SLURM_ARRAY_TASK_ID:-\${SLURM_JOB_ID:-\${RANDOM}}}"
 echo "JOBDIR \${JOBDIR}"
-if [ -e "\${JOBDIR}" ]; then
-    echo "JOBDIR \${JOBDIR} exists, clearing it"
+if [ "\${CLEAR_JOBDIR:-1}" = "1" ]; then
+    if [ -e "\${JOBDIR}" ]; then
+        echo "JOBDIR \${JOBDIR} exists, clearing it"
+    fi
+    rm -rf "\${JOBDIR}"
 fi
-rm -rf "\${JOBDIR}"
 mkdir -p "\${JOBDIR}"
 cd "\${JOBDIR}"
 echo "PWD \${PWD}"
@@ -528,22 +561,184 @@ EOF
 ###############################################################################
 
 
-echo "submit sbatch file ========================================== ${SECONDS}"
-$(which sbatch && echo --job-name="${JOBNAME}" || which bash) "${SBATCH_FILE}"
+echo "submit work job ============================================= ${SECONDS}"
+WORK_JOBID=""
+if [ "${ACTION}" = "submit" ]; then
+    if command -v sbatch &>/dev/null; then
+        WORK_JOBID=$(sbatch --parsable --job-name="${JOBNAME}-work" "${SBATCH_FILE}")
+        echo "Submitted WORK job: ${WORK_JOBID}"
+    else
+        bash "${SBATCH_FILE}"
+    fi
+fi
 
-echo "create sbatch file: collate ================================= ${SECONDS}"
+echo "downsample sbatch template ================================== ${SECONDS}"
+# Template for downsampling jobs; placeholders:
+#   __DSAMP_LABEL__  - human-readable label for this task
+#   __DSAMP_MODULE__ - hstrat module suffix (e.g. _alifestd_downsample_tips_polars)
+#   __DSAMP_ARGS__   - extra CLI arguments for the downsample command
+#   __DSAMP_OUTNAME__ - output filename stem (without .pqt/.nwk extension)
+DSAMP_TEMPLATE=$(cat << DSAMP_TMPLEOF
+#!/bin/bash -login
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=4
+#SBATCH --mem=250G
+#SBATCH --time=4:00:00
+#SBATCH --output="/mnt/home/%u/joblog/%A_%a"
+#SBATCH --mail-user=mawni4ah2o@pomail.net
+#SBATCH --mail-type=ALL
+#SBATCH --array=0-1
+#SBATCH --account=ecode
+
+export CLEAR_JOBDIR=0
+
+${JOB_PREAMBLE}
+
+echo "downsample: __DSAMP_LABEL__ -------------------------------- \${SECONDS}"
+
+phylo_path="${BATCHDIR}/__\${SLURM_ARRAY_TASK_ID:-0}/a=phylo+ext=.pqt"
+phylo_dir="\$(dirname "\${phylo_path}")"
+echo "phylo_path \${phylo_path}"
+echo "phylo_dir \${phylo_dir}"
+
+echo "copying \${phylo_path} to /tmp"
+cp "\${phylo_path}" "/tmp/\${SLURM_JOB_ID:-nojid}_source.pqt"
+source_pqt="/tmp/\${SLURM_JOB_ID:-nojid}_source.pqt"
+tmp_pqt="/tmp/\${SLURM_JOB_ID:-nojid}_dsamp.pqt"
+
+echo "HSTRAT_CONTAINER ${HSTRAT_CONTAINER}"
+echo "\${source_pqt}" \\
+    | singularity run ${HSTRAT_CONTAINER} \\
+        python3 -m hstrat._auxiliary_lib.__DSAMP_MODULE__ \\
+        "\${tmp_pqt}" \\
+        __DSAMP_ARGS__ --eager-write
+
+echo "collapse unifurcations -------------------------------------- \${SECONDS}"
+echo "HSTRAT_CONTAINER ${HSTRAT_CONTAINER}"
+echo "\${tmp_pqt}" \\
+    | singularity run ${HSTRAT_CONTAINER} \\
+        python3 -m hstrat._auxiliary_lib._alifestd_collapse_unifurcations_polars \\
+        "\${tmp_pqt}" \\
+        --eager-write
+
+echo "assign contiguous IDs --------------------------------------- \${SECONDS}"
+echo "HSTRAT_CONTAINER ${HSTRAT_CONTAINER}"
+echo "\${tmp_pqt}" \\
+    | singularity run ${HSTRAT_CONTAINER} \\
+        python3 -m hstrat._auxiliary_lib._alifestd_assign_contiguous_ids_polars \\
+        "\${tmp_pqt}" \\
+        --eager-write
+
+echo "move and convert to newick ---------------------------------- \${SECONDS}"
+mv "\${tmp_pqt}" "\${phylo_dir}/__DSAMP_OUTNAME__.pqt"
+echo "HSTRAT_CONTAINER ${HSTRAT_CONTAINER}"
+singularity exec ${HSTRAT_CONTAINER} \\
+    python3 -m hstrat._auxiliary_lib._alifestd_as_newick_polars \\
+    -i "\${phylo_dir}/__DSAMP_OUTNAME__.pqt" \\
+    -o "\${phylo_dir}/__DSAMP_OUTNAME__.nwk"
+ls -l "\${phylo_dir}/__DSAMP_OUTNAME__.pqt"
+ls -l "\${phylo_dir}/__DSAMP_OUTNAME__.nwk"
+du -h "\${phylo_dir}/__DSAMP_OUTNAME__.pqt"
+
+echo "cleanup"
+rm -f "\${source_pqt}"
+
+echo "finalization telemetry -------------------------------------- \${SECONDS}"
+ls -l \${JOBDIR}
+du -h \${JOBDIR}
+ln -sfn "\${JOBSCRIPT}" "\${HOME}/joblatest/jobscript.finished"
+ln -sfn "\${JOBLOG}" "\${HOME}/joblatest/joblog.finished"
+echo "SECONDS \${SECONDS}"
+echo '>>>complete<<<'
+DSAMP_TMPLEOF
+)
+
+echo "create and submit downsample jobs ============================ ${SECONDS}"
+DSAMP_JOBIDS=()
+if [ "${ACTION}" = "submit" ] || [ "${ACTION}" = "submit-downsample" ]; then
+    # Build per-task arrays: label, output name, module, extra args
+    dsamp_labels=()
+    dsamp_outnames=()
+    dsamp_modules=()
+    dsamp_args=()
+
+    # 1) tips 50k random
+    dsamp_labels+=("tips50k")
+    dsamp_outnames+=("a=phylo+dsamp=tips50k+ext=")
+    dsamp_modules+=("_alifestd_downsample_tips_polars")
+    dsamp_args+=("-n 50000 --seed 1")
+
+    # 2) canopy criterion=layer
+    dsamp_labels+=("canopy-layer")
+    dsamp_outnames+=("a=phylo+criterion=layer+dsamp=canopy+ext=")
+    dsamp_modules+=("_alifestd_downsample_tips_canopy_polars")
+    dsamp_args+=("--criterion \"layer\" --seed 1")
+
+    # 3) lineage 10k tips, seeds 1-5
+    for seed in 1 2 3 4 5; do
+        dsamp_labels+=("lineage10k-s${seed}")
+        dsamp_outnames+=("a=phylo+cdelta=dstream_rank+ctarget=layer+dsamp=lineage10k+seed=${seed}+ext=")
+        dsamp_modules+=("_alifestd_downsample_tips_lineage_polars")
+        dsamp_args+=("-n 10000 --criterion-delta \"dstream_rank\" --criterion-target \"layer\" --seed ${seed}")
+    done
+
+    # 4) lineage stratified, seeds 1-5, n_tips_per_stratum 1 and 4
+    for seed in 1 2 3 4 5; do
+        for ntps in 1 4; do
+            dsamp_labels+=("lineage-stratified-s${seed}-ntps${ntps}")
+            dsamp_outnames+=("a=phylo+cdelta=dstream_rank+cstratify=layer+ctarget=layer+dsamp=lineage-stratified+ntps=${ntps}+seed=${seed}+ext=")
+            dsamp_modules+=("_alifestd_downsample_tips_lineage_stratified_polars")
+            dsamp_args+=("--criterion-delta \"dstream_rank\" --criterion-target \"layer\" --criterion-stratify \"layer\" --n-tips-per-stratum ${ntps} --seed ${seed}")
+        done
+    done
+
+    # Compute dependency argument for downsampling jobs
+    DEP_ON_WORK=""
+    if [ -n "${WORK_JOBID}" ]; then
+        DEP_ON_WORK="--dependency=afterok:${WORK_JOBID}"
+    fi
+
+    # Generate and submit each downsampling job from the template
+    for i in "${!dsamp_labels[@]}"; do
+        label="${dsamp_labels[$i]}"
+        outname="${dsamp_outnames[$i]}"
+        module="${dsamp_modules[$i]}"
+        args="${dsamp_args[$i]}"
+
+        echo "--- create dsamp job: ${label} --- ${SECONDS}"
+        content="${DSAMP_TEMPLATE}"
+        content="${content//__DSAMP_LABEL__/${label}}"
+        content="${content//__DSAMP_OUTNAME__/${outname}}"
+        content="${content//__DSAMP_MODULE__/${module}}"
+        content="${content//__DSAMP_ARGS__/${args}}"
+
+        sbatch_file="$(mktemp)"
+        printf '%s\n' "${content}" > "${sbatch_file}"
+        echo "SBATCH_FILE (${label}) ${sbatch_file}"
+
+        if command -v sbatch &>/dev/null; then
+            JOBID=$(sbatch --parsable --job-name="${JOBNAME}-dsamp-${label}" ${DEP_ON_WORK} "${sbatch_file}")
+            echo "Submitted dsamp-${label} -> ${JOBID}"
+            DSAMP_JOBIDS+=("${JOBID}")
+        else
+            bash "${sbatch_file}"
+        fi
+    done
+fi
+
+echo "create sbatch file: cleanup ================================= ${SECONDS}"
 
 SBATCH_FILE="$(mktemp)"
 echo "SBATCH_FILE ${SBATCH_FILE}"
 
 ###############################################################################
-# COLLATE ------------------------------------------------------------------- #
+# CLEANUP ------------------------------------------------------------------- #
 ###############################################################################
 cat > "${SBATCH_FILE}" << EOF
 #!/bin/bash -login
 #SBATCH --ntasks=1
-#SBATCH --cpus-per-task=32
-#SBATCH --mem=750G
+#SBATCH --cpus-per-task=4
+#SBATCH --mem=250G
 #SBATCH --time=4:00:00
 #SBATCH --output="/mnt/home/%u/joblog/%j"
 #SBATCH --mail-user=mawni4ah2o@pomail.net
@@ -558,8 +753,8 @@ ls -l "${BATCHDIR}"
 
 export PYTHONUNBUFFERED=1
 export SINGULARITYENV_PYTHONUNBUFFERED=1
-export POLARS_MAX_THREADS=30
-export NUMBA_NUM_THREADS=30
+export POLARS_MAX_THREADS=2
+export NUMBA_NUM_THREADS=2
 export TQDM_MININTERVAL=5
 
 echo "finalize ---------------------------------------------------- \${SECONDS}"
@@ -589,169 +784,6 @@ pushd "${BATCHDIR}"
 popd
 
 ls -l "${BATCHDIR}"
-
-echo "downsample and convert -------------------------------------- \${SECONDS}"
-for phylo_path in "${BATCHDIR}"/__*/**/a=phylo+ext=.pqt; do
-    echo "============================================================"
-    echo "processing \${phylo_path}"
-    echo "============================================================"
-
-    phylo_dir="\$(dirname "\${phylo_path}")"
-    echo "phylo_dir \${phylo_dir}"
-
-    echo "copying \${phylo_path} to /tmp"
-    cp "\${phylo_path}" "/tmp/\${SLURM_JOB_ID:-nojid}_source.pqt"
-    source_pqt="/tmp/\${SLURM_JOB_ID:-nojid}_source.pqt"
-
-    ############################################################################
-    # 1) downsample tips: 50k random
-    ############################################################################
-    echo "--- downsample tips 50k ----------------------------------- \${SECONDS}"
-    tmp_pqt="/tmp/\${SLURM_JOB_ID:-nojid}_dsamp.pqt"
-    echo "HSTRAT_CONTAINER ${HSTRAT_CONTAINER}"
-    echo "\${source_pqt}" \
-        | singularity run ${HSTRAT_CONTAINER} \
-            python3 -m hstrat._auxiliary_lib._alifestd_downsample_tips_polars \
-            "\${tmp_pqt}" \
-            -n 50000 \
-            --seed 1 --eager-write
-    echo "HSTRAT_CONTAINER ${HSTRAT_CONTAINER}"
-    echo "\${tmp_pqt}" \
-        | singularity run ${HSTRAT_CONTAINER} \
-            python3 -m hstrat._auxiliary_lib._alifestd_collapse_unifurcations_polars \
-            "\${tmp_pqt}" \
-            --eager-write
-    echo "HSTRAT_CONTAINER ${HSTRAT_CONTAINER}"
-    echo "\${tmp_pqt}" \
-        | singularity run ${HSTRAT_CONTAINER} \
-            python3 -m hstrat._auxiliary_lib._alifestd_assign_contiguous_ids_polars \
-            "\${tmp_pqt}" \
-            --eager-write
-    mv "\${tmp_pqt}" "\${phylo_dir}/a=phylo+dsamp=tips50k+ext=.pqt"
-    echo "HSTRAT_CONTAINER ${HSTRAT_CONTAINER}"
-    singularity exec ${HSTRAT_CONTAINER} \
-        python3 -m hstrat._auxiliary_lib._alifestd_as_newick_polars \
-        -i "\${phylo_dir}/a=phylo+dsamp=tips50k+ext=.pqt" \
-        -o "\${phylo_dir}/a=phylo+dsamp=tips50k+ext=.nwk"
-    ls -l "\${phylo_dir}/a=phylo+dsamp=tips50k+ext=.pqt"
-    ls -l "\${phylo_dir}/a=phylo+dsamp=tips50k+ext=.nwk"
-    du -h "\${phylo_dir}/a=phylo+dsamp=tips50k+ext=.pqt"
-
-    ############################################################################
-    # 2) downsample tips canopy: criterion "layer", no -n
-    ############################################################################
-    echo "--- downsample tips canopy -------------------------------- \${SECONDS}"
-    tmp_pqt="/tmp/\${SLURM_JOB_ID:-nojid}_canopy.pqt"
-    echo "HSTRAT_CONTAINER ${HSTRAT_CONTAINER}"
-    echo "\${source_pqt}" \
-        | singularity run ${HSTRAT_CONTAINER} \
-            python3 -m hstrat._auxiliary_lib._alifestd_downsample_tips_canopy_polars \
-            "\${tmp_pqt}" \
-            --criterion "layer" \
-            --seed 1 --eager-write
-    echo "HSTRAT_CONTAINER ${HSTRAT_CONTAINER}"
-    echo "\${tmp_pqt}" \
-        | singularity run ${HSTRAT_CONTAINER} \
-            python3 -m hstrat._auxiliary_lib._alifestd_collapse_unifurcations_polars \
-            "\${tmp_pqt}" \
-            --eager-write
-    echo "HSTRAT_CONTAINER ${HSTRAT_CONTAINER}"
-    echo "\${tmp_pqt}" \
-        | singularity run ${HSTRAT_CONTAINER} \
-            python3 -m hstrat._auxiliary_lib._alifestd_assign_contiguous_ids_polars \
-            "\${tmp_pqt}" \
-            --eager-write
-    mv "\${tmp_pqt}" "\${phylo_dir}/a=phylo+dsamp=canopy+criterion=layer+ext=.pqt"
-    echo "HSTRAT_CONTAINER ${HSTRAT_CONTAINER}"
-    singularity exec ${HSTRAT_CONTAINER} \
-        python3 -m hstrat._auxiliary_lib._alifestd_as_newick_polars \
-        -i "\${phylo_dir}/a=phylo+dsamp=canopy+criterion=layer+ext=.pqt" \
-        -o "\${phylo_dir}/a=phylo+dsamp=canopy+criterion=layer+ext=.nwk"
-    ls -l "\${phylo_dir}/a=phylo+dsamp=canopy+criterion=layer+ext=.pqt"
-    ls -l "\${phylo_dir}/a=phylo+dsamp=canopy+criterion=layer+ext=.nwk"
-    du -h "\${phylo_dir}/a=phylo+dsamp=canopy+criterion=layer+ext=.pqt"
-
-    ############################################################################
-    # 3) downsample tips lineage polars: 10k tips, seeds 1-5
-    ############################################################################
-    for seed in 1 2 3 4 5; do
-        echo "--- downsample tips lineage seed=\${seed} ----------------- \${SECONDS}"
-        tmp_pqt="/tmp/\${SLURM_JOB_ID:-nojid}_lineage_s\${seed}.pqt"
-        echo "HSTRAT_CONTAINER ${HSTRAT_CONTAINER}"
-        echo "\${source_pqt}" \
-            | singularity run ${HSTRAT_CONTAINER} \
-                python3 -m hstrat._auxiliary_lib._alifestd_downsample_tips_lineage_polars \
-                "\${tmp_pqt}" \
-                -n 10000 \
-                --criterion-delta "dstream_rank" \
-                --criterion-target "layer" \
-                --seed "\${seed}" --eager-write
-        echo "HSTRAT_CONTAINER ${HSTRAT_CONTAINER}"
-        echo "\${tmp_pqt}" \
-            | singularity run ${HSTRAT_CONTAINER} \
-                python3 -m hstrat._auxiliary_lib._alifestd_collapse_unifurcations_polars \
-                "\${tmp_pqt}" \
-                --eager-write
-        echo "HSTRAT_CONTAINER ${HSTRAT_CONTAINER}"
-        echo "\${tmp_pqt}" \
-            | singularity run ${HSTRAT_CONTAINER} \
-                python3 -m hstrat._auxiliary_lib._alifestd_assign_contiguous_ids_polars \
-                "\${tmp_pqt}" \
-                --eager-write
-        mv "\${tmp_pqt}" "\${phylo_dir}/a=phylo+dsamp=lineage10k+cdelta=dstream_rank+ctarget=layer+seed=\${seed}+ext=.pqt"
-        echo "HSTRAT_CONTAINER ${HSTRAT_CONTAINER}"
-        singularity exec ${HSTRAT_CONTAINER} \
-            python3 -m hstrat._auxiliary_lib._alifestd_as_newick_polars \
-            -i "\${phylo_dir}/a=phylo+dsamp=lineage10k+cdelta=dstream_rank+ctarget=layer+seed=\${seed}+ext=.pqt" \
-            -o "\${phylo_dir}/a=phylo+dsamp=lineage10k+cdelta=dstream_rank+ctarget=layer+seed=\${seed}+ext=.nwk"
-        ls -l "\${phylo_dir}/a=phylo+dsamp=lineage10k+cdelta=dstream_rank+ctarget=layer+seed=\${seed}+ext=.pqt"
-        du -h "\${phylo_dir}/a=phylo+dsamp=lineage10k+cdelta=dstream_rank+ctarget=layer+seed=\${seed}+ext=.pqt"
-    done
-
-    ############################################################################
-    # 4) downsample tips lineage stratified polars:
-    #    seeds 1-5, n_tips_per_stratum 1 and 4
-    ############################################################################
-    for seed in 1 2 3 4 5; do
-        for ntps in 1 4; do
-            echo "--- downsample tips lineage stratified seed=\${seed} ntps=\${ntps} --- \${SECONDS}"
-            tmp_pqt="/tmp/\${SLURM_JOB_ID:-nojid}_linstrat_s\${seed}_ntps\${ntps}.pqt"
-            echo "HSTRAT_CONTAINER ${HSTRAT_CONTAINER}"
-            echo "\${source_pqt}" \
-                | singularity run ${HSTRAT_CONTAINER} \
-                    python3 -m hstrat._auxiliary_lib._alifestd_downsample_tips_lineage_stratified_polars \
-                    "\${tmp_pqt}" \
-                    --criterion-delta "dstream_rank" \
-                    --criterion-target "layer" \
-                    --criterion-stratify "layer" \
-                    --n-tips-per-stratum "\${ntps}" \
-                    --seed "\${seed}" --eager-write
-            echo "HSTRAT_CONTAINER ${HSTRAT_CONTAINER}"
-            echo "\${tmp_pqt}" \
-                | singularity run ${HSTRAT_CONTAINER} \
-                    python3 -m hstrat._auxiliary_lib._alifestd_collapse_unifurcations_polars \
-                    "\${tmp_pqt}" \
-                    --eager-write
-            echo "HSTRAT_CONTAINER ${HSTRAT_CONTAINER}"
-            echo "\${tmp_pqt}" \
-                | singularity run ${HSTRAT_CONTAINER} \
-                    python3 -m hstrat._auxiliary_lib._alifestd_assign_contiguous_ids_polars \
-                    "\${tmp_pqt}" \
-                    --eager-write
-            mv "\${tmp_pqt}" "\${phylo_dir}/a=phylo+dsamp=lineage-stratified+cdelta=dstream_rank+ctarget=layer+cstratify=layer+ntps=\${ntps}+seed=\${seed}+ext=.pqt"
-            echo "HSTRAT_CONTAINER ${HSTRAT_CONTAINER}"
-            singularity exec ${HSTRAT_CONTAINER} \
-                python3 -m hstrat._auxiliary_lib._alifestd_as_newick_polars \
-                -i "\${phylo_dir}/a=phylo+dsamp=lineage-stratified+cdelta=dstream_rank+ctarget=layer+cstratify=layer+ntps=\${ntps}+seed=\${seed}+ext=.pqt" \
-                -o "\${phylo_dir}/a=phylo+dsamp=lineage-stratified+cdelta=dstream_rank+ctarget=layer+cstratify=layer+ntps=\${ntps}+seed=\${seed}+ext=.nwk"
-            ls -l "\${phylo_dir}/a=phylo+dsamp=lineage-stratified+cdelta=dstream_rank+ctarget=layer+cstratify=layer+ntps=\${ntps}+seed=\${seed}+ext=.pqt"
-            du -h "\${phylo_dir}/a=phylo+dsamp=lineage-stratified+cdelta=dstream_rank+ctarget=layer+cstratify=layer+ntps=\${ntps}+seed=\${seed}+ext=.pqt"
-        done
-    done
-
-    echo "cleaning up source copy"
-    rm -f "\${source_pqt}"
-done
 
 echo "validate trie ----------------------------------------------- \${SECONDS}"
 for phylo_path in "${BATCHDIR}"/__*/**/a=phylo+ext=.pqt; do
@@ -791,8 +823,25 @@ EOF
 # --------------------------------------------------------------------------- #
 ###############################################################################
 
-echo "submit sbatch file ========================================== ${SECONDS}"
-$(which sbatch && echo --job-name="${JOBNAME}" --dependency=singleton || which bash) "${SBATCH_FILE}"
+echo "submit cleanup job =========================================== ${SECONDS}"
+if [ "${ACTION}" = "submit" ] || [ "${ACTION}" = "submit-downsample" ]; then
+    if command -v sbatch &>/dev/null; then
+        if [ ${#DSAMP_JOBIDS[@]} -gt 0 ]; then
+            DEP_ON_DSAMP="--dependency=afterok:$(IFS=:; echo "${DSAMP_JOBIDS[*]}")"
+        else
+            DEP_ON_DSAMP=""
+        fi
+        sbatch --job-name="${JOBNAME}-cleanup" ${DEP_ON_DSAMP} "${SBATCH_FILE}"
+    else
+        bash "${SBATCH_FILE}"
+    fi
+elif [ "${ACTION}" = "submit-cleanup" ]; then
+    if command -v sbatch &>/dev/null; then
+        sbatch --job-name="${JOBNAME}-cleanup" "${SBATCH_FILE}"
+    else
+        bash "${SBATCH_FILE}"
+    fi
+fi
 
 echo "finalization telemetry ====================================== ${SECONDS}"
 echo "BATCHDIR ${BATCHDIR}"
