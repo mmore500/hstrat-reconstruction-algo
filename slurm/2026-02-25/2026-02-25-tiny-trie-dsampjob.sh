@@ -25,6 +25,8 @@ Options:
                          (reuses existing reconstruction results).
   --submit-cleanup       Submit only the cleanup/collate job (reuses
                          existing reconstruction and downsampled results).
+  --submit-validation    Submit only the validation jobs (reuses
+                         existing reconstruction results).
   --archive-latest       Archive the latest workflow output to
                          ${HOME}/archive/ via rclone.
   --archive-latest-check Print recursive du -h of the archive directory.
@@ -61,6 +63,9 @@ for arg in "$@"; do
             ;;
         --submit-cleanup)
             ACTION="submit-cleanup"
+            ;;
+        --submit-validation)
+            ACTION="submit-validation"
             ;;
         --archive-latest)
             ACTION="archive-latest"
@@ -572,6 +577,92 @@ if [ "${ACTION}" = "submit" ]; then
     fi
 fi
 
+echo "create sbatch file: validation ============================== ${SECONDS}"
+
+SBATCH_FILE="$(mktemp)"
+echo "SBATCH_FILE ${SBATCH_FILE}"
+
+###############################################################################
+# VALIDATION ---------------------------------------------------------------- #
+###############################################################################
+cat > "${SBATCH_FILE}" << EOF
+#!/bin/bash -login
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=4
+#SBATCH --mem=250G
+#SBATCH --time=4:00:00
+#SBATCH --output="/mnt/home/%u/joblog/%A_%a"
+#SBATCH --mail-user=mawni4ah2o@pomail.net
+#SBATCH --mail-type=FAIL
+#SBATCH --array=0-9
+#SBATCH --account=ecode
+
+export CLEAR_JOBDIR=0
+
+${JOB_PREAMBLE}
+
+SEED=\${SLURM_ARRAY_TASK_ID:-0}
+echo "SEED \${SEED}"
+VALIDATION_LOG="\${JOBDIR}/validation-seed-\$(printf '%02d' \${SEED}).log"
+validation_failed=0
+
+echo "validate trie ----------------------------------------------- \${SECONDS}"
+for phylo_path in "${BATCHDIR}"/__*/**/a=phylo+ext=.pqt; do
+    echo "validating \${phylo_path} with seed \${SEED}"
+    echo "=== validating \${phylo_path} with seed \${SEED} ===" >> "\${VALIDATION_LOG}"
+    echo "HSTRAT_CONTAINER ${HSTRAT_CONTAINER}"
+    timeout 600 singularity exec ${HSTRAT_CONTAINER} \
+        python3 -m hstrat.dataframe.surface_validate_trie \
+        "\${phylo_path}" \
+        --max-num-checks 1000 \
+        --seed "\${SEED}" \
+        >> "\${VALIDATION_LOG}" 2>&1 \
+    && echo "validation passed for \${phylo_path}" \
+    || {
+        rc=\$?
+        if [ \${rc} -eq 124 ]; then
+            echo "validation timed out after 10 minutes (considered success)"
+        else
+            echo "validation FAILED for \${phylo_path} (exit code \${rc})"
+            validation_failed=1
+        fi
+    }
+done
+
+if [ \${validation_failed} -ne 0 ]; then
+    cp "\${VALIDATION_LOG}" "${BATCHDIR_JOBRESULT}/failed-validation-seed-\$(printf '%02d' \${SEED}).log"
+    echo "Validation failed, log copied to result output"
+    exit 1
+fi
+
+echo "finalization telemetry -------------------------------------- \${SECONDS}"
+ls -l \${JOBDIR}
+du -h \${JOBDIR}
+ln -sfn "\${JOBSCRIPT}" "\${HOME}/joblatest/jobscript.finished"
+ln -sfn "\${JOBLOG}" "\${HOME}/joblatest/joblog.finished"
+echo "SECONDS \${SECONDS}"
+echo '>>>complete<<<'
+
+EOF
+###############################################################################
+# --------------------------------------------------------------------------- #
+###############################################################################
+
+echo "submit validation job ======================================== ${SECONDS}"
+VALIDATION_JOBID=""
+if [ "${ACTION}" = "submit" ] || [ "${ACTION}" = "submit-validation" ]; then
+    if command -v sbatch &>/dev/null; then
+        DEP_ON_WORK_VALIDATE=""
+        if [ -n "${WORK_JOBID}" ]; then
+            DEP_ON_WORK_VALIDATE="--dependency=afterok:${WORK_JOBID}"
+        fi
+        VALIDATION_JOBID=$(sbatch --parsable --job-name="${JOBNAME}-validate" ${DEP_ON_WORK_VALIDATE} "${SBATCH_FILE}")
+        echo "Submitted VALIDATION job: ${VALIDATION_JOBID}"
+    else
+        bash "${SBATCH_FILE}"
+    fi
+fi
+
 echo "downsample sbatch template ================================== ${SECONDS}"
 # Template for downsampling jobs; placeholders:
 #   __DSAMP_LABEL__  - human-readable label for this task
@@ -586,7 +677,7 @@ DSAMP_TEMPLATE=$(cat << DSAMP_TMPLEOF
 #SBATCH --time=4:00:00
 #SBATCH --output="/mnt/home/%u/joblog/%A_%a"
 #SBATCH --mail-user=mawni4ah2o@pomail.net
-#SBATCH --mail-type=ALL
+#SBATCH --mail-type=FAIL
 #SBATCH --array=0-1
 #SBATCH --account=ecode
 
@@ -608,7 +699,7 @@ tmp_pqt="/tmp/\${SLURM_JOB_ID:-nojid}_dsamp.pqt"
 
 echo "HSTRAT_CONTAINER ${HSTRAT_CONTAINER}"
 echo "\${source_pqt}" \\
-    | singularity run ${HSTRAT_CONTAINER} \\
+    | singularity exec ${HSTRAT_CONTAINER} \\
         python3 -m hstrat._auxiliary_lib.__DSAMP_MODULE__ \\
         "\${tmp_pqt}" \\
         __DSAMP_ARGS__ --eager-write
@@ -616,7 +707,7 @@ echo "\${source_pqt}" \\
 echo "collapse unifurcations -------------------------------------- \${SECONDS}"
 echo "HSTRAT_CONTAINER ${HSTRAT_CONTAINER}"
 echo "\${tmp_pqt}" \\
-    | singularity run ${HSTRAT_CONTAINER} \\
+    | singularity exec ${HSTRAT_CONTAINER} \\
         python3 -m hstrat._auxiliary_lib._alifestd_collapse_unifurcations_polars \\
         "\${tmp_pqt}" \\
         --eager-write
@@ -624,7 +715,7 @@ echo "\${tmp_pqt}" \\
 echo "assign contiguous IDs --------------------------------------- \${SECONDS}"
 echo "HSTRAT_CONTAINER ${HSTRAT_CONTAINER}"
 echo "\${tmp_pqt}" \\
-    | singularity run ${HSTRAT_CONTAINER} \\
+    | singularity exec ${HSTRAT_CONTAINER} \\
         python3 -m hstrat._auxiliary_lib._alifestd_assign_contiguous_ids_polars \\
         "\${tmp_pqt}" \\
         --eager-write
@@ -784,27 +875,6 @@ pushd "${BATCHDIR}"
 popd
 
 ls -l "${BATCHDIR}"
-
-echo "validate trie ----------------------------------------------- \${SECONDS}"
-for phylo_path in "${BATCHDIR}"/__*/**/a=phylo+ext=.pqt; do
-    echo "validating \${phylo_path}"
-    echo "HSTRAT_CONTAINER ${HSTRAT_CONTAINER}"
-    timeout 1800 singularity exec ${HSTRAT_CONTAINER} \
-        python3 -m hstrat.dataframe.surface_validate_trie \
-        "\${phylo_path}" \
-        --max-num-checks 1000 \
-        --seed 1 \
-    && echo "validation passed for \${phylo_path}" \
-    || {
-        rc=\$?
-        if [ \${rc} -eq 124 ]; then
-            echo "validation timed out after 30 minutes (considered success)"
-        else
-            echo "validation FAILED for \${phylo_path} (exit code \${rc})"
-            exit 1
-        fi
-    }
-done
 
 echo "cleanup ----------------------------------------------------- \${SECONDS}"
 echo "skipping cleanup"
