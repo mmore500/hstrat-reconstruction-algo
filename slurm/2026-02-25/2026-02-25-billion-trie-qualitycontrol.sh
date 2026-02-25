@@ -512,7 +512,7 @@ echo "/local/\$(basename "\${genomes_inpath}")" \
         "\${warmup_outpath}" \
         --tail 100
 
-echo "do reconstruction and postprocessing"
+echo "do reconstruction"
 echo "HSTRAT_CONTAINER ${HSTRAT_CONTAINER}"
 stdbuf -e0 -i0 -o0 echo "/local/\$(basename "\${genomes_inpath}")" \
     | stdbuf -o0 singularity exec ${HSTRAT_CONTAINER} \
@@ -521,8 +521,8 @@ stdbuf -e0 -i0 -o0 echo "/local/\$(basename "\${genomes_inpath}")" \
         --no-drop-dstream-metadata \
         --collapse-unif-freq 7 \
         --exploded-slice-size 50_000_000 \
-        --check-trie-invariant-freq=1 \
-        --collapse-unif-freq=7 --check-trie-invariant-after-collapse-unif \
+        --check-trie-invariant-freq 7 \
+        --check-trie-invariant-after-collapse-unif \
         --shrink-dtypes --eager-write \
         --write-kwarg 'compression="lz4"' \
         2>&1 \
