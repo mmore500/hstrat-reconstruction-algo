@@ -329,7 +329,7 @@ handlefail() {
     awk 'NR>L-4 && NR<L+4 { printf "%-5d%3s%s\n",NR,(NR==L?">>>":""),\$0 }' L=\$1 \$0 || :
     ln -sfn "\${JOBSCRIPT}" "\${HOME}/joblatest/jobscript.failed" || :
     ln -sfn "\${JOBLOG}" "\${HOME}/joblatest/joblog.failed" || :
-    $(which scontrol || which echo) requeuehold "${SLURM_JOBID:-nojid}"
+    \$(which scontrol || which echo) requeuehold "\${SLURM_JOB_ID:-nojid}"
 }
 trap 'handlefail $LINENO' ERR
 
@@ -698,34 +698,34 @@ source_pqt="/tmp/\${SLURM_JOB_ID:-nojid}_source.pqt"
 tmp_pqt="/tmp/\${SLURM_JOB_ID:-nojid}_dsamp.pqt"
 
 echo "HSTRAT_CONTAINER ${HSTRAT_CONTAINER}"
-echo "\${source_pqt}" \\
-    | singularity exec ${HSTRAT_CONTAINER} \\
-        python3 -m hstrat._auxiliary_lib.__DSAMP_MODULE__ \\
-        "\${tmp_pqt}" \\
+echo "\${source_pqt}" \
+    | singularity exec ${HSTRAT_CONTAINER} \
+        python3 -m hstrat._auxiliary_lib.__DSAMP_MODULE__ \
+        "\${tmp_pqt}" \
         __DSAMP_ARGS__ --eager-write
 
 echo "collapse unifurcations -------------------------------------- \${SECONDS}"
 echo "HSTRAT_CONTAINER ${HSTRAT_CONTAINER}"
-echo "\${tmp_pqt}" \\
-    | singularity exec ${HSTRAT_CONTAINER} \\
-        python3 -m hstrat._auxiliary_lib._alifestd_collapse_unifurcations_polars \\
-        "\${tmp_pqt}" \\
+echo "\${tmp_pqt}" \
+    | singularity exec ${HSTRAT_CONTAINER} \
+        python3 -m hstrat._auxiliary_lib._alifestd_collapse_unifurcations_polars \
+        "\${tmp_pqt}" \
         --eager-write
 
 echo "assign contiguous IDs --------------------------------------- \${SECONDS}"
 echo "HSTRAT_CONTAINER ${HSTRAT_CONTAINER}"
-echo "\${tmp_pqt}" \\
-    | singularity exec ${HSTRAT_CONTAINER} \\
-        python3 -m hstrat._auxiliary_lib._alifestd_assign_contiguous_ids_polars \\
-        "\${tmp_pqt}" \\
+echo "\${tmp_pqt}" \
+    | singularity exec ${HSTRAT_CONTAINER} \
+        python3 -m hstrat._auxiliary_lib._alifestd_assign_contiguous_ids_polars \
+        "\${tmp_pqt}" \
         --eager-write
 
 echo "move and convert to newick ---------------------------------- \${SECONDS}"
 mv "\${tmp_pqt}" "\${phylo_dir}/__DSAMP_OUTNAME__.pqt"
 echo "HSTRAT_CONTAINER ${HSTRAT_CONTAINER}"
-singularity exec ${HSTRAT_CONTAINER} \\
-    python3 -m hstrat._auxiliary_lib._alifestd_as_newick_polars \\
-    -i "\${phylo_dir}/__DSAMP_OUTNAME__.pqt" \\
+singularity exec ${HSTRAT_CONTAINER} \
+    python3 -m hstrat._auxiliary_lib._alifestd_as_newick_polars \
+    -i "\${phylo_dir}/__DSAMP_OUTNAME__.pqt" \
     -o "\${phylo_dir}/__DSAMP_OUTNAME__.nwk"
 ls -l "\${phylo_dir}/__DSAMP_OUTNAME__.pqt"
 ls -l "\${phylo_dir}/__DSAMP_OUTNAME__.nwk"
