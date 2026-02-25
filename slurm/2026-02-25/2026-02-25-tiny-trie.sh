@@ -5,6 +5,11 @@ set -euo pipefail
 cd "$(dirname "$0")"
 
 ################################################################################
+# Container configuration
+################################################################################
+HSTRAT_CONTAINER="docker://ghcr.io/mmore500/hstrat:v1.21.3"
+
+################################################################################
 # CLI flag handling
 ################################################################################
 show_help() {
@@ -204,7 +209,7 @@ if ! [ -e "${HOME}/scratch" ]; then
 fi
 
 echo "verify singularity container ================================ ${SECONDS}"
-container="docker://ghcr.io/mmore500/hstrat:v1.21.2"
+container="${HSTRAT_CONTAINER}"
 echo "container ${container}"
 echo "Checking container is available and cached..."
 singularity exec ${container} \
@@ -460,7 +465,7 @@ echo "... done!"
 mv "\${MYLOCAL}/sampledgenomes.pqt" "\${genomes_inpath}"
 du -h "\${genomes_inpath}"
 
-container="docker://ghcr.io/mmore500/hstrat:v1.21.2"
+container="${HSTRAT_CONTAINER}"
 echo "container \${container}"
 
 export PYTHONUNBUFFERED=1
@@ -552,7 +557,7 @@ ${JOB_PREAMBLE}
 echo "BATCHDIR ${BATCHDIR}"
 ls -l "${BATCHDIR}"
 
-container="docker://ghcr.io/mmore500/hstrat:v1.21.3"
+container="${HSTRAT_CONTAINER}"
 echo "container \${container}"
 
 export PYTHONUNBUFFERED=1
