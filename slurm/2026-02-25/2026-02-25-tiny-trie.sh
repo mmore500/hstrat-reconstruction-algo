@@ -5,6 +5,11 @@ set -euo pipefail
 cd "$(dirname "$0")"
 
 ################################################################################
+# Container configuration
+################################################################################
+HSTRAT_CONTAINER="docker://ghcr.io/mmore500/hstrat:v1.21.3"
+
+################################################################################
 # CLI flag handling
 ################################################################################
 show_help() {
@@ -204,10 +209,9 @@ if ! [ -e "${HOME}/scratch" ]; then
 fi
 
 echo "verify singularity container ================================ ${SECONDS}"
-container="docker://ghcr.io/mmore500/hstrat:v1.21.2"
-echo "container ${container}"
+echo "HSTRAT_CONTAINER ${HSTRAT_CONTAINER}"
 echo "Checking container is available and cached..."
-singularity exec ${container} \
+singularity exec "${HSTRAT_CONTAINER}" \
     python3 -m hstrat --version
 echo "Container verified."
 
@@ -460,9 +464,6 @@ echo "... done!"
 mv "\${MYLOCAL}/sampledgenomes.pqt" "\${genomes_inpath}"
 du -h "\${genomes_inpath}"
 
-container="docker://ghcr.io/mmore500/hstrat:v1.21.2"
-echo "container \${container}"
-
 export PYTHONUNBUFFERED=1
 export SINGULARITYENV_PYTHONUNBUFFERED=1
 export POLARS_MAX_THREADS=30
@@ -470,21 +471,24 @@ export NUMBA_NUM_THREADS=30
 export TQDM_MININTERVAL=5
 
 echo "test container ---------------------------------------------- \${SECONDS}"
-singularity exec \${container} \
+echo "HSTRAT_CONTAINER ${HSTRAT_CONTAINER}"
+singularity exec ${HSTRAT_CONTAINER} \
     python3 -O -m hstrat.dataframe.surface_unpack_reconstruct --help
 
 echo "do work ----------------------------------------------------- \${SECONDS}"
 echo "warmup jit cache"
 warmup_outpath="/tmp/\$(uuidgen).pqt"
+echo "HSTRAT_CONTAINER ${HSTRAT_CONTAINER}"
 echo "/local/\$(basename "\${genomes_inpath}")" \
-    | singularity exec \${container} \
+    | singularity exec ${HSTRAT_CONTAINER} \
         python3 -O -m hstrat.dataframe.surface_unpack_reconstruct \
         "\${warmup_outpath}" \
         --tail 100
 
 echo "do reconstruction and postprocessing"
+echo "HSTRAT_CONTAINER ${HSTRAT_CONTAINER}"
 stdbuf -e0 -i0 -o0 echo "/local/\$(basename "\${genomes_inpath}")" \
-    | stdbuf -o0 singularity exec \${container} \
+    | stdbuf -o0 singularity exec ${HSTRAT_CONTAINER} \
         python3 -O -m hstrat.dataframe.surface_unpack_reconstruct \
         "/local/\$(basename "\${phylo_outpath}")" \
         --no-drop-dstream-metadata \
@@ -552,9 +556,6 @@ ${JOB_PREAMBLE}
 echo "BATCHDIR ${BATCHDIR}"
 ls -l "${BATCHDIR}"
 
-container="docker://ghcr.io/mmore500/hstrat:v1.21.3"
-echo "container \${container}"
-
 export PYTHONUNBUFFERED=1
 export SINGULARITYENV_PYTHONUNBUFFERED=1
 export POLARS_MAX_THREADS=30
@@ -607,24 +608,28 @@ for phylo_path in "${BATCHDIR}"/__*/**/a=phylo+ext=.pqt; do
     ############################################################################
     echo "--- downsample tips 50k ----------------------------------- \${SECONDS}"
     tmp_pqt="/tmp/\${SLURM_JOB_ID:-nojid}_dsamp.pqt"
+    echo "HSTRAT_CONTAINER ${HSTRAT_CONTAINER}"
     echo "\${source_pqt}" \
-        | singularity run \${container} \
+        | singularity run ${HSTRAT_CONTAINER} \
             python3 -m hstrat._auxiliary_lib._alifestd_downsample_tips_polars \
             "\${tmp_pqt}" \
             -n 50000 \
             --seed 1 --eager-write
+    echo "HSTRAT_CONTAINER ${HSTRAT_CONTAINER}"
     echo "\${tmp_pqt}" \
-        | singularity run \${container} \
+        | singularity run ${HSTRAT_CONTAINER} \
             python3 -m hstrat._auxiliary_lib._alifestd_collapse_unifurcations_polars \
             "\${tmp_pqt}" \
             --eager-write
+    echo "HSTRAT_CONTAINER ${HSTRAT_CONTAINER}"
     echo "\${tmp_pqt}" \
-        | singularity run \${container} \
+        | singularity run ${HSTRAT_CONTAINER} \
             python3 -m hstrat._auxiliary_lib._alifestd_assign_contiguous_ids_polars \
             "\${tmp_pqt}" \
             --eager-write
     mv "\${tmp_pqt}" "\${phylo_dir}/a=phylo+dsamp=tips50k+ext=.pqt"
-    singularity exec \${container} \
+    echo "HSTRAT_CONTAINER ${HSTRAT_CONTAINER}"
+    singularity exec ${HSTRAT_CONTAINER} \
         python3 -m hstrat._auxiliary_lib._alifestd_as_newick_polars \
         -i "\${phylo_dir}/a=phylo+dsamp=tips50k+ext=.pqt" \
         -o "\${phylo_dir}/a=phylo+dsamp=tips50k+ext=.nwk"
@@ -637,24 +642,28 @@ for phylo_path in "${BATCHDIR}"/__*/**/a=phylo+ext=.pqt; do
     ############################################################################
     echo "--- downsample tips canopy -------------------------------- \${SECONDS}"
     tmp_pqt="/tmp/\${SLURM_JOB_ID:-nojid}_canopy.pqt"
+    echo "HSTRAT_CONTAINER ${HSTRAT_CONTAINER}"
     echo "\${source_pqt}" \
-        | singularity run \${container} \
+        | singularity run ${HSTRAT_CONTAINER} \
             python3 -m hstrat._auxiliary_lib._alifestd_downsample_tips_canopy_polars \
             "\${tmp_pqt}" \
             --criterion "layer" \
             --seed 1 --eager-write
+    echo "HSTRAT_CONTAINER ${HSTRAT_CONTAINER}"
     echo "\${tmp_pqt}" \
-        | singularity run \${container} \
+        | singularity run ${HSTRAT_CONTAINER} \
             python3 -m hstrat._auxiliary_lib._alifestd_collapse_unifurcations_polars \
             "\${tmp_pqt}" \
             --eager-write
+    echo "HSTRAT_CONTAINER ${HSTRAT_CONTAINER}"
     echo "\${tmp_pqt}" \
-        | singularity run \${container} \
+        | singularity run ${HSTRAT_CONTAINER} \
             python3 -m hstrat._auxiliary_lib._alifestd_assign_contiguous_ids_polars \
             "\${tmp_pqt}" \
             --eager-write
     mv "\${tmp_pqt}" "\${phylo_dir}/a=phylo+dsamp=canopy+criterion=layer+ext=.pqt"
-    singularity exec \${container} \
+    echo "HSTRAT_CONTAINER ${HSTRAT_CONTAINER}"
+    singularity exec ${HSTRAT_CONTAINER} \
         python3 -m hstrat._auxiliary_lib._alifestd_as_newick_polars \
         -i "\${phylo_dir}/a=phylo+dsamp=canopy+criterion=layer+ext=.pqt" \
         -o "\${phylo_dir}/a=phylo+dsamp=canopy+criterion=layer+ext=.nwk"
@@ -668,26 +677,30 @@ for phylo_path in "${BATCHDIR}"/__*/**/a=phylo+ext=.pqt; do
     for seed in 1 2 3 4 5; do
         echo "--- downsample tips lineage seed=\${seed} ----------------- \${SECONDS}"
         tmp_pqt="/tmp/\${SLURM_JOB_ID:-nojid}_lineage_s\${seed}.pqt"
+        echo "HSTRAT_CONTAINER ${HSTRAT_CONTAINER}"
         echo "\${source_pqt}" \
-            | singularity run \${container} \
+            | singularity run ${HSTRAT_CONTAINER} \
                 python3 -m hstrat._auxiliary_lib._alifestd_downsample_tips_lineage_polars \
                 "\${tmp_pqt}" \
                 -n 10000 \
                 --criterion-delta "dstream_rank" \
                 --criterion-target "layer" \
                 --seed "\${seed}" --eager-write
+        echo "HSTRAT_CONTAINER ${HSTRAT_CONTAINER}"
         echo "\${tmp_pqt}" \
-            | singularity run \${container} \
+            | singularity run ${HSTRAT_CONTAINER} \
                 python3 -m hstrat._auxiliary_lib._alifestd_collapse_unifurcations_polars \
                 "\${tmp_pqt}" \
                 --eager-write
+        echo "HSTRAT_CONTAINER ${HSTRAT_CONTAINER}"
         echo "\${tmp_pqt}" \
-            | singularity run \${container} \
+            | singularity run ${HSTRAT_CONTAINER} \
                 python3 -m hstrat._auxiliary_lib._alifestd_assign_contiguous_ids_polars \
                 "\${tmp_pqt}" \
                 --eager-write
         mv "\${tmp_pqt}" "\${phylo_dir}/a=phylo+dsamp=lineage10k+cdelta=dstream_rank+ctarget=layer+seed=\${seed}+ext=.pqt"
-        singularity exec \${container} \
+        echo "HSTRAT_CONTAINER ${HSTRAT_CONTAINER}"
+        singularity exec ${HSTRAT_CONTAINER} \
             python3 -m hstrat._auxiliary_lib._alifestd_as_newick_polars \
             -i "\${phylo_dir}/a=phylo+dsamp=lineage10k+cdelta=dstream_rank+ctarget=layer+seed=\${seed}+ext=.pqt" \
             -o "\${phylo_dir}/a=phylo+dsamp=lineage10k+cdelta=dstream_rank+ctarget=layer+seed=\${seed}+ext=.nwk"
@@ -703,8 +716,9 @@ for phylo_path in "${BATCHDIR}"/__*/**/a=phylo+ext=.pqt; do
         for ntps in 1 4; do
             echo "--- downsample tips lineage stratified seed=\${seed} ntps=\${ntps} --- \${SECONDS}"
             tmp_pqt="/tmp/\${SLURM_JOB_ID:-nojid}_linstrat_s\${seed}_ntps\${ntps}.pqt"
+            echo "HSTRAT_CONTAINER ${HSTRAT_CONTAINER}"
             echo "\${source_pqt}" \
-                | singularity run \${container} \
+                | singularity run ${HSTRAT_CONTAINER} \
                     python3 -m hstrat._auxiliary_lib._alifestd_downsample_tips_lineage_stratified_polars \
                     "\${tmp_pqt}" \
                     --criterion-delta "dstream_rank" \
@@ -712,18 +726,21 @@ for phylo_path in "${BATCHDIR}"/__*/**/a=phylo+ext=.pqt; do
                     --criterion-stratify "layer" \
                     --n-tips-per-stratum "\${ntps}" \
                     --seed "\${seed}" --eager-write
+            echo "HSTRAT_CONTAINER ${HSTRAT_CONTAINER}"
             echo "\${tmp_pqt}" \
-                | singularity run \${container} \
+                | singularity run ${HSTRAT_CONTAINER} \
                     python3 -m hstrat._auxiliary_lib._alifestd_collapse_unifurcations_polars \
                     "\${tmp_pqt}" \
                     --eager-write
+            echo "HSTRAT_CONTAINER ${HSTRAT_CONTAINER}"
             echo "\${tmp_pqt}" \
-                | singularity run \${container} \
+                | singularity run ${HSTRAT_CONTAINER} \
                     python3 -m hstrat._auxiliary_lib._alifestd_assign_contiguous_ids_polars \
                     "\${tmp_pqt}" \
                     --eager-write
             mv "\${tmp_pqt}" "\${phylo_dir}/a=phylo+dsamp=lineage-stratified+cdelta=dstream_rank+ctarget=layer+cstratify=layer+ntps=\${ntps}+seed=\${seed}+ext=.pqt"
-            singularity exec \${container} \
+            echo "HSTRAT_CONTAINER ${HSTRAT_CONTAINER}"
+            singularity exec ${HSTRAT_CONTAINER} \
                 python3 -m hstrat._auxiliary_lib._alifestd_as_newick_polars \
                 -i "\${phylo_dir}/a=phylo+dsamp=lineage-stratified+cdelta=dstream_rank+ctarget=layer+cstratify=layer+ntps=\${ntps}+seed=\${seed}+ext=.pqt" \
                 -o "\${phylo_dir}/a=phylo+dsamp=lineage-stratified+cdelta=dstream_rank+ctarget=layer+cstratify=layer+ntps=\${ntps}+seed=\${seed}+ext=.nwk"
@@ -739,7 +756,8 @@ done
 echo "validate trie ----------------------------------------------- \${SECONDS}"
 for phylo_path in "${BATCHDIR}"/__*/**/a=phylo+ext=.pqt; do
     echo "validating \${phylo_path}"
-    timeout 1800 singularity exec \${container} \
+    echo "HSTRAT_CONTAINER ${HSTRAT_CONTAINER}"
+    timeout 1800 singularity exec ${HSTRAT_CONTAINER} \
         python3 -m hstrat.dataframe.surface_validate_trie \
         "\${phylo_path}" \
         --max-num-checks 1000 \
