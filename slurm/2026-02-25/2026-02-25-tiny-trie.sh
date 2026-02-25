@@ -210,6 +210,7 @@ fi
 
 echo "verify singularity container ================================ ${SECONDS}"
 container="${HSTRAT_CONTAINER}"
+echo "HSTRAT_CONTAINER ${HSTRAT_CONTAINER}"
 echo "container ${container}"
 echo "Checking container is available and cached..."
 singularity exec ${container} \
@@ -466,6 +467,7 @@ mv "\${MYLOCAL}/sampledgenomes.pqt" "\${genomes_inpath}"
 du -h "\${genomes_inpath}"
 
 container="${HSTRAT_CONTAINER}"
+echo "HSTRAT_CONTAINER ${HSTRAT_CONTAINER}"
 echo "container \${container}"
 
 export PYTHONUNBUFFERED=1
@@ -558,6 +560,7 @@ echo "BATCHDIR ${BATCHDIR}"
 ls -l "${BATCHDIR}"
 
 container="${HSTRAT_CONTAINER}"
+echo "HSTRAT_CONTAINER ${HSTRAT_CONTAINER}"
 echo "container \${container}"
 
 export PYTHONUNBUFFERED=1
