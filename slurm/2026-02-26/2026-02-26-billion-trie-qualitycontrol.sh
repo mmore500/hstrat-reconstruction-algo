@@ -570,7 +570,7 @@ WORK_JOBID=""
 if [ "${ACTION}" = "submit" ]; then
     if command -v sbatch &>/dev/null; then
         echo "WORK dependencies: none"
-        WORK_JOBID=$(sbatch --parsable --job-name="${JOBNAME}-work" "${SBATCH_FILE}")
+        WORK_JOBID=$(sbatch --parsable --job-name="${JOBNAME}" "${SBATCH_FILE}")
         echo "Submitted WORK job: ${WORK_JOBID}"
     else
         bash "${SBATCH_FILE}"
@@ -671,7 +671,7 @@ if [ "${ACTION}" = "submit" ] || [ "${ACTION}" = "submit-validation" ]; then
             DEP_ON_WORK_VALIDATE="--dependency=afterok:${WORK_JOBID}"
         fi
         echo "VALIDATION dependencies: ${DEP_ON_WORK_VALIDATE:-none}"
-        VALIDATION_JOBID=$(sbatch --parsable --job-name="${JOBNAME}-validate" ${DEP_ON_WORK_VALIDATE} "${SBATCH_FILE}")
+        VALIDATION_JOBID=$(sbatch --parsable --job-name="${JOBNAME}" ${DEP_ON_WORK_VALIDATE} "${SBATCH_FILE}")
         echo "Submitted VALIDATION job: ${VALIDATION_JOBID}"
     else
         bash "${SBATCH_FILE}"
@@ -824,7 +824,7 @@ if [ "${ACTION}" = "submit" ] || [ "${ACTION}" = "submit-downsample" ]; then
 
         if command -v sbatch &>/dev/null; then
             echo "dsamp-${label} dependencies: ${DEP_ON_WORK:-none}"
-            JOBID=$(sbatch --parsable --job-name="${JOBNAME}-dsamp-${label}" ${DEP_ON_WORK} "${sbatch_file}")
+            JOBID=$(sbatch --parsable --job-name="${JOBNAME}" ${DEP_ON_WORK} "${sbatch_file}")
             echo "Submitted dsamp-${label} -> ${JOBID}"
             DSAMP_JOBIDS+=("${JOBID}")
         else
