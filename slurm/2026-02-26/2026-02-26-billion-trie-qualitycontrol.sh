@@ -569,6 +569,7 @@ echo "submit work job ============================================= ${SECONDS}"
 WORK_JOBID=""
 if [ "${ACTION}" = "submit" ]; then
     if command -v sbatch &>/dev/null; then
+        echo "WORK dependencies: none"
         WORK_JOBID=$(sbatch --parsable --job-name="${JOBNAME}-work" "${SBATCH_FILE}")
         echo "Submitted WORK job: ${WORK_JOBID}"
     else
@@ -669,6 +670,7 @@ if [ "${ACTION}" = "submit" ] || [ "${ACTION}" = "submit-validation" ]; then
         if [ -n "${WORK_JOBID}" ]; then
             DEP_ON_WORK_VALIDATE="--dependency=afterok:${WORK_JOBID}"
         fi
+        echo "VALIDATION dependencies: ${DEP_ON_WORK_VALIDATE:-none}"
         VALIDATION_JOBID=$(sbatch --parsable --job-name="${JOBNAME}-validate" ${DEP_ON_WORK_VALIDATE} "${SBATCH_FILE}")
         echo "Submitted VALIDATION job: ${VALIDATION_JOBID}"
     else
@@ -821,6 +823,7 @@ if [ "${ACTION}" = "submit" ] || [ "${ACTION}" = "submit-downsample" ]; then
         echo "SBATCH_FILE (${label}) ${sbatch_file}"
 
         if command -v sbatch &>/dev/null; then
+            echo "dsamp-${label} dependencies: ${DEP_ON_WORK:-none}"
             JOBID=$(sbatch --parsable --job-name="${JOBNAME}-dsamp-${label}" ${DEP_ON_WORK} "${sbatch_file}")
             echo "Submitted dsamp-${label} -> ${JOBID}"
             DSAMP_JOBIDS+=("${JOBID}")
@@ -914,12 +917,14 @@ if [ "${ACTION}" = "submit" ] || [ "${ACTION}" = "submit-downsample" ]; then
         else
             DEP_ON_DSAMP=""
         fi
+        echo "CLEANUP dependencies: ${DEP_ON_DSAMP:-none}"
         sbatch --job-name="${JOBNAME}-cleanup" ${DEP_ON_DSAMP} "${SBATCH_FILE}"
     else
         bash "${SBATCH_FILE}"
     fi
 elif [ "${ACTION}" = "submit-cleanup" ]; then
     if command -v sbatch &>/dev/null; then
+        echo "CLEANUP dependencies: none"
         sbatch --job-name="${JOBNAME}-cleanup" "${SBATCH_FILE}"
     else
         bash "${SBATCH_FILE}"
