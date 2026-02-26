@@ -613,7 +613,7 @@ cat > "${SBATCH_FILE}" << EOF
 #!/bin/bash -login
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=4
-#SBATCH --mem=250G
+#SBATCH --mem=500G
 #SBATCH --time=4:00:00
 #SBATCH --output="/mnt/home/%u/joblog/%A_%a"
 #SBATCH --mail-user=mawni4ah2o@pomail.net
@@ -641,6 +641,22 @@ for phylo_path in "${BATCHDIR}"/._*/**/a=phylo+ext=.pqt; do
         rclone copyto "\${phylo_path}" "\${tmp_phylo}"
     ls -l "\${tmp_phylo}"
     du -h "\${tmp_phylo}"
+
+    echo "collapse unifurcations (pre-validation) --------------------- \${SECONDS}"
+    echo "HSTRAT_CONTAINER ${HSTRAT_CONTAINER}"
+    echo "\${tmp_phylo}" \
+        | singularity exec ${HSTRAT_CONTAINER} \
+            python3 -m hstrat._auxiliary_lib._alifestd_collapse_unifurcations_polars \
+            "\${tmp_phylo}" \
+            --eager-write
+
+    echo "assign contiguous IDs (pre-validation) ---------------------- \${SECONDS}"
+    echo "HSTRAT_CONTAINER ${HSTRAT_CONTAINER}"
+    echo "\${tmp_phylo}" \
+        | singularity exec ${HSTRAT_CONTAINER} \
+            python3 -m hstrat._auxiliary_lib._alifestd_assign_contiguous_ids_polars \
+            "\${tmp_phylo}" \
+            --eager-write
 
     echo "validating \${phylo_path} (via \${tmp_phylo}) with seed \${SEED}"
     echo "=== validating \${phylo_path} with seed \${SEED} ===" >> "\${VALIDATION_LOG}"
@@ -712,7 +728,7 @@ DSAMP_TEMPLATE=$(cat << DSAMP_TMPLEOF
 #!/bin/bash -login
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=4
-#SBATCH --mem=250G
+#SBATCH --mem=500G
 #SBATCH --time=4:00:00
 #SBATCH --output="/mnt/home/%u/joblog/%A_%a"
 #SBATCH --mail-user=mawni4ah2o@pomail.net
