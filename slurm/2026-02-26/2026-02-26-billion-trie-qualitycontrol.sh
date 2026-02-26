@@ -736,6 +736,15 @@ singularity exec docker://rclone/rclone:1.73 \
 source_pqt="/tmp/\${SLURM_JOB_ID:-nojid}_source.pqt"
 tmp_pqt="/tmp/\${SLURM_JOB_ID:-nojid}_dsamp.pqt"
 
+echo "collapse unifurcations (pre-downsample) --------------------- \${SECONDS}"
+echo "HSTRAT_CONTAINER ${HSTRAT_CONTAINER}"
+echo "\${source_pqt}" \
+    | singularity exec ${HSTRAT_CONTAINER} \
+        python3 -m hstrat._auxiliary_lib._alifestd_collapse_unifurcations_polars \
+        "\${source_pqt}" \
+        --eager-write
+
+echo "downsample -------------------------------------------------- \${SECONDS}"
 echo "HSTRAT_CONTAINER ${HSTRAT_CONTAINER}"
 echo "\${source_pqt}" \
     | singularity exec ${HSTRAT_CONTAINER} \
@@ -743,7 +752,7 @@ echo "\${source_pqt}" \
         "\${tmp_pqt}" \
         __DSAMP_ARGS__ --eager-write
 
-echo "collapse unifurcations -------------------------------------- \${SECONDS}"
+echo "collapse unifurcations (post-downsample) -------------------- \${SECONDS}"
 echo "HSTRAT_CONTAINER ${HSTRAT_CONTAINER}"
 echo "\${tmp_pqt}" \
     | singularity exec ${HSTRAT_CONTAINER} \
