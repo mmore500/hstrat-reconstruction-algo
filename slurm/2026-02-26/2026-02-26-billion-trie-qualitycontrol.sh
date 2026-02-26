@@ -744,6 +744,14 @@ echo "\${source_pqt}" \
         "\${source_pqt}" \
         --eager-write
 
+echo "assign contiguous IDs (pre-downsample) ---------------------- \${SECONDS}"
+echo "HSTRAT_CONTAINER ${HSTRAT_CONTAINER}"
+echo "\${source_pqt}" \
+    | singularity exec ${HSTRAT_CONTAINER} \
+        python3 -m hstrat._auxiliary_lib._alifestd_assign_contiguous_ids_polars \
+        "\${source_pqt}" \
+        --eager-write
+
 echo "downsample -------------------------------------------------- \${SECONDS}"
 echo "HSTRAT_CONTAINER ${HSTRAT_CONTAINER}"
 echo "\${source_pqt}" \
