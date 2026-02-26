@@ -117,9 +117,19 @@ if [ "${ACTION}" = "check-result" ]; then
     fi
     RESULT_DIR="$(realpath "${LATEST_LINK}")"
     echo "Result directory: ${RESULT_DIR}"
-    du -h -a "${RESULT_DIR}" | while IFS=$'\t' read -r size path; do
+    du -h -a --exclude='.*' "${RESULT_DIR}" | while IFS=$'\t' read -r size path; do
         echo -e "${size}\t$(realpath "${path}")"
     done
+    echo ""
+    echo "--- Summary ---"
+    num_files=$(find "${RESULT_DIR}" -not -path '*/.*' -type f | wc -l)
+    total_size=$(du -sh --exclude='.*' "${RESULT_DIR}" | cut -f1)
+    oldest=$(find "${RESULT_DIR}" -not -path '*/.*' -type f -printf '%T@ %T+\n' | sort -n | head -1 | cut -d' ' -f2)
+    newest=$(find "${RESULT_DIR}" -not -path '*/.*' -type f -printf '%T@ %T+\n' | sort -rn | head -1 | cut -d' ' -f2)
+    echo "Files:           ${num_files}"
+    echo "Total size:      ${total_size}"
+    echo "Oldest modified: ${oldest}"
+    echo "Newest modified: ${newest}"
     exit 0
 fi
 
@@ -141,9 +151,19 @@ if [[ "${ACTION}" == archive-latest* ]]; then
             echo "No archive found at ${ARCHIVE_DIR}"
             exit 1
         fi
-        du -h -a "${ARCHIVE_DIR}" | while IFS=$'\t' read -r size path; do
+        du -h -a --exclude='.*' "${ARCHIVE_DIR}" | while IFS=$'\t' read -r size path; do
             echo -e "${size}\t$(realpath "${path}")"
         done
+        echo ""
+        echo "--- Summary ---"
+        num_files=$(find "${ARCHIVE_DIR}" -not -path '*/.*' -type f | wc -l)
+        total_size=$(du -sh --exclude='.*' "${ARCHIVE_DIR}" | cut -f1)
+        oldest=$(find "${ARCHIVE_DIR}" -not -path '*/.*' -type f -printf '%T@ %T+\n' | sort -n | head -1 | cut -d' ' -f2)
+        newest=$(find "${ARCHIVE_DIR}" -not -path '*/.*' -type f -printf '%T@ %T+\n' | sort -rn | head -1 | cut -d' ' -f2)
+        echo "Files:           ${num_files}"
+        echo "Total size:      ${total_size}"
+        echo "Oldest modified: ${oldest}"
+        echo "Newest modified: ${newest}"
         exit 0
     fi
 
