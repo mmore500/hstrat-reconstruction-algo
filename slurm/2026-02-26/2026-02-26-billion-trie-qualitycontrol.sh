@@ -602,6 +602,7 @@ if [ "${ACTION}" = "submit" ]; then
     if command -v sbatch &>/dev/null; then
         echo "WORK dependencies: none"
         WORK_JOBID=$(sbatch --parsable --job-name="${JOBNAME}" "${SBATCH_FILE}")
+        WORK_JOBID="${WORK_JOBID%%_*}"  # strip array suffix
         echo "Submitted WORK job: ${WORK_JOBID}"
     else
         bash "${SBATCH_FILE}"
@@ -694,6 +695,7 @@ if [ "${ACTION}" = "submit" ] || [ "${ACTION}" = "submit-collapse" ]; then
         fi
         echo "COLLAPSE dependencies: ${DEP_ON_WORK_COLLAPSE:-none}"
         COLLAPSE_JOBID=$(sbatch --parsable --job-name="${JOBNAME}" ${DEP_ON_WORK_COLLAPSE} "${SBATCH_FILE}")
+        COLLAPSE_JOBID="${COLLAPSE_JOBID%%_*}"  # strip array suffix
         echo "Submitted COLLAPSE job: ${COLLAPSE_JOBID}"
     else
         bash "${SBATCH_FILE}"
@@ -796,6 +798,7 @@ if [ "${ACTION}" = "submit" ] || [ "${ACTION}" = "submit-collapse" ] || [ "${ACT
         fi
         echo "VALIDATION dependencies: ${DEP_ON_COLLAPSE_VALIDATE:-none}"
         VALIDATION_JOBID=$(sbatch --parsable --job-name="${JOBNAME}" ${DEP_ON_COLLAPSE_VALIDATE} "${SBATCH_FILE}")
+        VALIDATION_JOBID="${VALIDATION_JOBID%%_*}"  # strip array suffix
         echo "Submitted VALIDATION job: ${VALIDATION_JOBID}"
     else
         bash "${SBATCH_FILE}"
@@ -951,6 +954,7 @@ if [ "${ACTION}" = "submit" ] || [ "${ACTION}" = "submit-collapse" ] || [ "${ACT
         if command -v sbatch &>/dev/null; then
             echo "dsamp-${label} dependencies: ${DEP_ON_COLLAPSE:-none}"
             JOBID=$(sbatch --parsable --job-name="${JOBNAME}" ${DEP_ON_COLLAPSE} "${sbatch_file}")
+            JOBID="${JOBID%%_*}"  # strip array suffix
             echo "Submitted dsamp-${label} -> ${JOBID}"
             DSAMP_JOBIDS+=("${JOBID}")
         else
