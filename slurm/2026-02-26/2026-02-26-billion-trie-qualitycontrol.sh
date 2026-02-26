@@ -362,7 +362,7 @@ echo "setup JOBDIR ------------------------------------------------ \${SECONDS}"
 if [ -n "\${JOBSUBDIR:-}" ]; then
     JOBDIR="${BATCHDIR}/\${JOBSUBDIR}/\${SLURM_ARRAY_TASK_ID:-\${SLURM_JOB_ID:-\${RANDOM}}}"
 else
-    JOBDIR="${BATCHDIR}/.\${SLURM_ARRAY_TASK_ID:-\${SLURM_JOB_ID:-\${RANDOM}}}"
+    JOBDIR="${BATCHDIR}/._\${SLURM_ARRAY_TASK_ID:-\${SLURM_JOB_ID:-\${RANDOM}}}"
 fi
 echo "JOBDIR \${JOBDIR}"
 if [ "\${CLEAR_JOBDIR:-1}" = "1" ]; then
@@ -608,7 +608,7 @@ validation_failed=0
 
 echo "validate trie ----------------------------------------------- \${SECONDS}"
 phylo_idx=0
-for phylo_path in "${BATCHDIR}"/.[0-9]*/**/a=phylo+ext=.pqt; do
+for phylo_path in "${BATCHDIR}"/._*/**/a=phylo+ext=.pqt; do
     echo "rclone \${phylo_path} to /tmp"
     tmp_phylo="/tmp/\${SLURM_JOB_ID:-nojid}_validate_\${phylo_idx}.pqt"
     phylo_idx=\$((phylo_idx + 1))
@@ -701,7 +701,7 @@ ${JOB_PREAMBLE}
 
 echo "downsample: __DSAMP_LABEL__ -------------------------------- \${SECONDS}"
 
-phylo_path="${BATCHDIR}/.\${SLURM_ARRAY_TASK_ID:-0}/a=phylo+ext=.pqt"
+phylo_path="${BATCHDIR}/._\${SLURM_ARRAY_TASK_ID:-0}/a=phylo+ext=.pqt"
 echo "phylo_path \${phylo_path}"
 
 echo "rclone \${phylo_path} to /tmp"
@@ -863,7 +863,7 @@ export TQDM_MININTERVAL=5
 
 echo "finalize ---------------------------------------------------- \${SECONDS}"
 echo "   - join result"
-ls -1 "${BATCHDIR}"/.[0-9]*/**/a=result+* \
+ls -1 "${BATCHDIR}"/._*/**/a=result+* \
     | tee /dev/stderr \
     | python3.8 -m joinem --progress \
         "${BATCHDIR_JOBRESULT}/a=result+date=${JOBDATE}+job=${JOBNAME}+ext=.csv"
