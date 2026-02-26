@@ -438,6 +438,10 @@ cat > "${SBATCH_FILE}" << EOF
 
 ${JOB_PREAMBLE}
 
+echo "symlink job log to HOME ------------------------------------- \${SECONDS}"
+ln -sf "\${HOME}/joblog/\${SLURM_ARRAY_JOB_ID:-\${SLURM_JOB_ID:-nojid}}_\${SLURM_ARRAY_TASK_ID:-0}" "\${HOME}/job\${SLURM_ARRAY_TASK_ID:-0}"
+echo "ln -sf \${HOME}/joblog/\${SLURM_ARRAY_JOB_ID:-\${SLURM_JOB_ID:-nojid}}_\${SLURM_ARRAY_TASK_ID:-0} -> \${HOME}/job\${SLURM_ARRAY_TASK_ID:-0}"
+
 echo "lscpu ------------------------------------------------------- \${SECONDS}"
 lscpu || :
 
