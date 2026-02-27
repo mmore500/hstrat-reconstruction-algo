@@ -643,8 +643,11 @@ echo "collapsed_path \${collapsed_path}"
 
 echo "rclone \${phylo_path} to /tmp"
 tmp_pqt="/tmp/\${SLURM_JOB_ID:-nojid}_collapse.pqt"
-singularity exec docker://rclone/rclone:1.73 \
-    rclone copyto "\${phylo_path}" "\${tmp_pqt}"
+if ! singularity exec docker://rclone/rclone:1.73 \
+    rclone copyto "\${phylo_path}" "\${tmp_pqt}"; then
+    echo "WARNING: rclone copy to /tmp failed, falling back to symlink"
+    ln -sf "\$(realpath "\${phylo_path}")" "\${tmp_pqt}"
+fi
 ls -l "\${tmp_pqt}"
 du -h "\${tmp_pqt}"
 
@@ -739,8 +742,11 @@ for phylo_path in "${BATCHDIR}"/._*/**/a=phylo-collapsed+ext=.pqt; do
     echo "rclone \${phylo_path} to /tmp"
     tmp_phylo="/tmp/\${SLURM_JOB_ID:-nojid}_validate_\${phylo_idx}.pqt"
     phylo_idx=\$((phylo_idx + 1))
-    singularity exec docker://rclone/rclone:1.73 \
-        rclone copyto "\${phylo_path}" "\${tmp_phylo}"
+    if ! singularity exec docker://rclone/rclone:1.73 \
+        rclone copyto "\${phylo_path}" "\${tmp_phylo}"; then
+        echo "WARNING: rclone copy to /tmp failed, falling back to symlink"
+        ln -sf "\$(realpath "\${phylo_path}")" "\${tmp_phylo}"
+    fi
     ls -l "\${tmp_phylo}"
     du -h "\${tmp_phylo}"
 
@@ -835,9 +841,12 @@ phylo_path="${BATCHDIR}/._\${SLURM_ARRAY_TASK_ID:-0}/a=phylo-collapsed+ext=.pqt"
 echo "phylo_path \${phylo_path}"
 
 echo "rclone \${phylo_path} to /tmp"
-singularity exec docker://rclone/rclone:1.73 \
-    rclone copyto "\${phylo_path}" "/tmp/\${SLURM_JOB_ID:-nojid}_source.pqt"
 source_pqt="/tmp/\${SLURM_JOB_ID:-nojid}_source.pqt"
+if ! singularity exec docker://rclone/rclone:1.73 \
+    rclone copyto "\${phylo_path}" "\${source_pqt}"; then
+    echo "WARNING: rclone copy to /tmp failed, falling back to symlink"
+    ln -sf "\$(realpath "\${phylo_path}")" "\${source_pqt}"
+fi
 tmp_pqt="/tmp/\${SLURM_JOB_ID:-nojid}_dsamp.pqt"
 
 echo "downsample -------------------------------------------------- \${SECONDS}"
