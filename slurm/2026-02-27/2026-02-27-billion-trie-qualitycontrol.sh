@@ -7,7 +7,7 @@ cd "$(dirname "$0")"
 ################################################################################
 # Container configuration
 ################################################################################
-HSTRAT_CONTAINER="docker://ghcr.io/mmore500/hstrat:v1.21.5"
+HSTRAT_CONTAINER="docker://ghcr.io/mmore500/hstrat:v1.21.6"
 
 ################################################################################
 # CLI flag handling
@@ -843,7 +843,8 @@ tmp_pqt="/tmp/\${SLURM_JOB_ID:-nojid}_dsamp.pqt"
 echo "downsample -------------------------------------------------- \${SECONDS}"
 echo "HSTRAT_CONTAINER ${HSTRAT_CONTAINER}"
 echo "\${source_pqt}" \
-    | singularity exec ${HSTRAT_CONTAINER} \
+    | singularity exec --env POLARS_ENGINE_AFFINITY="streaming" \
+        ${HSTRAT_CONTAINER} \
         python3 -m hstrat._auxiliary_lib.__DSAMP_MODULE__ \
         "\${tmp_pqt}" \
         __DSAMP_ARGS__ --eager-write
