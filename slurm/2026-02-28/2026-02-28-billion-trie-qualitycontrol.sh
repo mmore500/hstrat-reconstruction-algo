@@ -534,9 +534,10 @@ mv "\${MYLOCAL}/tailgenomes.pqt" "\${genomes_inpath}"
 
 export PYTHONUNBUFFERED=1
 export SINGULARITYENV_PYTHONUNBUFFERED=1
-export POLARS_MAX_THREADS=30
-export NUMBA_NUM_THREADS=30
+export POLARS_MAX_THREADS=98
+export NUMBA_NUM_THREADS=98
 export TQDM_MININTERVAL=5
+export HSTRAT_LOG_MEMORY_USAGE=1
 
 echo "test container ---------------------------------------------- \${SECONDS}"
 echo "HSTRAT_CONTAINER ${HSTRAT_CONTAINER}"
@@ -653,6 +654,8 @@ fi
 ls -l "\${tmp_pqt}"
 du -h "\${tmp_pqt}"
 
+export HSTRAT_LOG_MEMORY_USAGE=1
+
 echo "collapse unifurcations -------------------------------------- \${SECONDS}"
 echo "HSTRAT_CONTAINER ${HSTRAT_CONTAINER}"
 echo "\${tmp_pqt}" \
@@ -755,6 +758,7 @@ for phylo_path in "${BATCHDIR}"/._*/**/a=phylo-collapsed+ext=.pqt; do
     echo "validating \${phylo_path} (via \${tmp_phylo}) with seed \${SEED}"
     echo "=== validating \${phylo_path} with seed \${SEED} ===" >> "\${VALIDATION_LOG}"
     echo "HSTRAT_CONTAINER ${HSTRAT_CONTAINER}"
+    export HSTRAT_LOG_MEMORY_USAGE=1
     rc=0
     timeout 600 singularity exec ${HSTRAT_CONTAINER} \
         python3 -m hstrat.dataframe.surface_validate_trie \
@@ -852,6 +856,8 @@ fi
 tmp_pqt="/tmp/\${SLURM_JOB_ID:-nojid}_dsamp.pqt"
 
 echo "downsample -------------------------------------------------- \${SECONDS}"
+export HSTRAT_LOG_MEMORY_USAGE=1
+
 echo "HSTRAT_CONTAINER ${HSTRAT_CONTAINER}"
 echo "\${source_pqt}" \
     | singularity exec --env POLARS_ENGINE_AFFINITY="streaming" \
@@ -913,7 +919,7 @@ if [ "${ACTION}" = "submit" ] || [ "${ACTION}" = "submit-collapse" ] || [ "${ACT
     dsamp_labels+=("tips50k")
     dsamp_outnames+=("a=phylo+dsamp=tips50k+ext=")
     dsamp_modules+=("_alifestd_downsample_tips_polars")
-    dsamp_args+=("-n 50000 --seed 1")
+    dsamp_args+=("-n 50_000 --seed 1")
 
     # 2) canopy criterion=layer
     dsamp_labels+=("canopy-layer")
@@ -926,7 +932,7 @@ if [ "${ACTION}" = "submit" ] || [ "${ACTION}" = "submit-collapse" ] || [ "${ACT
         dsamp_labels+=("lineage10k-s${seed}")
         dsamp_outnames+=("a=phylo+cdelta=dstream_rank+ctarget=layer+dsamp=lineage10k+seed=${seed}+ext=")
         dsamp_modules+=("_alifestd_downsample_tips_lineage_polars")
-        dsamp_args+=("-n 10000 --criterion-delta \"dstream_rank\" --criterion-target \"layer\" --seed ${seed}")
+        dsamp_args+=("-n 10_000 --criterion-delta \"dstream_rank\" --criterion-target \"layer\" --seed ${seed}")
     done
 
     # 4) lineage stratified, seeds 1-5, n_tips_per_stratum 1 and 4
@@ -1005,6 +1011,7 @@ export SINGULARITYENV_PYTHONUNBUFFERED=1
 export POLARS_MAX_THREADS=2
 export NUMBA_NUM_THREADS=2
 export TQDM_MININTERVAL=5
+export HSTRAT_LOG_MEMORY_USAGE=1
 
 echo "finalize ---------------------------------------------------- \${SECONDS}"
 echo "   - join result"
