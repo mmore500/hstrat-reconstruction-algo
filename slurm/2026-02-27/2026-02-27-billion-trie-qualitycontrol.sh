@@ -8,6 +8,7 @@ cd "$(dirname "$0")"
 # Container configuration
 ################################################################################
 HSTRAT_CONTAINER="docker://ghcr.io/mmore500/hstrat:v1.21.8"
+export SINGULARITYENV_HSTRAT_LOG_MEMORY_USAGE=1
 
 ################################################################################
 # CLI flag handling
@@ -418,6 +419,8 @@ echo "python3.8 --version \$(python3.8 --version)"
 echo "setup dependencies- ----------------------------------------- \${SECONDS}"
 source "${BATCHDIR_ENV}/bin/activate"
 python3.8 -m pip freeze
+
+export SINGULARITYENV_HSTRAT_LOG_MEMORY_USAGE=1
 
 EOF
 )
