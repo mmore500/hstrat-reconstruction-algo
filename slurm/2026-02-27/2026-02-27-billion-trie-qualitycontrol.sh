@@ -252,7 +252,7 @@ fi
 echo "verify singularity container ================================ ${SECONDS}"
 echo "HSTRAT_CONTAINER ${HSTRAT_CONTAINER}"
 echo "Checking container is available and cached..."
-singularity exec "${HSTRAT_CONTAINER}" \
+singularity exec --env HSTRAT_LOG_MEMORY_USAGE=1 "${HSTRAT_CONTAINER}" \
     python3 -m hstrat --version
 echo "Container verified."
 
@@ -540,7 +540,7 @@ export TQDM_MININTERVAL=5
 
 echo "test container ---------------------------------------------- \${SECONDS}"
 echo "HSTRAT_CONTAINER ${HSTRAT_CONTAINER}"
-singularity exec ${HSTRAT_CONTAINER} \
+singularity exec --env HSTRAT_LOG_MEMORY_USAGE=1 ${HSTRAT_CONTAINER} \
     python3 -O -m hstrat.dataframe.surface_unpack_reconstruct --help
 
 echo "do work ----------------------------------------------------- \${SECONDS}"
@@ -548,7 +548,7 @@ echo "warmup jit cache"
 warmup_outpath="/tmp/\$(uuidgen).pqt"
 echo "HSTRAT_CONTAINER ${HSTRAT_CONTAINER}"
 echo "/local/\$(basename "\${genomes_inpath}")" \
-    | singularity exec ${HSTRAT_CONTAINER} \
+    | singularity exec --env HSTRAT_LOG_MEMORY_USAGE=1 ${HSTRAT_CONTAINER} \
         python3 -O -m hstrat.dataframe.surface_unpack_reconstruct \
         "\${warmup_outpath}" \
         --tail 100
@@ -556,7 +556,7 @@ echo "/local/\$(basename "\${genomes_inpath}")" \
 echo "do reconstruction"
 echo "HSTRAT_CONTAINER ${HSTRAT_CONTAINER}"
 stdbuf -e0 -i0 -o0 echo "/local/\$(basename "\${genomes_inpath}")" \
-    | stdbuf -o0 singularity exec ${HSTRAT_CONTAINER} \
+    | stdbuf -o0 singularity exec --env HSTRAT_LOG_MEMORY_USAGE=1 ${HSTRAT_CONTAINER} \
         python3 -O -m hstrat.dataframe.surface_unpack_reconstruct \
         "/local/\$(basename "\${phylo_outpath}")" \
         --no-drop-dstream-metadata \
@@ -654,7 +654,7 @@ du -h "\${tmp_pqt}"
 echo "collapse unifurcations -------------------------------------- \${SECONDS}"
 echo "HSTRAT_CONTAINER ${HSTRAT_CONTAINER}"
 echo "\${tmp_pqt}" \
-    | singularity exec ${HSTRAT_CONTAINER} \
+    | singularity exec --env HSTRAT_LOG_MEMORY_USAGE=1 ${HSTRAT_CONTAINER} \
         python3 -m hstrat._auxiliary_lib._alifestd_collapse_unifurcations_polars \
         "\${tmp_pqt}" \
         --eager-write
@@ -662,7 +662,7 @@ echo "\${tmp_pqt}" \
 echo "assign contiguous IDs --------------------------------------- \${SECONDS}"
 echo "HSTRAT_CONTAINER ${HSTRAT_CONTAINER}"
 echo "\${tmp_pqt}" \
-    | singularity exec ${HSTRAT_CONTAINER} \
+    | singularity exec --env HSTRAT_LOG_MEMORY_USAGE=1 ${HSTRAT_CONTAINER} \
         python3 -m hstrat._auxiliary_lib._alifestd_assign_contiguous_ids_polars \
         "\${tmp_pqt}" \
         --eager-write
@@ -754,7 +754,7 @@ for phylo_path in "${BATCHDIR}"/._*/**/a=phylo-collapsed+ext=.pqt; do
     echo "=== validating \${phylo_path} with seed \${SEED} ===" >> "\${VALIDATION_LOG}"
     echo "HSTRAT_CONTAINER ${HSTRAT_CONTAINER}"
     rc=0
-    timeout 600 singularity exec ${HSTRAT_CONTAINER} \
+    timeout 600 singularity exec --env HSTRAT_LOG_MEMORY_USAGE=1 ${HSTRAT_CONTAINER} \
         python3 -m hstrat.dataframe.surface_validate_trie \
         "\${tmp_phylo}" \
         --max-num-checks 1000 \
@@ -852,7 +852,7 @@ tmp_pqt="/tmp/\${SLURM_JOB_ID:-nojid}_dsamp.pqt"
 echo "downsample -------------------------------------------------- \${SECONDS}"
 echo "HSTRAT_CONTAINER ${HSTRAT_CONTAINER}"
 echo "\${source_pqt}" \
-    | singularity exec --env POLARS_ENGINE_AFFINITY="streaming" \
+    | singularity exec --env HSTRAT_LOG_MEMORY_USAGE=1,POLARS_ENGINE_AFFINITY="streaming" \
         ${HSTRAT_CONTAINER} \
         python3 -m hstrat._auxiliary_lib.__DSAMP_MODULE__ \
         "\${tmp_pqt}" \
@@ -861,7 +861,7 @@ echo "\${source_pqt}" \
 echo "collapse unifurcations (post-downsample) -------------------- \${SECONDS}"
 echo "HSTRAT_CONTAINER ${HSTRAT_CONTAINER}"
 echo "\${tmp_pqt}" \
-    | singularity exec ${HSTRAT_CONTAINER} \
+    | singularity exec --env HSTRAT_LOG_MEMORY_USAGE=1 ${HSTRAT_CONTAINER} \
         python3 -m hstrat._auxiliary_lib._alifestd_collapse_unifurcations_polars \
         "\${tmp_pqt}" \
         --eager-write
@@ -869,7 +869,7 @@ echo "\${tmp_pqt}" \
 echo "assign contiguous IDs --------------------------------------- \${SECONDS}"
 echo "HSTRAT_CONTAINER ${HSTRAT_CONTAINER}"
 echo "\${tmp_pqt}" \
-    | singularity exec ${HSTRAT_CONTAINER} \
+    | singularity exec --env HSTRAT_LOG_MEMORY_USAGE=1 ${HSTRAT_CONTAINER} \
         python3 -m hstrat._auxiliary_lib._alifestd_assign_contiguous_ids_polars \
         "\${tmp_pqt}" \
         --eager-write
@@ -877,7 +877,7 @@ echo "\${tmp_pqt}" \
 echo "move and convert to newick ---------------------------------- \${SECONDS}"
 mv "\${tmp_pqt}" "\${JOBDIR}/__DSAMP_OUTNAME__.pqt"
 echo "HSTRAT_CONTAINER ${HSTRAT_CONTAINER}"
-singularity exec ${HSTRAT_CONTAINER} \
+singularity exec --env HSTRAT_LOG_MEMORY_USAGE=1 ${HSTRAT_CONTAINER} \
     python3 -m hstrat._auxiliary_lib._alifestd_as_newick_polars \
     -i "\${JOBDIR}/__DSAMP_OUTNAME__.pqt" \
     -o "\${JOBDIR}/__DSAMP_OUTNAME__.nwk"
