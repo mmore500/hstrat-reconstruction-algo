@@ -551,7 +551,8 @@ echo "/local/\$(basename "\${genomes_inpath}")" \
     | singularity exec ${HSTRAT_CONTAINER} \
         python3 -O -m hstrat.dataframe.surface_unpack_reconstruct \
         "\${warmup_outpath}" \
-        --tail 100
+        --tail 100 \
+        --filter "pl.col('data_hex').is_not_null()"
 
 echo "do reconstruction"
 echo "HSTRAT_CONTAINER ${HSTRAT_CONTAINER}"
@@ -566,6 +567,7 @@ stdbuf -e0 -i0 -o0 echo "/local/\$(basename "\${genomes_inpath}")" \
         --check-trie-invariant-after-collapse-unif \
         --shrink-dtypes --eager-write \
         --write-kwarg 'compression="lz4"' \
+        --filter "pl.col('data_hex').is_not_null()"
         2>&1 \
     | stdbuf -e0 -i0 -o0 tr '\r' '\n' \
     | stdbuf -e0 -i0 -o0 python3.8 -m pylib.script.tee_eval_context_durations \
