@@ -531,7 +531,7 @@ mv "\${MYLOCAL}/tailgenomes.pqt" "\${genomes_inpath}"
 export PYTHONUNBUFFERED=1
 export SINGULARITYENV_PYTHONUNBUFFERED=1
 export POLARS_MAX_THREADS=98
-export NUMBA_NUM_THREADS=24
+export NUMBA_NUM_THREADS=3
 export TQDM_MININTERVAL=5
 export HSTRAT_LOG_MEMORY_USAGE=1
 
@@ -557,9 +557,9 @@ stdbuf -e0 -i0 -o0 echo "/local/\$(basename "\${genomes_inpath}")" \
     | stdbuf -o0 singularity exec ${HSTRAT_CONTAINER} \
         python3 -O -m hstrat.dataframe.surface_unpack_reconstruct \
         "/local/\$(basename "\${phylo_outpath}")" \
-        --mp-pool-size 4 \
-        --collapse-unif-freq 20 \
-        --exploded-slice-size 5_000_000 \
+        --mp-pool-size 32 \
+        --collapse-unif-freq 50 \
+        --exploded-slice-size 2_000_000 \
         --shrink-dtypes --eager-write \
         --write-kwarg 'compression="lz4"' \
         --filter "pl.col('data_hex').is_not_null()" \
