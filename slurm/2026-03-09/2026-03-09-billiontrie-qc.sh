@@ -570,9 +570,9 @@ stdbuf -e0 -i0 -o0 echo "/local/\$(basename "\${genomes_inpath}")" \
         "/local/\$(basename "\${phylo_outpath}")" \
         --no-drop-dstream-metadata \
         --mp-pool-size 4 \
-        --collapse-unif-freq 7 \
-        --exploded-slice-size 5_000_000 \
-        --check-trie-invariant-freq 7 \
+        --collapse-unif-freq 140 \
+        --exploded-slice-size 1_000_000 \
+        --check-trie-invariant-freq 140 \
         --check-trie-invariant-after-collapse-unif \
         --shrink-dtypes --eager-write \
         --write-kwarg 'compression="lz4"' \
