@@ -22,15 +22,10 @@ Workflow to build a billion-tip trie with quality control checks.
 Options:
   --submit               Submit the full SLURM workflow (reconstruct +
                          downsample + cleanup).
-  --submit-collapse      Submit the collapse, downsample, validation,
-                         and cleanup jobs (reuses existing reconstruction
-                         results).
   --submit-downsample    Submit only the downsampling and cleanup jobs
-                         (reuses existing collapsed results).
+                         (reuses existing reconstruction results).
   --submit-cleanup       Submit only the cleanup/collate job (reuses
                          existing reconstruction and downsampled results).
-  --submit-validation    Submit only the validation jobs (reuses
-                         existing collapsed results).
   --archive-latest       Archive the latest workflow output to
                          \${HOME}/archive/ via rclone.
   --archive-latest-check Print recursive du -h of the archive directory.
@@ -62,17 +57,11 @@ for arg in "$@"; do
         --submit)
             ACTION="submit"
             ;;
-        --submit-collapse)
-            ACTION="submit-collapse"
-            ;;
         --submit-downsample)
             ACTION="submit-downsample"
             ;;
         --submit-cleanup)
             ACTION="submit-cleanup"
-            ;;
-        --submit-validation)
-            ACTION="submit-validation"
             ;;
         --archive-latest)
             ACTION="archive-latest"
@@ -337,7 +326,7 @@ if [ "${ACTION}" = "submit" ]; then
     source "${BATCHDIR_ENV}/bin/activate"
     python3.8 -m pip freeze
 else
-    # --submit-collapse, --submit-downsample, or --submit-cleanup: reuse existing BATCHDIR
+    # --submit-downsample or --submit-cleanup: reuse existing BATCHDIR
     LATEST_LINK="${HOME}/scratch/${JOBPROJECT}/${JOBNAME}/latest"
     if ! [ -e "${LATEST_LINK}" ]; then
         echo "No latest BATCHDIR found at ${LATEST_LINK}"
@@ -568,12 +557,9 @@ stdbuf -e0 -i0 -o0 echo "/local/\$(basename "\${genomes_inpath}")" \
     | stdbuf -o0 singularity exec ${HSTRAT_CONTAINER} \
         python3 -O -m hstrat.dataframe.surface_unpack_reconstruct \
         "/local/\$(basename "\${phylo_outpath}")" \
-        --no-drop-dstream-metadata \
         --mp-pool-size 4 \
-        --collapse-unif-freq 70 \
-        --exploded-slice-size 2_000_000 \
-        --check-trie-invariant-freq 70 \
-        --check-trie-invariant-after-collapse-unif \
+        --collapse-unif-freq 20 \
+        --exploded-slice-size 5_000_000 \
         --shrink-dtypes --eager-write \
         --write-kwarg 'compression="lz4"' \
         --filter "pl.col('data_hex').is_not_null()" \
@@ -620,211 +606,6 @@ if [ "${ACTION}" = "submit" ]; then
     fi
 fi
 
-echo "create sbatch file: collapse ================================= ${SECONDS}"
-
-SBATCH_FILE="$(mktemp)"
-echo "SBATCH_FILE ${SBATCH_FILE}"
-
-###############################################################################
-# COLLAPSE ------------------------------------------------------------------ #
-###############################################################################
-cat > "${SBATCH_FILE}" << EOF
-#!/bin/bash -login
-#SBATCH --ntasks=1
-#SBATCH --cpus-per-task=8
-#SBATCH --mem=500G
-#SBATCH --time=4:00:00
-#SBATCH --output="/mnt/home/%u/joblog/%A_%a"
-#SBATCH --mail-user=mawni4ah2o@pomail.net
-#SBATCH --mail-type=FAIL
-#SBATCH --array=0-1
-#SBATCH --account=ecode
-#SBATCH --requeue
-
-export CLEAR_JOBDIR=0
-
-${JOB_PREAMBLE}
-
-echo "collapse unifurcations and reassign IDs ---------------------- \${SECONDS}"
-
-phylo_path="${BATCHDIR}/._\${SLURM_ARRAY_TASK_ID:-0}/a=phylo+ext=.pqt"
-collapsed_path="${BATCHDIR}/._\${SLURM_ARRAY_TASK_ID:-0}/a=phylo-collapsed+ext=.pqt"
-echo "phylo_path \${phylo_path}"
-echo "collapsed_path \${collapsed_path}"
-
-echo "rclone \${phylo_path} to /tmp"
-tmp_pqt="/tmp/\${SLURM_JOB_ID:-nojid}_collapse.pqt"
-if ! singularity exec docker://rclone/rclone:1.73 \
-    rclone copyto "\${phylo_path}" "\${tmp_pqt}"; then
-    echo "WARNING: rclone copy to /tmp failed, falling back to symlink"
-    ln -sf "\$(realpath "\${phylo_path}")" "\${tmp_pqt}"
-fi
-ls -l "\${tmp_pqt}"
-du -h "\${tmp_pqt}"
-
-export HSTRAT_LOG_MEMORY_USAGE=1
-
-echo "collapse unifurcations -------------------------------------- \${SECONDS}"
-echo "HSTRAT_CONTAINER ${HSTRAT_CONTAINER}"
-echo "\${tmp_pqt}" \
-    | singularity exec ${HSTRAT_CONTAINER} \
-        python3 -m hstrat._auxiliary_lib._alifestd_collapse_unifurcations_polars \
-        "\${tmp_pqt}" \
-        --eager-write
-
-echo "assign contiguous IDs --------------------------------------- \${SECONDS}"
-echo "HSTRAT_CONTAINER ${HSTRAT_CONTAINER}"
-echo "\${tmp_pqt}" \
-    | singularity exec ${HSTRAT_CONTAINER} \
-        python3 -m hstrat._auxiliary_lib._alifestd_assign_contiguous_ids_polars \
-        "\${tmp_pqt}" \
-        --eager-write
-
-echo "copy collapsed result into place ----------------------------- \${SECONDS}"
-cp "\${tmp_pqt}" "\${collapsed_path}"
-ls -l "\${collapsed_path}"
-du -h "\${collapsed_path}"
-
-echo "cleanup"
-rm -f "\${tmp_pqt}"
-
-echo "finalization telemetry -------------------------------------- \${SECONDS}"
-ls -l \${JOBDIR}
-du -h \${JOBDIR}
-ln -sfn "\${JOBSCRIPT}" "\${HOME}/joblatest/jobscript.finished"
-ln -sfn "\${JOBLOG}" "\${HOME}/joblatest/joblog.finished"
-echo "SECONDS \${SECONDS}"
-echo '>>>complete<<<'
-
-EOF
-###############################################################################
-# --------------------------------------------------------------------------- #
-###############################################################################
-
-echo "submit collapse job ========================================== ${SECONDS}"
-COLLAPSE_JOBID=""
-if [ "${ACTION}" = "submit" ] || [ "${ACTION}" = "submit-collapse" ]; then
-    if command -v sbatch &>/dev/null; then
-        DEP_ON_WORK_COLLAPSE=""
-        if [ -n "${WORK_JOBID}" ]; then
-            DEP_ON_WORK_COLLAPSE="--dependency=afterok:${WORK_JOBID}"
-        fi
-        echo "COLLAPSE dependencies: ${DEP_ON_WORK_COLLAPSE:-none}"
-        COLLAPSE_JOBID=$(sbatch --parsable --job-name="${JOBNAME}" ${DEP_ON_WORK_COLLAPSE} "${SBATCH_FILE}")
-        COLLAPSE_JOBID="${COLLAPSE_JOBID%%_*}"  # strip array suffix
-        echo "Submitted COLLAPSE job: ${COLLAPSE_JOBID}"
-    else
-        bash "${SBATCH_FILE}"
-    fi
-fi
-
-echo "create sbatch file: validation ============================== ${SECONDS}"
-
-SBATCH_FILE="$(mktemp)"
-echo "SBATCH_FILE ${SBATCH_FILE}"
-
-###############################################################################
-# VALIDATION ---------------------------------------------------------------- #
-###############################################################################
-cat > "${SBATCH_FILE}" << EOF
-#!/bin/bash -login
-#SBATCH --ntasks=1
-#SBATCH --cpus-per-task=4
-#SBATCH --mem=500G
-#SBATCH --time=4:00:00
-#SBATCH --output="/mnt/home/%u/joblog/%A_%a"
-#SBATCH --mail-user=mawni4ah2o@pomail.net
-#SBATCH --mail-type=FAIL
-#SBATCH --array=0-9
-#SBATCH --account=ecode
-#SBATCH --requeue
-
-export CLEAR_JOBDIR=0
-export JOBSUBDIR=".validation"
-
-${JOB_PREAMBLE}
-
-SEED=\${SLURM_ARRAY_TASK_ID:-0}
-echo "SEED \${SEED}"
-VALIDATION_LOG="\${JOBDIR}/validation-seed-\$(printf '%02d' \${SEED}).log"
-validation_failed=0
-
-echo "validate trie ----------------------------------------------- \${SECONDS}"
-phylo_idx=0
-for phylo_path in "${BATCHDIR}"/._*/**/a=phylo-collapsed+ext=.pqt; do
-    echo "rclone \${phylo_path} to /tmp"
-    tmp_phylo="/tmp/\${SLURM_JOB_ID:-nojid}_validate_\${phylo_idx}.pqt"
-    phylo_idx=\$((phylo_idx + 1))
-    if ! singularity exec docker://rclone/rclone:1.73 \
-        rclone copyto "\${phylo_path}" "\${tmp_phylo}"; then
-        echo "WARNING: rclone copy to /tmp failed, falling back to symlink"
-        ln -sf "\$(realpath "\${phylo_path}")" "\${tmp_phylo}"
-    fi
-    ls -l "\${tmp_phylo}"
-    du -h "\${tmp_phylo}"
-
-    echo "validating \${phylo_path} (via \${tmp_phylo}) with seed \${SEED}"
-    echo "=== validating \${phylo_path} with seed \${SEED} ===" >> "\${VALIDATION_LOG}"
-    echo "HSTRAT_CONTAINER ${HSTRAT_CONTAINER}"
-    export HSTRAT_LOG_MEMORY_USAGE=1
-    rc=0
-    timeout 600 singularity exec ${HSTRAT_CONTAINER} \
-        python3 -m hstrat.dataframe.surface_validate_trie \
-        "\${tmp_phylo}" \
-        --max-num-checks 1000 \
-        --seed "\${SEED}" \
-        >> "\${VALIDATION_LOG}" 2>&1 \
-    || rc=\$?
-
-    if [ \${rc} -eq 0 ]; then
-        echo "validation passed for \${phylo_path}"
-    elif [ \${rc} -eq 124 ] || [ \${rc} -eq 137 ]; then
-        echo "validation timed out (exit code \${rc}, considered success)"
-    else
-        echo "validation FAILED for \${phylo_path} (exit code \${rc})"
-        validation_failed=1
-    fi
-
-    echo "cleanup tmp_phylo \${tmp_phylo}"
-    rm -f "\${tmp_phylo}"
-done
-
-if [ \${validation_failed} -ne 0 ]; then
-    cp "\${VALIDATION_LOG}" "${BATCHDIR_JOBRESULT}/failed-validation-seed-\$(printf '%02d' \${SEED}).log"
-    echo "Validation failed, log copied to result output"
-    exit 1
-fi
-
-echo "finalization telemetry -------------------------------------- \${SECONDS}"
-ls -l \${JOBDIR}
-du -h \${JOBDIR}
-ln -sfn "\${JOBSCRIPT}" "\${HOME}/joblatest/jobscript.finished"
-ln -sfn "\${JOBLOG}" "\${HOME}/joblatest/joblog.finished"
-echo "SECONDS \${SECONDS}"
-echo '>>>complete<<<'
-
-EOF
-###############################################################################
-# --------------------------------------------------------------------------- #
-###############################################################################
-
-echo "submit validation job ======================================== ${SECONDS}"
-VALIDATION_JOBID=""
-if [ "${ACTION}" = "submit" ] || [ "${ACTION}" = "submit-collapse" ] || [ "${ACTION}" = "submit-validation" ]; then
-    if command -v sbatch &>/dev/null; then
-        DEP_ON_COLLAPSE_VALIDATE=""
-        if [ -n "${COLLAPSE_JOBID}" ]; then
-            DEP_ON_COLLAPSE_VALIDATE="--dependency=afterok:${COLLAPSE_JOBID}"
-        fi
-        echo "VALIDATION dependencies: ${DEP_ON_COLLAPSE_VALIDATE:-none}"
-        VALIDATION_JOBID=$(sbatch --parsable --job-name="${JOBNAME}" ${DEP_ON_COLLAPSE_VALIDATE} "${SBATCH_FILE}")
-        VALIDATION_JOBID="${VALIDATION_JOBID%%_*}"  # strip array suffix
-        echo "Submitted VALIDATION job: ${VALIDATION_JOBID}"
-    else
-        bash "${SBATCH_FILE}"
-    fi
-fi
-
 echo "downsample sbatch template ================================== ${SECONDS}"
 # Template for downsampling jobs; placeholders:
 #   __DSAMP_LABEL__  - human-readable label for this task
@@ -835,7 +616,7 @@ DSAMP_TEMPLATE=$(cat << DSAMP_TMPLEOF
 #!/bin/bash -login
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=4
-#SBATCH --mem=500G
+#SBATCH --mem=350G
 #SBATCH --time=4:00:00
 #SBATCH --output="/mnt/home/%u/joblog/%A_%a"
 #SBATCH --mail-user=mawni4ah2o@pomail.net
@@ -851,7 +632,7 @@ ${JOB_PREAMBLE}
 
 echo "downsample: __DSAMP_LABEL__ -------------------------------- \${SECONDS}"
 
-phylo_path="${BATCHDIR}/._\${SLURM_ARRAY_TASK_ID:-0}/a=phylo-collapsed+ext=.pqt"
+phylo_path="${BATCHDIR}/._\${SLURM_ARRAY_TASK_ID:-0}/a=phylo+ext=.pqt"
 echo "phylo_path \${phylo_path}"
 
 echo "rclone \${phylo_path} to /tmp"
@@ -916,7 +697,7 @@ DSAMP_TMPLEOF
 
 echo "create and submit downsample jobs ============================ ${SECONDS}"
 DSAMP_JOBIDS=()
-if [ "${ACTION}" = "submit" ] || [ "${ACTION}" = "submit-collapse" ] || [ "${ACTION}" = "submit-downsample" ]; then
+if [ "${ACTION}" = "submit" ] || [ "${ACTION}" = "submit-downsample" ]; then
     # Build per-task arrays: label, output name, module, extra args
     dsamp_labels=()
     dsamp_outnames=()
@@ -953,10 +734,10 @@ if [ "${ACTION}" = "submit" ] || [ "${ACTION}" = "submit-collapse" ] || [ "${ACT
         done
     done
 
-    # Compute dependency argument for downsampling jobs (depend on collapse)
-    DEP_ON_COLLAPSE=""
-    if [ -n "${COLLAPSE_JOBID}" ]; then
-        DEP_ON_COLLAPSE="--dependency=afterok:${COLLAPSE_JOBID}"
+    # Compute dependency argument for downsampling jobs (depend on work)
+    DEP_ON_WORK=""
+    if [ -n "${WORK_JOBID}" ]; then
+        DEP_ON_WORK="--dependency=afterok:${WORK_JOBID}"
     fi
 
     # Generate and submit each downsampling job from the template
@@ -978,8 +759,8 @@ if [ "${ACTION}" = "submit" ] || [ "${ACTION}" = "submit-collapse" ] || [ "${ACT
         echo "SBATCH_FILE (${label}) ${sbatch_file}"
 
         if command -v sbatch &>/dev/null; then
-            echo "dsamp-${label} dependencies: ${DEP_ON_COLLAPSE:-none}"
-            JOBID=$(sbatch --parsable --job-name="${JOBNAME}" ${DEP_ON_COLLAPSE} "${sbatch_file}")
+            echo "dsamp-${label} dependencies: ${DEP_ON_WORK:-none}"
+            JOBID=$(sbatch --parsable --job-name="${JOBNAME}" ${DEP_ON_WORK} "${sbatch_file}")
             JOBID="${JOBID%%_*}"  # strip array suffix
             echo "Submitted dsamp-${label} -> ${JOBID}"
             DSAMP_JOBIDS+=("${JOBID}")
@@ -1067,7 +848,7 @@ EOF
 ###############################################################################
 
 echo "submit cleanup job =========================================== ${SECONDS}"
-if [ "${ACTION}" = "submit" ] || [ "${ACTION}" = "submit-collapse" ] || [ "${ACTION}" = "submit-downsample" ]; then
+if [ "${ACTION}" = "submit" ] || [ "${ACTION}" = "submit-downsample" ]; then
     if command -v sbatch &>/dev/null; then
         if [ ${#DSAMP_JOBIDS[@]} -gt 0 ]; then
             DEP_ON_DSAMP="--dependency=afterok:$(IFS=:; echo "${DSAMP_JOBIDS[*]}")"
