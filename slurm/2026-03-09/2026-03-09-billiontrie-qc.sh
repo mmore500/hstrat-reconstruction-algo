@@ -7,7 +7,7 @@ cd "$(dirname "$0")"
 ################################################################################
 # Container configuration
 ################################################################################
-HSTRAT_CONTAINER="docker://ghcr.io/mmore500/hstrat:v1.23.5"
+HSTRAT_CONTAINER="docker://ghcr.io/mmore500/hstrat:v1.23.6"
 PHYLOFRAME_CONTAINER="docker://ghcr.io/mmore500/phyloframe:v0.1.0"
 
 ################################################################################
@@ -570,9 +570,9 @@ stdbuf -e0 -i0 -o0 echo "/local/\$(basename "\${genomes_inpath}")" \
         "/local/\$(basename "\${phylo_outpath}")" \
         --no-drop-dstream-metadata \
         --mp-pool-size 4 \
-        --collapse-unif-freq 140 \
-        --exploded-slice-size 1_000_000 \
-        --check-trie-invariant-freq 140 \
+        --collapse-unif-freq 70 \
+        --exploded-slice-size 2_000_000 \
+        --check-trie-invariant-freq 70 \
         --check-trie-invariant-after-collapse-unif \
         --shrink-dtypes --eager-write \
         --write-kwarg 'compression="lz4"' \
