@@ -8,7 +8,7 @@ cd "$(dirname "$0")"
 # Container configuration
 ################################################################################
 HSTRAT_CONTAINER="docker://ghcr.io/mmore500/hstrat:v1.23.6"
-PHYLOFRAME_CONTAINER="docker://ghcr.io/mmore500/phyloframe:v0.1.0"
+PHYLOFRAME_CONTAINER="docker://ghcr.io/mmore500/phyloframe:v0.1.1"
 
 ################################################################################
 # CLI flag handling
