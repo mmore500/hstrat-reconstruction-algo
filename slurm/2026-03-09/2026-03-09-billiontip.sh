@@ -7,7 +7,7 @@ cd "$(dirname "$0")"
 ################################################################################
 # Container configuration
 ################################################################################
-HSTRAT_CONTAINER="docker://ghcr.io/mmore500/hstrat:v1.23.6"
+HSTRAT_CONTAINER="docker://ghcr.io/mmore500/hstrat:v1.23.8"
 PHYLOFRAME_CONTAINER="docker://ghcr.io/mmore500/phyloframe:v0.1.1"
 
 ################################################################################
@@ -733,16 +733,6 @@ if [ "${ACTION}" = "submit" ] || [ "${ACTION}" = "submit-downsample" ]; then
             dsamp_modules+=("_alifestd_downsample_tips_lineage_stratified_polars")
             dsamp_args+=("--criterion-delta \"dstream_rank\" --criterion-target \"layer\" --criterion-stratify \"layer\" --n-tips-per-stratum ${ntps} --seed ${seed}")
         done
-    done
-
-    # 5) clade asexual, various tip counts
-    for ntips_k in 0.1k 0.5k 1.0k 1.5k 2k 2.5k 3k 3.5k 4k 4.5k; do
-        # convert k-label to numeric value for -n argument
-        ntips_num=$(echo "${ntips_k}" | sed 's/k//' | awk '{printf "%d", $1 * 1000}')
-        dsamp_labels+=("clade${ntips_k}")
-        dsamp_outnames+=("a=phylo+dsamp=clade${ntips_k}+ext=")
-        dsamp_modules+=("_alifestd_downsample_tips_clade_asexual")
-        dsamp_args+=("-n ${ntips_num} --seed 1")
     done
 
     # Compute dependency argument for downsampling jobs (depend on work)
