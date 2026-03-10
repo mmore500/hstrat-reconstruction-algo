@@ -735,6 +735,15 @@ if [ "${ACTION}" = "submit" ] || [ "${ACTION}" = "submit-downsample" ]; then
         done
     done
 
+    # 5) clade asexual, various tip counts
+    for ntips in 100 500 1_000 1_500 2_000 2_500 3_000 3_500 4_000 4_500; do
+        ntips_label="${ntips//_/}"  # strip underscores for label
+        dsamp_labels+=("clade${ntips_label}")
+        dsamp_outnames+=("a=phylo+dsamp=clade${ntips_label}+ext=")
+        dsamp_modules+=("_alifestd_downsample_tips_clade_asexual")
+        dsamp_args+=("-n ${ntips} --seed 1")
+    done
+
     # Compute dependency argument for downsampling jobs (depend on work)
     DEP_ON_WORK=""
     if [ -n "${WORK_JOBID}" ]; then
