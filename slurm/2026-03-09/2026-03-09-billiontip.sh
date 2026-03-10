@@ -559,7 +559,6 @@ stdbuf -e0 -i0 -o0 echo "/local/\$(basename "\${genomes_inpath}")" \
         python3 -O -m hstrat.dataframe.surface_unpack_reconstruct \
         "/local/\$(basename "\${phylo_outpath}")" \
         --mp-pool-size 32 \
-        --collapse-unif-freq 50 \
         --exploded-slice-size 2_000_000 \
         --shrink-dtypes --eager-write \
         --write-kwarg 'compression="lz4"' \
@@ -655,14 +654,6 @@ echo "\${source_pqt}" \
         python3 -m phyloframe.legacy.__DSAMP_MODULE__ \
         "\${tmp_pqt}" \
         __DSAMP_ARGS__ --eager-write
-
-echo "collapse unifurcations (post-downsample) -------------------- \${SECONDS}"
-echo "PHYLOFRAME_CONTAINER ${PHYLOFRAME_CONTAINER}"
-echo "\${tmp_pqt}" \
-    | singularity exec ${PHYLOFRAME_CONTAINER} \
-        python3 -m phyloframe.legacy._alifestd_collapse_unifurcations_polars \
-        "\${tmp_pqt}" \
-        --eager-write
 
 echo "assign contiguous IDs --------------------------------------- \${SECONDS}"
 echo "PHYLOFRAME_CONTAINER ${PHYLOFRAME_CONTAINER}"
