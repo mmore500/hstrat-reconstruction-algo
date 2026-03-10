@@ -736,12 +736,13 @@ if [ "${ACTION}" = "submit" ] || [ "${ACTION}" = "submit-downsample" ]; then
     done
 
     # 5) clade asexual, various tip counts
-    for ntips in 100 500 1_000 1_500 2_000 2_500 3_000 3_500 4_000 4_500; do
-        ntips_label="${ntips//_/}"  # strip underscores for label
-        dsamp_labels+=("clade${ntips_label}")
-        dsamp_outnames+=("a=phylo+dsamp=clade${ntips_label}+ext=")
+    for ntips_k in 0.1k 0.5k 1.0k 1.5k 2k 2.5k 3k 3.5k 4k 4.5k; do
+        # convert k-label to numeric value for -n argument
+        ntips_num=$(echo "${ntips_k}" | sed 's/k//' | awk '{printf "%d", $1 * 1000}')
+        dsamp_labels+=("clade${ntips_k}")
+        dsamp_outnames+=("a=phylo+dsamp=clade${ntips_k}+ext=")
         dsamp_modules+=("_alifestd_downsample_tips_clade_asexual")
-        dsamp_args+=("-n ${ntips} --seed 1")
+        dsamp_args+=("-n ${ntips_num} --seed 1")
     done
 
     # Compute dependency argument for downsampling jobs (depend on work)
