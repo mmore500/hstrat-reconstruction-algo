@@ -552,9 +552,9 @@ echo "/local/\$(basename "\${genomes_inpath}")" \
         --tail 100 \
         --filter "pl.col('data_hex').is_not_null()"
 
-# --trie-postprocessor "hstrat.AssignOriginTimeNodeRankTriePostprocessor(t0='dstream_S')" \
+# --trie-postprocessor "hstrat.AssignOriginTimeNodeRankTriePostprocessor(t0='dstream_S')"
 # pass no-delete-trunk to prevent OOM
-# --no-delete-trunk \
+# --no-delete-trunk
 
 echo "do reconstruction"
 echo "HSTRAT_CONTAINER ${HSTRAT_CONTAINER}"
