@@ -534,6 +534,7 @@ export POLARS_MAX_THREADS=98
 export NUMBA_NUM_THREADS=12
 export TQDM_MININTERVAL=5
 export HSTRAT_LOG_MEMORY_USAGE=1
+export PHYLOFRAME_LOG_MEMORY_USAGE=1
 export SINGULARITYENV_DOWNSTREAM_PARITY_MAX_CONCAT_BYTES=64_000_000
 
 echo "test container ---------------------------------------------- \${SECONDS}"
@@ -653,6 +654,7 @@ tmp_pqt="/tmp/\${SLURM_JOB_ID:-nojid}_dsamp.pqt"
 
 echo "downsample -------------------------------------------------- \${SECONDS}"
 export HSTRAT_LOG_MEMORY_USAGE=1
+export PHYLOFRAME_LOG_MEMORY_USAGE=1
 
 echo "PHYLOFRAME_CONTAINER ${PHYLOFRAME_CONTAINER}"
 echo "\${source_pqt}" \
