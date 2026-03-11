@@ -531,10 +531,10 @@ mv "\${MYLOCAL}/tailgenomes.pqt" "\${genomes_inpath}"
 export PYTHONUNBUFFERED=1
 export SINGULARITYENV_PYTHONUNBUFFERED=1
 export POLARS_MAX_THREADS=98
-export NUMBA_NUM_THREADS=3
+export NUMBA_NUM_THREADS=6
 export TQDM_MININTERVAL=5
 export HSTRAT_LOG_MEMORY_USAGE=1
-export SINGULARITYENV_DOWNSTREAM_PARITY_MAX_CONCAT_BYTES=512_000_000
+export SINGULARITYENV_DOWNSTREAM_PARITY_MAX_CONCAT_BYTES=128_000_000
 
 echo "test container ---------------------------------------------- \${SECONDS}"
 echo "HSTRAT_CONTAINER ${HSTRAT_CONTAINER}"
@@ -560,7 +560,7 @@ stdbuf -e0 -i0 -o0 echo "/local/\$(basename "\${genomes_inpath}")" \
         "/local/\$(basename "\${phylo_outpath}")" \
         --trie-postprocessor "hstrat.AssignOriginTimeNodeRankTriePostprocessor(t0='dstream_S')" \
         --shuffle-over-same-T-seed 1 \
-        --mp-pool-size 32 \
+        --mp-pool-size 16 \
         --no-drop-dstream-metadata \
         --collapse-unif-freq 50 \
         --exploded-slice-size 2_000_000 \
