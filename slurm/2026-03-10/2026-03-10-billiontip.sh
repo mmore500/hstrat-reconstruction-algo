@@ -552,13 +552,16 @@ echo "/local/\$(basename "\${genomes_inpath}")" \
         --tail 100 \
         --filter "pl.col('data_hex').is_not_null()"
 
+# --trie-postprocessor "hstrat.AssignOriginTimeNodeRankTriePostprocessor(t0='dstream_S')" \
+# pass no-delete-trunk to prevent OOM
+# --no-delete-trunk \
+
 echo "do reconstruction"
 echo "HSTRAT_CONTAINER ${HSTRAT_CONTAINER}"
 stdbuf -e0 -i0 -o0 echo "/local/\$(basename "\${genomes_inpath}")" \
     | stdbuf -o0 singularity exec ${HSTRAT_CONTAINER} \
-        python3 -O -m hstrat.dataframe.surface_build_tree \
+        python3 -O -m hstrat.dataframe.surface_unpack_reconstruct \
         "/local/\$(basename "\${phylo_outpath}")" \
-        --trie-postprocessor "hstrat.AssignOriginTimeNodeRankTriePostprocessor(t0='dstream_S')" \
         --shuffle-over-same-T-seed 1 \
         --mp-pool-size 8 \
         --no-drop-dstream-metadata \
