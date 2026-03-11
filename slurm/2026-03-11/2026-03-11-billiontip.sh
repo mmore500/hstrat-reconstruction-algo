@@ -621,7 +621,7 @@ DSAMP_TEMPLATE=$(cat << DSAMP_TMPLEOF
 #!/bin/bash -login
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=4
-#SBATCH --mem=350G
+#SBATCH --mem=400G
 #SBATCH --time=4:00:00
 #SBATCH --output="/mnt/home/%u/joblog/%A_%a"
 #SBATCH --mail-user=mawni4ah2o@pomail.net
