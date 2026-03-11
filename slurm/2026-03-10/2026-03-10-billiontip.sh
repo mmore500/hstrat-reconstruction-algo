@@ -7,7 +7,7 @@ cd "$(dirname "$0")"
 ################################################################################
 # Container configuration
 ################################################################################
-HSTRAT_CONTAINER="docker://ghcr.io/mmore500/hstrat:v1.24.0"
+HSTRAT_CONTAINER="docker://ghcr.io/mmore500/hstrat:v1.24.1"
 PHYLOFRAME_CONTAINER="docker://ghcr.io/mmore500/phyloframe:v0.1.1"
 
 ################################################################################
@@ -561,6 +561,7 @@ stdbuf -e0 -i0 -o0 echo "/local/\$(basename "\${genomes_inpath}")" \
         --trie-postprocessor "hstrat.AssignOriginTimeNodeRankTriePostprocessor(t0='dstream_S')" \
         --shuffle-over-same-T-seed 1 \
         --mp-pool-size 32 \
+        --no-drop-dstream-metadata \
         --collapse-unif-freq 50 \
         --exploded-slice-size 2_000_000 \
         --shrink-dtypes --eager-write \
