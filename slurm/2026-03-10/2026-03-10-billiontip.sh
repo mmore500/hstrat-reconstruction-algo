@@ -747,7 +747,7 @@ if [ "${ACTION}" = "submit" ] || [ "${ACTION}" = "submit-downsample" ]; then
         ntips_num=$(echo "${ntips_k}" | sed 's/k//' | awk '{printf "%d", $1 * 1000}')
         dsamp_labels+=("clade${ntips_k}")
         dsamp_outnames+=("a=phylo+dsamp=clade${ntips_k}+ext=")
-        dsamp_modules+=("_alifestd_downsample_tips_clade_asexual")
+        dsamp_modules+=("_alifestd_downsample_tips_clade_polars")
         dsamp_args+=("-n ${ntips_num} --seed 1")
     done
 
