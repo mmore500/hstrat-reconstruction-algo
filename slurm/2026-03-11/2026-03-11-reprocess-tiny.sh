@@ -725,18 +725,18 @@ if [ "${ACTION}" = "submit" ] || [ "${ACTION}" = "submit-downsample" ]; then
     # 3) lineage 10k tips, seeds 1-5
     for seed in 1 2 3 4 5; do
         dsamp_labels+=("lineage10k-s${seed}")
-        dsamp_outnames+=("a=phylo+cdelta=dstream_rank+ctarget=layer+dsamp=lineage10k+seed=${seed}+ext=")
+        dsamp_outnames+=("a=phylo+cdelta=hstrat_rank+ctarget=layer+dsamp=lineage10k+seed=${seed}+ext=")
         dsamp_modules+=("_alifestd_downsample_tips_lineage_polars")
-        dsamp_args+=("-n 10_000 --criterion-delta \"dstream_rank\" --criterion-target \"layer\" --seed ${seed}")
+        dsamp_args+=("-n 10_000 --criterion-delta \"hstrat_rank\" --criterion-target \"layer\" --seed ${seed}")
     done
 
     # 4) lineage stratified, seeds 1-5, n_tips_per_stratum 1 and 4
     for seed in 1 2 3 4 5; do
         for ntps in 1 4; do
             dsamp_labels+=("lineage-stratified-s${seed}-ntps${ntps}")
-            dsamp_outnames+=("a=phylo+cdelta=dstream_rank+cstratify=layer+ctarget=layer+dsamp=lineage-stratified+ntps=${ntps}+seed=${seed}+ext=")
+            dsamp_outnames+=("a=phylo+cdelta=hstrat_rank+cstratify=layer+ctarget=layer+dsamp=lineage-stratified+ntps=${ntps}+seed=${seed}+ext=")
             dsamp_modules+=("_alifestd_downsample_tips_lineage_stratified_polars")
-            dsamp_args+=("--criterion-delta \"dstream_rank\" --criterion-target \"layer\" --criterion-stratify \"layer\" --n-tips-per-stratum ${ntps} --seed ${seed}")
+            dsamp_args+=("--criterion-delta \"hstrat_rank\" --criterion-target \"layer\" --criterion-stratify \"layer\" --n-tips-per-stratum ${ntps} --seed ${seed}")
         done
     done
 
