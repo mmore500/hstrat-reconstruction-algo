@@ -659,7 +659,8 @@ echo "\${source_pqt}" \
         ${PHYLOFRAME_CONTAINER} \
         python3 -m phyloframe.legacy.__DSAMP_MODULE__ \
         "\${tmp_pqt}" \
-        __DSAMP_ARGS__ --eager-write
+        __DSAMP_ARGS__ --eager-write \
+        --with-column 'pl.col("id").alias("original_id")'
 
 echo "collapse unifurcations (post-downsample) -------------------- \${SECONDS}"
 echo "PHYLOFRAME_CONTAINER ${PHYLOFRAME_CONTAINER}"
