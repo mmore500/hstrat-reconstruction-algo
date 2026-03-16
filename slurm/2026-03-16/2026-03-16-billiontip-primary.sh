@@ -661,6 +661,11 @@ echo "\${source_pqt}" \
         "\${tmp_pqt}" \
         __DSAMP_ARGS__ --eager-write
 
+echo "add original_id column -------------------------------------- \${SECONDS}"
+echo "\${tmp_pqt}" \
+    | python3.8 -m joinem "\${tmp_pqt}" \
+        --with-column 'pl.col("id").alias("original_id")'
+
 echo "collapse unifurcations (post-downsample) -------------------- \${SECONDS}"
 echo "PHYLOFRAME_CONTAINER ${PHYLOFRAME_CONTAINER}"
 echo "\${tmp_pqt}" \
